@@ -23,11 +23,24 @@
     ::-webkit-scrollbar-thumb { background: #1a3a5c; border-radius: 3px; }
     input, select, button { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; }
     
+    /* নেভিগেশন ও অ্যাপ লেআউট স্টাইল */
+    nav { background: #1a3a5c; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    nav .brand { font-size: 18px; font-weight: 700; }
+    nav .menu { display: flex; gap: 8px; flex-wrap: wrap; }
+    nav .menu button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    nav .menu button.active { background: #00d4aa; color: #1a3a5c; }
+    .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+    
+    /* টোস্ট নোটিফিকেশন স্টাইল */
+    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: 600; font-size: 14px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
     /* প্রিন্ট করার জন্য বিশেষ সিএসএস (CSS) */
     @media print {
       body { background: white; color: black; }
-      #root > div > nav, .no-print { display: none !important; }
+      #root > div > nav, .no-print, button { display: none !important; }
       .print-area { display: block !important; padding: 20px; }
+      .card-box { box-shadow: none !important; border: none !important; padding: 0 !important; }
     }
     .print-area { display: none; }
   </style>
@@ -37,7 +50,7 @@
 
   <script type="text/babel">
     const { useState, useMemo, useEffect } = React;
-    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } = Recharts;
+    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts;
 
     // ══════════════════════════════════════════════════
     // লোকাল স্টোরেজ হেল্পারস
@@ -102,10 +115,10 @@
     ];
 
     // ══════════════════════════════════════════════════
-    // শেয়ারড UI কম্পোনেন্টসমূহ
+    // শেয়ারড UI কম্পোনেন্টসমূহ
     // ══════════════════════════════════════════════════
     const Card = ({ children, style = {} }) => (
-      <div style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16, ...style }}>{children}</div>
+      <div className="card-box" style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16, ...style }}>{children}</div>
     );
 
     const Btn = ({ children, onClick, color = "#1a5276", small = false, outline = false, disabled = false }) => (
@@ -121,7 +134,7 @@
     );
 
     const Input = ({ label, value, onChange, type = "text", list, required, placeholder }) => (
-      <div style={{ marginBottom: 12 }} className="no-print">
+      <div style={{ marginBottom: 12, width: "100%" }} className="no-print">
         {label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label}{required && <span style={{ color: "red" }}> *</span>}</div>}
         <input type={type} value={value} onChange={e => onChange(e.target.value)} list={list} placeholder={placeholder}
           style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, boxSizing: "border-box", outline: "none" }} />
@@ -129,7 +142,7 @@
     );
 
     const Select = ({ label, value, onChange, options }) => (
-      <div style={{ marginBottom: 12 }} className="no-print">
+      <div style={{ marginBottom: 12, width: "100%" }} className="no-print">
         {label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label}</div>}
         <select value={value} onChange={e => onChange(e.target.value)}
           style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, background: "#fff", outline: "none" }}>
@@ -164,9 +177,7 @@
     // ══════════════════════════════════════════════════
     // ড্যাশবোর্ড স্ক্রিন (HOME)
     // ══════════════════════════════════════════════════
-    const PIE_COLORS = ["#00d4aa","#54a0ff","#ff9f43","#ff6b6b"];
-
-    function HomePage({ totalSales, totalPurchase, totalCustDue, totalSuppDue, stockMap, sales, purchases }) {
+    function HomePage({ totalSales, totalPurchase, totalCustDue, totalSuppDue, sales }) {
       const productSales = {};
       sales.forEach(s => { productSales[s.product] = (productSales[s.product] || 0) + Number(s.qty || 0); });
       const topProducts = Object.entries(productSales).sort(([,a],[,b]) => b-a).slice(0,5)
@@ -175,17 +186,9 @@
       const totalProfit = sales.reduce((s,r) => s + Number(r.profit || 0), 0);
       const recentSales = [...sales].reverse().slice(0,5);
 
-      const pieData = [
-        { name: "বিক্রয়", value: totalSales },
-        { name: "ক্রয়", value: totalPurchase },
-        { name: "কাস্টমার বাকি", value: totalCustDue },
-        { name: "সাপ্লায়ার বাকি", value: totalSuppDue }
-      ].filter(d => d.value > 0);
-
       return (
-        <div style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #0d1b2a 100%)", minHeight: "100vh", margin: -20, padding: 20 }}>
-          {/* কার্ডস গ্রিড */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginBottom: 20 }}>
+        <div style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #0d1b2a 100%)", minHeight: "90vh", margin: -20, padding: 20, marginTop: 0 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 20 }}>
             {[
               { label: "মোট বিক্রয়", value: totalSales, color: "#00d4aa", bg: "#00d4aa15", icon: "💰" },
               { label: "মোট ক্রয়", value: totalPurchase, color: "#54a0ff", bg: "#54a0ff15", icon: "🛒" },
@@ -202,7 +205,6 @@
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
-            {/* টপ সেলস চার্ট */}
             <div style={{ background: "#0f172a", borderRadius: 12, padding: 16, border: "1px solid #1e293b" }}>
               <h4 style={{ color: "#fff", marginBottom: 12, fontSize: 14 }}>🏆 সর্বাধিক বিক্রিত পণ্য</h4>
               {topProducts.length === 0 ? <p style={{ color: "#475569", fontSize: 12 }}>কোনো ডেটা নেই</p> : (
@@ -216,10 +218,9 @@
               )}
             </div>
 
-            {/* সাম্প্রতিক বিক্রয় তালিকা */}
             <div style={{ background: "#0f172a", borderRadius: 12, padding: 16, border: "1px solid #1e293b" }}>
               <h4 style={{ color: "#fff", marginBottom: 12, fontSize: 14 }}>🕐 সাম্প্রতিক ৫টি বিক্রয়</h4>
-              {recentSales.map((s,i) => (
+              {recentSales.length === 0 ? <p style={{ color: "#475569", fontSize: 12 }}>কোনো ডেটা নেই</p> : recentSales.map((s,i) => (
                 <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #1e293b", fontSize: 12 }}>
                   <div>
                     <div style={{ color: "#e2e8f0", fontWeight: 600 }}>{s.customer}</div>
@@ -235,7 +236,7 @@
     }
 
     // ══════════════════════════════════════════════════
-    // ক্রয় পেজ (PURCHASE)
+    // ক্রয় পেজ (PURCHASE)
     // ══════════════════════════════════════════════════
     function PurchasePage({ purchases, setPurchases, suppliers, products, showToast }) {
       const [header, setHeader] = useState({ date: today(), supplier: "", memo: "", paid: "", bank: "হাতে নগদ" });
@@ -267,9 +268,9 @@
 
         const memoId = Date.now();
         const entries = validLines.map((l, i) => ({
-          ...header, product: l.product, qty: l.qty, price: l.price,
-          discount: l.discount, total: lineTotal(l), due: i === 0 ? due : 0,
-          memoId, id: memoId + i
+          ...header, product: l.product, qty: Number(l.qty), price: Number(l.price),
+          discount: Number(l.discount || 0), total: lineTotal(l), due: i === 0 ? due : 0,
+          memoId, id: memoId + i + Math.random()
         }));
 
         setPurchases(p => [...p, ...entries]);
@@ -278,10 +279,9 @@
         showToast("✅ ক্রয় রেকর্ড সফলভাবে সংরক্ষিত!");
       };
 
-      // মেমো গ্রুপিং
       const grouped = [];
       const seen = new Set();
-      [...purchases].reverse().forEach(p => {
+      ([...purchases]).reverse().forEach(p => {
         const key = p.memoId || p.id;
         if (!seen.has(key)) {
           seen.add(key);
@@ -303,7 +303,7 @@
           
           <Card>
             <h3 style={{ margin: "0 0 12px", color: "#1a5276", fontSize: 15 }}>🛒 নতুন ক্রয় এন্ট্রি</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, background: "#eaf0fb", padding: 12, borderRadius: 8, marginBottom: 12 }}>
+            <div style={{ display: "flex", gap: 10, background: "#eaf0fb", padding: 12, borderRadius: 8, marginBottom: 12, flexWrap: "wrap" }}>
               <Input label="তারিখ" type="date" value={header.date} onChange={v => setH("date", v)} />
               <Input label="সাপ্লায়ার *" value={header.supplier} onChange={v => setH("supplier", v)} list="dl_sup" placeholder="নাম লিখুন" />
               <Input label="মেমো নং" value={header.memo} onChange={v => setH("memo", v)} placeholder="মেমো নম্বর" />
@@ -311,33 +311,31 @@
               <Select label="মাধ্যম" value={header.bank} onChange={v => setH("bank", v)} options={["হাতে নগদ", "bKash", "Nagad", "Bank"]} />
             </div>
 
-            {/* প্রোডাক্ট গ্রিড টেবিল */}
             <div style={{ border: "1px solid #dde1e7", borderRadius: 8, overflow: "hidden", marginBottom: 12 }}>
               <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr 1fr 1fr 40px", padding: 8, background: "#1a3a5c", color: "#fff", fontSize: 12, fontWeight: 600 }}>
-                <div>পণ্যের নাম</div><div>পরিমাণ</div><div>ক্রয়মূল্য</div><div>ছাড়</div><div></div>
+                <div>পণ্যের নাম</div><div>পরিমাণ</div><div>ক্রয়মূল্য</div><div>ছাড়</div><div></div>
               </div>
               {lines.map((l, idx) => (
                 <div key={l._id} style={{ display: "grid", gridTemplateColumns: "3fr 1fr 1fr 1fr 40px", padding: 6, gap: 6, alignItems: "center", borderBottom: "1px solid #eee" }}>
-                  <input value={l.product} onChange={e => setLine(idx, "product", e.target.value)} list="dl_pro" placeholder="পণ্য বাছুন" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12 }} />
-                  <input type="number" value={l.qty} onChange={e => setLine(idx, "qty", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12 }} />
-                  <input type="number" value={l.price} onChange={e => setLine(idx, "price", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12 }} />
-                  <input type="number" value={l.discount} onChange={e => setLine(idx, "discount", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12 }} />
+                  <input value={l.product} onChange={e => setLine(idx, "product", e.target.value)} list="dl_pro" placeholder="পণ্য বাছুন" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12, width:"100%" }} />
+                  <input type="number" value={l.qty} onChange={e => setLine(idx, "qty", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12, width:"100%" }} />
+                  <input type="number" value={l.price} onChange={e => setLine(idx, "price", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12, width:"100%" }} />
+                  <input type="number" value={l.discount} onChange={e => setLine(idx, "discount", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12, width:"100%" }} />
                   <button onClick={() => removeLine(idx)} disabled={lines.length===1} style={{ color: "red", background: "none", border: "none", fontSize: 16, cursor: "pointer" }}>🗑️</button>
                 </div>
               ))}
             </div>
 
-            <div style={{ display: "flex", justifyValue: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, background: "#f8fafc", padding: 10, borderRadius: 6 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, background: "#f8fafc", padding: 10, borderRadius: 6 }}>
               <div style={{ fontSize: 13 }}>সর্বমোট: <strong>৳{fmtNum(grandTotal)}</strong> | বাকি: <strong style={{ color: due>0?"red":"green" }}>৳{fmtNum(due)}</strong></div>
               <div style={{ marginLeft: "auto" }}><Btn onClick={submit}>💾 ক্রয় সেভ করুন</Btn></div>
             </div>
           </Card>
 
-          {/* ক্রয়ের তালিকা */}
           <Card>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, alignItems: "center" }}>
               <h4 style={{ fontSize: 14 }}>📋 ক্রয়ের ইতিহাস</h4>
-              <input placeholder="🔍 খুঁজুন..." value={search} onChange={e => setSearch(e.target.value)} style={{ padding: "4px 8px", borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }} />
+              <input placeholder="🔍 খুঁজুন..." value={search} onChange={e => setSearch(e.target.value)} style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }} />
             </div>
             {filtered.map(g => (
               <div key={g.key} style={{ border: "1px solid #e2e8f0", borderRadius: 8, marginBottom: 10, overflow: "hidden" }}>
@@ -346,7 +344,7 @@
                   <span style={{ color: "#1a5276" }}>মোট বিল: ৳{fmtNum(g.total)} | বাকি: ৳{fmtNum(g.due)}</span>
                 </div>
                 {g.items.map((it, i) => (
-                  <div key={i} style={{ padding: "6px 12px", fontSize: 12, borderBottom: "1px solid #f1f5f9", display: "flex", justifyValue: "space-between" }}>
+                  <div key={i} style={{ padding: "6px 12px", fontSize: 12, borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between" }}>
                     <span>📦 {it.product} (×{it.qty} পিস)</span>
                     <span style={{ marginLeft: "auto" }}>৳{fmtNum(it.total)}</span>
                   </div>
@@ -359,7 +357,7 @@
     }
 
     // ══════════════════════════════════════════════════
-    // বিক্রয় পেজ ও ইনভয়েস জেনারেটর (SALES)
+    // বিক্রয় পেজ ও ইনভয়েস জেনারেটর (SALES)
     // ══════════════════════════════════════════════════
     function SalesPage({ sales, setSales, customers, products, purchases, stockMap, showToast, onPrintMemo }) {
       const [header, setHeader] = useState({ date: today(), customer: "", billNo: "", paid: "", bank: "হাতে নগদ" });
@@ -394,7 +392,6 @@
         const validLines = lines.filter(l => l.product && l.qty && l.price);
         if (validLines.length === 0) return showToast("কমপক্ষে একটি পণ্য যোগ করুন", "err");
 
-        // স্টক ভ্যালিডেশন চেক
         for (let l of validLines) {
           const currentStock = stockMap[l.product] || 0;
           if (Number(l.qty) > currentStock) {
@@ -408,9 +405,9 @@
           const total = lineTotal(l);
           const profit = total - (cp * Number(l.qty || 0));
           return {
-            ...header, product: l.product, qty: l.qty, price: l.price,
-            discount: l.discount, total, profit, due: i === 0 ? due : 0,
-            billId, id: billId + i
+            ...header, product: l.product, qty: Number(l.qty), price: Number(l.price),
+            discount: Number(l.discount || 0), total, profit, due: i === 0 ? due : 0,
+            billId, id: billId + i + Math.random()
           };
         });
 
@@ -420,10 +417,9 @@
         showToast("✅ বিক্রয় সফলভাবে সম্পন্ন হয়েছে!");
       };
 
-      // সেলস মেমো গ্রুপিং (সংশোধিত অংশ)
       const grouped = [];
       const seen = new Set();
-      [...sales].reverse().forEach(s => {
+      ([...sales]).reverse().forEach(s => {
         const key = s.billId || s.id;
         if (!seen.has(key)) {
           seen.add(key);
@@ -446,7 +442,7 @@
 
           <Card>
             <h3 style={{ margin: "0 0 12px", color: "#2e7d32", fontSize: 15 }}>💰 নতুন বিক্রয় (মেমো তৈরি)</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, background: "#e8f5e9", padding: 12, borderRadius: 8, marginBottom: 12 }}>
+            <div style={{ display: "flex", gap: 10, background: "#e8f5e9", padding: 12, borderRadius: 8, marginBottom: 12, flexWrap:"wrap" }}>
               <Input label="তারিখ" type="date" value={header.date} onChange={v => setH("date", v)} />
               <Input label="কাস্টমার নাম *" value={header.customer} onChange={v => setH("customer", v)} list="dl_cus" placeholder="নাম লিখুন" />
               <Input label="চালান / বিল নং" value={header.billNo} onChange={v => setH("billNo", v)} placeholder="বিল নম্বর" />
@@ -456,30 +452,29 @@
 
             <div style={{ border: "1px solid #dde1e7", borderRadius: 8, overflow: "hidden", marginBottom: 12 }}>
               <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr 1fr 1fr 40px", padding: 8, background: "#2e7d32", color: "#fff", fontSize: 12, fontWeight: 600 }}>
-                <div>পণ্যের নাম</div><div>পরিমাণ</div><div>বিক্রয়মূল্য</div><div>ছাড়</div><div></div>
+                <div>পণ্যের নাম</div><div>পরিমাণ</div><div>বিক্রয়মূল্য</div><div>ছাড়</div><div></div>
               </div>
               {lines.map((l, idx) => (
                 <div key={l._id} style={{ display: "grid", gridTemplateColumns: "3fr 1fr 1fr 1fr 40px", padding: 6, gap: 6, alignItems: "center", borderBottom: "1px solid #eee" }}>
-                  <input value={l.product} onChange={e => setLine(idx, "product", e.target.value)} list="dl_pro" placeholder="পণ্য বাছুন" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12 }} />
-                  <input type="number" value={l.qty} onChange={e => setLine(idx, "qty", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12 }} />
-                  <input type="number" value={l.price} onChange={e => setLine(idx, "price", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12 }} />
-                  <input type="number" value={l.discount} onChange={e => setLine(idx, "discount", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12 }} />
+                  <input value={l.product} onChange={e => setLine(idx, "product", e.target.value)} list="dl_pro" placeholder="পণ্য বাছুন" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12, width:"100%" }} />
+                  <input type="number" value={l.qty} onChange={e => setLine(idx, "qty", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12, width:"100%" }} />
+                  <input type="number" value={l.price} onChange={e => setLine(idx, "price", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12, width:"100%" }} />
+                  <input type="number" value={l.discount} onChange={e => setLine(idx, "discount", e.target.value)} placeholder="0" style={{ padding: 6, border: "1px solid #ccc", borderRadius: 4, fontSize: 12, width:"100%" }} />
                   <button onClick={() => removeLine(idx)} disabled={lines.length===1} style={{ color: "red", background: "none", border: "none", fontSize: 16, cursor: "pointer" }}>🗑️</button>
                 </div>
               ))}
             </div>
 
-            <div style={{ display: "flex", justifyValue: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, background: "#f8fafc", padding: 10, borderRadius: 6 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, background: "#f8fafc", padding: 10, borderRadius: 6 }}>
               <div style={{ fontSize: 13 }}>সর্বমোট বিল: <strong>৳{fmtNum(grandTotal)}</strong> | বাকি: <strong style={{ color: due>0?"red":"green" }}>৳{fmtNum(due)}</strong></div>
               <div style={{ marginLeft: "auto" }}><Btn onClick={submit} color="#2e7d32">💾 বিক্রয় সম্পন্ন করুন</Btn></div>
             </div>
           </Card>
 
-          {/* বিক্রয় খাতা ও প্রিন্ট তালিকা */}
           <Card>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, alignItems: "center" }}>
               <h4 style={{ fontSize: 14 }}>📋 বিক্রয়ের ইতিহাস (ক্যাশ মেমো সমূহ)</h4>
-              <input placeholder="🔍 খুঁজুন..." value={search} onChange={e => setSearch(e.target.value)} style={{ padding: "4px 8px", borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }} />
+              <input placeholder="🔍 খুঁজুন..." value={search} onChange={e => setSearch(e.target.value)} style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }} />
             </div>
             {filtered.map(g => (
               <div key={g.key} style={{ border: "1px solid #e2e8f0", borderRadius: 8, marginBottom: 10, overflow: "hidden" }}>
@@ -491,7 +486,7 @@
                   </div>
                 </div>
                 {g.group.map((it, i) => (
-                  <div key={i} style={{ padding: "6px 12px", fontSize: 12, borderBottom: "1px solid #f1f5f9", display: "flex", justifyValue: "space-between" }}>
+                  <div key={i} style={{ padding: "6px 12px", fontSize: 12, borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between" }}>
                     <span>📦 {it.product} (×{it.qty} পিস)</span>
                     <span style={{ marginLeft: "auto" }}>৳{fmtNum(it.total)}</span>
                   </div>
@@ -504,7 +499,7 @@
     }
 
     // ══════════════════════════════════════════════════
-    // স্টক ইনভেন্টরি পেজ (SOTCK)
+    // স্টক ইনভেন্টরি পেজ (STOCK)
     // ══════════════════════════════════════════════════
     function StockPage({ stockMap, products, purchases }) {
       const [search, setSearch] = useState("");
@@ -522,256 +517,5 @@
 
       return (
         <Card>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-            <h3 style={{ fontSize: 15 }}>📦 স্টক খাতা (গড় ক্রয়মূল্য সহ)</h3>
-            <input placeholder="🔍 পণ্য খুঁজুন..." value={search} onChange={e => setSearch(e.target.value)} style={{ padding: "4px 8px", borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }} />
-          </div>
-          <Table 
-            headers={["পণ্যের নাম", "স্টক পরিমাণ", "গড় ক্রয়মূল্য", "মোট স্টক মূল্য"]}
-            rows={rows.map(r => [
-              r.name,
-              <span style={{ fontWeight: 700, color: r.qty <= 5 ? "orange" : "inherit" }}>{r.qty} পিস</span>,
-              `৳${fmtNum(r.avgPrice.toFixed(1))}`,
-              `৳${fmtNum(r.totalValue.toFixed(0))}`
-            ])}
-          />
-        </Card>
-      );
-    }
-
-    // ══════════════════════════════════════════════════
-    // কাস্টমার লেজার বা বাকি খাতা (CUSTOMER LEDGER)
-    // ══════════════════════════════════════════════════
-    function CustomerLedgerPage({ sales, customers }) {
-      const [search, setSearch] = useState("");
-
-      const rows = useMemo(() => {
-        return customers.map(c => {
-          const cSales = sales.filter(s => s.customer === c);
-          const total = cSales.reduce((sum, s) => sum + Number(s.total || 0), 0);
-          
-          const seenMemos = new Set();
-          let due = 0;
-          cSales.forEach(s => {
-            const key = s.billId || s.id;
-            if(!seenMemos.has(key)) {
-              seenMemos.add(key);
-              due += Number(s.due || 0);
-            }
-          });
-          return { name: c, total, due, paid: total - due };
-        }).filter(r => r.name.toLowerCase().includes(search.toLowerCase()) && r.total > 0);
-      }, [sales, customers, search]);
-
-      return (
-        <Card>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-            <h3 style={{ fontSize: 15 }}>👥 কাস্টমার বাকি ও লেজার খাতা</h3>
-            <input placeholder="🔍 কাস্টমার খুঁজুন..." value={search} onChange={e => setSearch(e.target.value)} style={{ padding: "4px 8px", borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }} />
-          </div>
-          <Table 
-            headers={["কাস্টমার নাম", "মোট বিক্রয়", "মোট জমা", "মোট বাকি"]}
-            rows={rows.map(r => [
-              r.name, `৳${fmtNum(r.total)}`, `৳${fmtNum(r.paid)}`,
-              <span style={{ fontWeight: 700, color: r.due > 0 ? "red" : "green" }}>৳{fmtNum(r.due)}</span>
-            ])}
-          />
-        </Card>
-      );
-    }
-
-    // ══════════════════════════════════════════════════
-    // সেটিংস ও ব্যাকআপ পেজ (SETTINGS)
-    // ══════════════════════════════════════════════════
-    function SettingsPage({ onClear }) {
-      const exportData = () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localStorage));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `bulbul_hisab_backup.json`);
-        downloadAnchor.click();
-      };
-
-      return (
-        <Card>
-          <h3 style={{ color: "red", fontSize: 15, marginBottom: 12 }}>⚙️ সেটিংস ও ব্যাকআপ</h3>
-          <p style={{ fontSize: 13, marginBottom: 16, color: "#555" }}>আপনার ব্যবসার হিসাব সুরক্ষিত রাখতে নিয়মিত ব্যাকআপ ফাইল ডাউনলোড করে রাখুন।</p>
-          <div style={{ display: "flex", gap: 12 }}>
-            <Btn onClick={exportData} color="#2ecc71">📥 ব্যাকআপ ফাইল ডাউনলোড করুন</Btn>
-            <Btn onClick={onClear} color="#e74c3c">🗑️ সব ডেটা রিসেট করুন</Btn>
-          </div>
-        </Card>
-      );
-    }
-
-    // ══════════════════════════════════════════════════
-    // প্রিন্ট উপযোগী ক্যাশ মেমো টেমপ্লেট
-    // ══════════════════════════════════════════════════
-    function PrintMemoTemplate({ memo, onClose }) {
-      if (!memo) return null;
-      return (
-        <div className="print-area" style={{ background: "#fff", minHeight: "100vh", padding: 20, color: "#000" }}>
-          {/* মেমো হেডার */}
-          <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "2px solid #1a3a5c", paddingBottom: 10, marginBottom: 15 }}>
-            <div>
-              <h1 style={{ fontSize: 24, fontWeight: 800, color: "#1a3a5c" }}>বুলবুল এন্টারপ্রাইজ</h1>
-              <p style={{ fontSize: 12 }}>ইসলাম ইলেকট্রিক মার্কেট, দোকান নং-১৪, কাজী আঃ হামিদ লেন, নবাবপুর, ঢাকা</p>
-              <p style={{ fontSize: 12 }}>মোবাইল: ০১৭১২-৯২৭৯৯৫</p>
-            </div>
-            <div style={{ textAlign: "right", fontSize: 12 }}>
-              <span style={{ background: "#1a3a5c", color: "#fff", padding: "3px 8px", borderRadius: 4, fontWeight: "bold" }}>ক্যাশ মেমো</span>
-              <p style={{ marginTop: 6 }}><strong>বিল নং:</strong> #{memo.billNo || memo.key}</p>
-              <p><strong>তারিখ:</strong> {fmtDate(memo.date)}</p>
-            </div>
-          </div>
-
-          <div style={{ background: "#f9f9f9", padding: 8, borderRadius: 4, marginBottom: 15, fontSize: 13, border: "1px solid #eee" }}>
-            <strong>ক্রেতার নাম:</strong> {memo.customer}
-          </div>
-
-          {/* মেমো আইটেম টেবিল */}
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, marginBottom: 15 }}>
-            <thead>
-              <tr style={{ background: "#f2f2f2", borderBottom: "2px solid #000" }}>
-                <th style={{ padding: 6, textAlign: "left" }}>ক্রঃ</th>
-                <th style={{ padding: 6, textAlign: "left" }}>বিবরণ / পণ্যের নাম</th>
-                <th style={{ padding: 6, textAlign: "center" }}>পরিমাণ</th>
-                <th style={{ padding: 6, textAlign: "right" }}>দর (৳)</th>
-                <th style={{ padding: 6, textAlign: "right" }}>মোট মূল্য (৳)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {memo.group.map((item, idx) => (
-                <tr key={idx} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={{ padding: 6 }}>{idx + 1}</td>
-                  <td style={{ padding: 6 }}>{item.product}</td>
-                  <td style={{ padding: 6, textAlign: "center" }}>{item.qty} পিস</td>
-                  <td style={{ padding: 6, textAlign: "right" }}>{fmtNum(item.price)}</td>
-                  <td style={{ padding: 6, textAlign: "right" }}>{fmtNum(item.total)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* মেমো টোটাল এরিয়া */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div style={{ fontSize: 11, italic: "true", color: "#555" }}>* বিক্রীত মাল ফেরত নেওয়া হয় না।</div>
-            <div style={{ width: 200, fontSize: 13 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}><span>মোট বিল:</span><span>৳{fmtNum(memo.total)}</span></div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0", borderBottom: "1px solid #000" }}><span>নগদ গ্রহণ:</span><span>৳{fmtNum(memo.paid)}</span></div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", fontWeight: "bold" }}><span>বাকি:</span><span>৳{fmtNum(memo.due)}</span></div>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 40 }} className="no-print">
-            <Btn onClick={onClose} color="#7f8c8d">⬅️ ফিরে যান</Btn>
-            <Btn onClick={() => window.print()} color="#1a3a5c">🖨️ প্রিন্ট করুন / Save PDF</Btn>
-          </div>
-        </div>
-      );
-    }
-
-    // ══════════════════════════════════════════════════
-    // মেইন অ্যাপ কন্ট্রোলার (MAIN APP)
-    // ══════════════════════════════════════════════════
-    function App() {
-      const [tab, setTab] = useState("home");
-      const [sales, setSales] = useState(() => load("b_sales", []));
-      const [purchases, setPurchases] = useState(() => load("b_purchases", []));
-      const [toast, setToast] = useState(null);
-      const [activePrintMemo, setActivePrintMemo] = useState(null);
-
-      useEffect(() => { save("b_sales", sales); }, [sales]);
-      useEffect(() => { save("b_purchases", purchases); }, [purchases]);
-
-      const showToast = (msg, type = "success") => {
-        setToast({ msg, type });
-        setTimeout(() => setToast(null), 3000);
-      };
-
-      // ইনভেন্টরি স্টক ম্যাপ ক্যালকুলেশন
-      const stockMap = useMemo(() => {
-        const map = {};
-        INIT_PRODUCTS.forEach(p => map[p] = 0);
-        purchases.forEach(p => { if(p.product) map[p.product] = (map[p.product] || 0) + Number(p.qty || 0); });
-        sales.forEach(s => { if(s.product) map[s.product] = (map[s.product] || 0) - Number(s.qty || 0); });
-        return map;
-      }, [sales, purchases]);
-
-      const totalSales = useMemo(() => sales.reduce((sum, r) => sum + Number(r.total || 0), 0), [sales]);
-      const totalPurchase = useMemo(() => purchases.reduce((sum, r) => sum + Number(r.total || 0), 0), [purchases]);
-      
-      const totalCustDue = useMemo(() => {
-        const seen = new Set();
-        return sales.reduce((sum, r) => {
-          const key = r.billId || r.id;
-          if (!seen.has(key)) { seen.add(key); return sum + Number(r.due || 0); }
-          return sum;
-        }, 0);
-      }, [sales]);
-
-      const totalSuppDue = useMemo(() => {
-        const seen = new Set();
-        return purchases.reduce((sum, r) => {
-          const key = r.memoId || r.id;
-          if (!seen.has(key)) { seen.add(key); return sum + Number(r.due || 0); }
-          return sum;
-        }, 0);
-      }, [purchases]);
-
-      const handleClearAll = () => {
-        if (confirm("⚠️ আপনি কি নিশ্চিত যে সমস্ত ডেটা মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা যাবে না!")) {
-          localStorage.clear();
-          setSales([]);
-          setPurchases([]);
-          showToast("♻️ সমস্ত তথ্য মুছে ফেলা হয়েছে", "err");
-          setTab("home");
-        }
-      };
-
-      if (activePrintMemo) {
-        return <PrintMemoTemplate memo={activePrintMemo} onClose={() => setActivePrintMemo(null)} />;
-      }
-
-      return (
-        <div>
-          {toast && (
-            <div style={{ position: "fixed", top: 20, right: 20, zIndex: 9999, background: toast.type === "err" ? "#e74c3c" : "#2ecc71", color: "#fff", padding: "10px 20px", borderRadius: 8, fontWeight: 600, fontSize: 13 }}>
-              {toast.msg}
-            </div>
-          )}
-
-          <nav style={{ background: "#1a3a5c", padding: "0 10px", display: "flex", gap: 5, overflowX: "auto", whiteSpace: "nowrap", borderBottom: "3px solid #00d4aa" }} className="no-print">
-            <div style={{ color: "#fff", fontWeight: 800, padding: "12px 8px", fontSize: 14 }}>⚡ বুলবুল হিসাব</div>
-            {[
-              { id: "home", label: "📊 ড্যাশবোর্ড" },
-              { id: "sales", label: "💰 বিক্রয় খাতা" },
-              { id: "purchase", label: "🛒 ক্রয় খাতা" },
-              { id: "stock", label: "📦 স্টক ইনভেন্টরি" },
-              { id: "customer", label: "👥 কাস্টমার লেজার" },
-              { id: "settings", label: "⚙️ সেটিংস" }
-            ].map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)} style={{
-                background: tab === t.id ? "#00d4aa" : "transparent", color: tab === t.id ? "#1a3a5c" : "#fff",
-                border: "none", padding: "12px 14px", cursor: "pointer", fontWeight: 700, fontSize: 12
-              }}>{t.label}</button>
-            ))}
-          </nav>
-
-          <div style={{ padding: 20 }} className="no-print">
-            {tab === "home" && <HomePage totalSales={totalSales} totalPurchase={totalPurchase} totalCustDue={totalCustDue} totalSuppDue={totalSuppDue} stockMap={stockMap} sales={sales} purchases={purchases} />}
-            {tab === "purchase" && <PurchasePage purchases={purchases} setPurchases={setPurchases} suppliers={INIT_SUPPLIERS} products={INIT_PRODUCTS} showToast={showToast} />}
-            {tab === "sales" && <SalesPage sales={sales} setSales={setSales} customers={INIT_CUSTOMERS} products={INIT_PRODUCTS} purchases={purchases} stockMap={stockMap} showToast={showToast} onPrintMemo={setActivePrintMemo} />}
-            {tab === "stock" && <StockPage stockMap={stockMap} products={INIT_PRODUCTS} purchases={purchases} />}
-            {tab === "customer" && <CustomerLedgerPage sales={sales} customers={INIT_CUSTOMERS} />}
-            {tab === "settings" && <SettingsPage onClear={handleClearAll} />}
-          </div>
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<App />);
-  </script>
-</body>
-</html>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, alignItems:"center" }}>
+            <h3 style={{ fontSize: 15 }}>📦 স্টক
