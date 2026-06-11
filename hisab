@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ব্যবসায়িক ইনভেন্টরি ও হিসাব ব্যবস্থাপনা সফটওয়্যার</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #1abc9c;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', SolaimanLipi, Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Style */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 22px;
+            color: var(--secondary-color);
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #bdc3c7;
+            padding: 12px 15px;
+            text-align: left;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:hover, .menu-btn.active {
+            background-color: var(--secondary-color);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* Main Content Style */
+        .main-content {
+            margin-left: 260px;
+            flex-grow: 1;
+            padding: 30px;
+            width: calc(100% - 260px);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* Top Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .card h3 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* Data Section Content */
+        .data-section {
+            display: none;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .data-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Table Design */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Action Buttons */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-add {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .search-box {
+            padding: 8px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 250px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>ব্যবসা ড্যাশবোর্ড</h2>
+        <button class="menu-btn active" onclick="showSection('dashboard')">🏠 ড্যাশবোর্ড</button>
+        <button class="menu-btn" onclick="showSection('stock')">📦 স্টক / ইনভেন্টরি</button>
+        <button class="menu-btn" onclick="showSection('purchase')">🛒 ক্রয় (Purchase)</button>
+        <button class="menu-btn" onclick="showSection('customer')">👥 কাস্টমার তালিকা</button>
+        <button class="menu-btn" onclick="showSection('supplier')">🏭 সাপ্লায়ার তালিকা</button>
+        <button class="menu-btn" onclick="showSection('spend')">📉 খরচ (Spend)</button>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>ম্যানেজমেন্ট সফটওয়্যার</h1>
+            <div id="current-date"></div>
+        </div>
+
+        <div id="dashboard" class="data-section active">
+            <div class="summary-cards">
+                <div class="card" style="border-left-color: #3498db;">
+                    <h3>মোট স্টক ভ্যালু</h3>
+                    <p>৳ ৪,৫০,০০০</p>
+                </div>
+                <div class="card" style="border-left-color: #2ecc71;">
+                    <h3>চলতি মাসের মোট সেলস</h3>
+                    <p>৳ ১,৮৫,০০০</p>
+                </div>
+                <div class="card" style="border-left-color: #e74c3c;">
+                    <h3>মোট ক্রয় (Purchase)</h3>
+                    <p>৳ ২,১০,০০০</p>
+                </div>
+                <div class="card" style="border-left-color: #f39c12;">
+                    <h3>মোট খরচ (Spend)</h3>
+                    <p>৳ ১৫,৫০০</p>
+                </div>
+            </div>
+            
+            <div class="section-header">
+                <h2>সাম্প্রতিক কার্যক্রম</h2>
+            </div>
+            <p>আপনার এক্সেল শিটের ডেটার একটি সংক্ষিপ্ত বিবরণী এখানে প্রদর্শিত হচ্ছে। বিস্তারিত দেখতে বাম পাশের মেনু ব্যবহার করুন।</p>
+        </div>
+
+        <div id="stock" class="data-section">
+            <div class="section-header">
+                <h2>স্টক ও ইনভেন্টরি ম্যানেজমেন্ট</h2>
+                <div>
+                    <input type="text" class="search-box" placeholder="পণ্য খুঁজুন...">
+                    <button class="btn btn-add">+ নতুন প্রোডাক্ট</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>প্রোডাক্ট কোড</th>
+                            <th>পণ্যের নাম</th>
+                            <th>বিবরণ/সাইজ</th>
+                            <th>মজুদ পরিমাণ (Stock)</th>
+                            <th>গড় ক্রয়মূল্য</th>
+                            <th>বিক্রয় মূল্য</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ELEC-001</td>
+                            <td>এলইডি লাইট ২০ ওয়াট</td>
+                            <td>প্যাকিং বক্স - প্রিমিয়াম</td>
+                            <td>১৫০ পিস</td>
+                            <td>৳ ১২০</td>
+                            <td>৳ ১৮০</td>
+                        </tr>
+                        <tr>
+                            <td>ELEC-002</td>
+                            <td>কপার ওয়্যার ১.৫ আরএম</td>
+                            <td>১ কয়েল (১০০ মিটার)</td>
+                            <td>৪৫ কয়েল</td>
+                            <td>৳ ১,৪৫০</td>
+                            <td>৳ ১,৭৫০</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="purchase" class="data-section">
+            <div class="section-header">
+                <h2>ক্রয় ভাউচার (Purchase Details)</h2>
+                <button class="btn btn-add">+ নতুন ক্রয় এন্ট্রি</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>তারিখ</th>
+                            <th>ভাউচার নং</th>
+                            <th>সাপ্লায়ারের নাম</th>
+                            <th>মোট টাকা</th>
+                            <th>পেইড (Paid)</th>
+                            <th>বাকি (Due)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>১০-০৫-২০২৬</td>
+                            <td>PUR-2026-089</td>
+                            <td>খান ইলেকট্রনিক্স পাইকারি</td>
+                            <td>৳ ৫০,০০০</td>
+                            <td>৳ ৩০,০০০</td>
+                            <td>৳ ২০,০০০</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="customer" class="data-section">
+            <div class="section-header">
+                <h2>কাস্টমার লেজার (Customer & Collection)</h2>
+                <input type="text" class="search-box" placeholder="কাস্টমার খুঁজুন...">
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>কাস্টমার আইডি</th>
+                            <th>নাম</th>
+                            <th>ঠিকানা / মোবাইল</th>
+                            <th>মোট সেলস</th>
+                            <th>মোট কালেকশন</th>
+                            <th>বর্তমান ব্যালেন্স (বাকি)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CUST-501</td>
+                            <td>রহমান ইলেকট্রিক স্টোর</td>
+                            <td>ঢাকা, ০১৯১১XXXXXX</td>
+                            <td>৳ ৮৫,০০০</td>
+                            <td>৳ ৬০,০০০</td>
+                            <td>৳ ২৫,০০০</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="supplier" class="data-section">
+            <div class="section-header">
+                <h2>সাপ্লায়ার প্রোফাইল ও পেমেণ্ট</h2>
+                <button class="btn btn-add">+ নতুন সাপ্লায়ার</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>কোড</th>
+                            <th>কোম্পানি/সাপ্লায়ারের নাম</th>
+                            <th>যোগাযোগ</th>
+                            <th>মোট পাওনা</th>
+                            <th>পরিশোধিত</th>
+                            <th>অবশিষ্ট বকেয়া</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SUP-102</td>
+                            <td>এস আর কেবলস লিঃ</td>
+                            <td>নবাবপুর, ঢাকা</td>
+                            <td>৳ ১,২০,০০০</td>
+                            <td>৳ ১,০০,০০০</td>
+                            <td>৳ ২০,০০০</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="spend" class="data-section">
+            <div class="section-header">
+                <h2>দৈনিক ও মাসিক খরচ (Spend)</h2>
+                <button class="btn btn-add">+ খরচ এন্ট্রি করুন</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>তারিখ</th>
+                            <th>খরচের খাত / বিবরণ</th>
+                            <th>টাকার পরিমাণ</th>
+                            <th>যার মাধ্যমে খরচ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>০১-০৫-২০২৬</td>
+                            <td>দোকান ভাড়া (মে মাস)</td>
+                            <td>৳ ১২,০০০</td>
+                            <td>ক্যাশ</td>
+                        </tr>
+                        <tr>
+                            <td>০৫-০৫-২০২৬</td>
+                            <td>বিদ্যুৎ বিল</td>
+                            <td>৳ ৩,৫ Tap</td>
+                            <td>বিকাশ অ্যাপ</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // মেনু ট্যাব পরিবর্তন করার ফাংশন
+        function showSection(sectionId) {
+            // সব সেকশন হাইড করা
+            const sections = document.querySelectorAll('.data-section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            // সব মেনু বাটনের অ্যাক্টিভ ক্লাস রিমুভ করা
+            const buttons = document.querySelectorAll('.menu-btn');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // টার্গেটেড সেকশন ও বাটন অ্যাক্টিভ করা
+            document.getElementById(sectionId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // আজকের তারিখ দেখানোর জন্য ছোট স্ক্রিপ্ট
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('bn-BD', options);
+    </script>
+</body>
+</html>
+
