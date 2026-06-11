@@ -4,464 +4,837 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bulbul Enterprise — হিসাব সিস্টেম</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#1a3a5c" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Bulbul Hisab" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.7.2/Recharts.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; background: #f0f4f8; color: #2c3e50; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
-    ::-webkit-scrollbar-thumb { background: #1a3a5c; border-radius: 3px; }
-    input, select, button { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; }
-    
-    /* Navigation Bar Styles */
-    .navbar { background: #1a3a5c; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
-    .nav-btn { background: transparent; border: none; color: #cbd5e1; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s; }
-    .nav-btn:hover { color: white; background: rgba(255,255,255,0.1); }
-    .nav-btn.active { background: #00d4aa; color: #0f172a; }
-    
-    /* Content wrapper */
-    .container { padding: 20px; max-width: 1400px; margin: 0 auto; }
-    
-    /* Toast styles */
-    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: 600; font-size: 14px; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; }
-    .toast.success { background: #2ecc71; }
-    .toast.error { background: #e74c3c; }
+    body {
+      font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif;
+    }
   </style>
 </head>
-<body>
-  <div id="root"></div>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
-  <script type="text/babel">
-    const { useState, useMemo, useEffect } = React;
-    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } = Recharts;
+  <header class="bg-slate-950 border-b border-slate-800 sticky top-0 z-50 px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+    <div class="flex items-center gap-2">
+      <span class="text-xl">⚡</span>
+      <h1 class="text-emerald-400 font-black tracking-wider text-base sm:text-lg">BULBUL ENTERPRISE</h1>
+    </div>
+    <nav class="flex flex-wrap gap-2" id="nav-container">
+      <button onclick="switchPage('home')" id="btn-home" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-500 text-slate-950">🏠 ড্যাশবোর্ড</button>
+      <button onclick="switchPage('sales')" id="btn-sales" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-slate-800">💰 বিক্রয় ভাউচার</button>
+      <button onclick="switchPage('purchase')" id="btn-purchase" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-slate-800">🛒 ক্রয় খতিয়ান</button>
+      <button onclick="switchPage('reports')" id="btn-reports" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-slate-800">📊 রিপোর্ট ও লেজার</button>
+    </nav>
+  </header>
 
-    // ══════════════════════════════════════════════════
-    // লোকাল স্টোরেজ হেল্পার
-    // ══════════════════════════════════════════════════
-    const load = (key, def) => {
-      try {
-        const v = localStorage.getItem(key);
-        return v ? JSON.parse(v) : def;
-      } catch { return def; }
-    };
-    const save = (key, val) => {
-      try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
-    };
-
-    const today = () => new Date().toISOString().split("T")[0];
-    const fmtDate = (d) => {
-      if (!d) return "";
-      return new Date(d).toLocaleDateString("bn-BD", { day: "2-digit", month: "short", year: "numeric" });
-    };
-    const fmtNum = (n) => Number(n || 0).toLocaleString("bn-BD");
-
-    // ══════════════════════════════════════════════════
-    // মাস্টার ডেটা (প্রাথমিক তালিকা)
-    // ══════════════════════════════════════════════════
-    const INIT_CUSTOMERS = ["CASH CUSTOMER","DILRUBA EL LALBAG","KHOLIL EL LALBAG","TANJIL EL LALBAG","AMIN EL LALBAG","EMONISTOR LALBAG","FATEMA EL LALBAG","FYSAL EL LALBAG","KHAN EL LALBAG","DINAZPUR EL LALBAG","DR EL LALBAG","JAJIRA EL LALBAG","MAERDOA EL LALBAG","MAERDOA NOBABPUR","MASUM EL LALBAG","MORIYOM EL LALBAG","MUNSI EL LALBAG","NOAKHALI EL LALBAG","RITOM","ISLAM AND BROTHER","HK POWER","IMRAN BONGSAL","JAFOR SURITOLA","MASUD DOAGONG","MINTU EL MANIQGONG","RAJIA EL GORADOR","NOWAAKHALI EL","OMORFAARUK"];
-    const INIT_SUPPLIERS = ["RM LED LIGHTING","SAMIA ENTERPRISE","NEW AMENA EL","IMAM POWER","IR ELECTRICK","AZAD LED","FLOORA CO K2 F2","NEW ISLAM EI K2","SHARMIN TRADE IN","EAKIN EL","RAFIQ EL","BETAR EL","MOON SUPER","OSAN","SWICH PAC ENG K2","GRAMIN","INTEX","BEST LINE HITEK CO","MAX LINE","VEE","SHARIF ELECTRICK","KING BIDDUT BITAN","BONDHU LIGHTING","RITOM EL","MADINA EL","RAJEN AND BROTHERS","JIHAD PIPE","TISA EL","SP ELECTRIC CO","NABIL ENTERPRISE","ELECTRIC PALACE","GFC","JASHIRA EL HOUSE"];
-    const INIT_PRODUCTS = ["OSAKA CATA 40W","OSAKA CATA 20W","OSAKA CATA 60W","OSAKA ACDC 12W","OSAKA ACDC 18.5W","OSAKA 20W","OSAKA 18W","OSAKA 40W","OSAKA 50W","PS 20W","PS 12W","SS 20W","SSD 20W","SEIKO 20W","IC 5W D","IC 5W A","IC 20W","ROCK STAR 20W","CHINA DIM LICHU","CHINA DIM TOMATO","CHINA 50W","INTEX 34M2","INTEX 34M5","INTEX 33M5","INTEX 813M5","INTEX 814M5","INTEX 23M5","INTEX 24M5","INTEX T STAR MALTY","BEST CTOP 2m","BEST CTOP 5m","BEST LINE 315","BEST LINE 415","BEST LINE 515","MAX017 10F","MAX017 20F","CAPACITOR 3.5","CAPACITOR 2.5","KOHLINUR 30A","KOHLINUR 15A","DP SWICH H","DP SWICH N","CABOL CLIB 6MM","CABOL CLIB 7MM","CABOL CLIB 8MM","CABOL CLIB 10MM","CABOL TAI 10IN","MK DIMAR NORMAL","CHALTHA NORMAL","OSAKA TAP","DEER TAP","NOKIA","COLING BAL","IPS DIMAR","CONVATAR","LED TUB GLASS","DC T8 TUB","GFC 12IN FAN","1HOL BOARD","3HOL BOARD","4HOL BOARD","TATAR","G STAR PENDEL HOLDAR SAPTY","G STAR WINAR SWISS","MC RAJA PLACK","PC SUPER DIMAR MK","VEE 503M5","VEE 504M5","VEE 505M5","VEE ACDC","CANDAR 12W","COSCO 18W","SUN+ ACDC 20W","CLICK MALTY PLACK 4G"];
-    const INIT_BANKS = ["হাতে নগদ", "DBBL", "BRAC BANK", "IBBL", "bKash", "Nagad"];
-
-    // ══════════════════════════════════════════════════
-    // শেয়ারড কম্পোনেন্টস
-    // ══════════════════════════════════════════════════
-    const Card = ({ children, style = {} }) => (
-      <div style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16, ...style }}>{children}</div>
-    );
-
-    const Btn = ({ children, onClick, color = "#1a5276", small = false, outline = false, disabled = false }) => (
-      <button onClick={onClick} disabled={disabled} style={{
-        background: outline ? "transparent" : color, color: outline ? color : "#fff",
-        border: `2px solid ${color}`, borderRadius: 8,
-        padding: small ? "5px 12px" : "8px 16px",
-        cursor: disabled ? "not-allowed" : "pointer",
-        fontWeight: 600, fontSize: small ? 12 : 13,
-        opacity: disabled ? 0.5 : 1, transition: "all 0.2s"
-      }}>{children}</button>
-    );
-
-    const Input = ({ label, value, onChange, type = "text", list, required, placeholder }) => (
-      <div style={{ marginBottom: 12 }}>
-        {label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label}{required && <span style={{ color: "red" }}> *</span>}</div>}
-        <input type={type} value={value} onChange={e => onChange(e.target.value)} list={list} placeholder={placeholder}
-          style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, boxSizing: "border-box", outline: "none" }} />
+  <main class="flex-1 p-4 max-w-7xl w-full mx-auto">
+    
+    <section id="page-home" class="page-section space-y-6">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl">
+          <div class="text-xl">💰</div>
+          <div class="text-xl font-black text-emerald-400 mt-1">৳<span id="stat-sales">0</span></div>
+          <div class="text-xs text-slate-400 mt-1">মোট বিক্রয়</div>
+        </div>
+        <div class="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl">
+          <div class="text-xl">🛒</div>
+          <div class="text-xl font-black text-blue-400 mt-1">৳<span id="stat-purchase">0</span></div>
+          <div class="text-xs text-slate-400 mt-1">মোট ক্রয়</div>
+        </div>
+        <div class="bg-teal-500/10 border border-teal-500/20 p-4 rounded-xl">
+          <div class="text-xl">📈</div>
+          <div class="text-xl font-black text-teal-400 mt-1">৳<span id="stat-profit">0</span></div>
+          <div class="text-xs text-slate-400 mt-1">মোট লাভ</div>
+        </div>
+        <div class="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl">
+          <div class="text-xl">📦</div>
+          <div class="text-xl font-black text-amber-400 mt-1">৳<span id="stat-stock-val">0</span></div>
+          <div class="text-xs text-slate-400 mt-1">স্টক মূল্য</div>
+        </div>
+        <div class="bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl">
+          <div class="text-xl">👥</div>
+          <div class="text-xl font-black text-rose-400 mt-1">৳<span id="stat-cust-due">0</span></div>
+          <div class="text-xs text-slate-400 mt-1">কাস্টমার বাকি</div>
+        </div>
+        <div class="bg-orange-500/10 border border-orange-500/20 p-4 rounded-xl">
+          <div class="text-xl">🏪</div>
+          <div class="text-xl font-black text-orange-400 mt-1">৳<span id="stat-supp-due">0</span></div>
+          <div class="text-xs text-slate-400 mt-1">সাপ্লায়ার বাকি</div>
+        </div>
       </div>
-    );
 
-    const Select = ({ label, value, onChange, options, required }) => (
-      <div style={{ marginBottom: 12 }}>
-        {label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label}{required && <span style={{ color: "red" }}> *</span>}</div>}
-        <select value={value} onChange={e => onChange(e.target.value)}
-          style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, background: "#fff", outline: "none" }}>
-          <option value="">-- বেছে নিন --</option>
-          {options.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800">
+          <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2"><span>🕐</span> সাম্প্রতিক বিক্রয়সমূহ</h3>
+          <div id="recent-sales-list" class="divide-y divide-slate-800 text-sm max-h-[300px] overflow-y-auto pr-1">
+            </div>
+        </div>
+        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800">
+          <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2"><span>⚠️</span> স্টক সতর্কতা (কম বা মাইনাস পণ্য)</h3>
+          <div id="stock-warnings-list" class="space-y-2 text-xs max-h-[300px] overflow-y-auto pr-1">
+            </div>
+        </div>
       </div>
-    );
+    </section>
 
-    const DarkCard = ({ children, style = {} }) => (
-      <div style={{ background: "#0f172a", borderRadius: 16, padding: 20, border: "1px solid #1e293b", ...style }}>{children}</div>
-    );
-
-    const SectionTitle = ({ icon, title }) => (
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <span style={{ fontSize: 18 }}>{icon}</span>
-        <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#e2e8f0" }}>{title}</h2>
-        <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, #334155, transparent)", marginLeft: 8 }} />
-      </div>
-    );
-
-    const CustomTooltip = ({ active, payload, label }) => {
-      if (active && payload && payload.length) {
-        return (
-          <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, padding: "8px 12px", fontSize: 12 }}>
-            <div style={{ color: "#94a3b8", marginBottom: 4 }}>{label}</div>
-            {payload.map((p, i) => (
-              <div key={i} style={{ color: p.color, fontWeight: 600 }}>
-                {p.name}: ৳{Number(p.value).toLocaleString()}
-              </div>
-            ))}
+    <section id="page-sales" class="page-section hidden space-y-6">
+      <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800">
+        <h3 class="text-emerald-400 font-bold text-sm mb-4">💰 নতুন বিক্রয় ভাউচার তৈরি করুন</h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 p-4 bg-slate-900 rounded-xl mb-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">তারিখ *</label>
+            <input type="date" id="sales-date" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
           </div>
-        );
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">কাস্টমার নাম *</label>
+            <input type="text" id="sales-customer" list="dl-customers" placeholder="খুঁজুন বা লিখুন" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">বিল/ক্যাশ নং</label>
+            <input type="text" id="sales-bill" placeholder="বিল নম্বর" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">নগদ গ্রহণ (টাকা)</label>
+            <input type="number" id="sales-paid" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">জমাদানের মাধ্যম</label>
+            <select id="sales-bank" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-emerald-500"></select>
+          </div>
+        </div>
+
+        <div class="border border-slate-800 rounded-xl overflow-hidden mb-4">
+          <div class="grid grid-cols-12 gap-2 bg-slate-900 p-3 text-xs font-bold text-slate-400 border-b border-slate-800">
+            <div class="col-span-6">পণ্যের বিবরণ</div>
+            <div class="col-span-2 text-right">পরিমাণ</div>
+            <div class="col-span-2 text-right">বিক্রয় মূল্য</div>
+            <div class="col-span-2 text-right">ডিসকাউন্ট</div>
+          </div>
+          <div id="sales-lines-container" class="divide-y divide-slate-800/50">
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 p-3 bg-slate-900 rounded-xl">
+          <div class="flex flex-wrap gap-4 text-sm font-semibold">
+            <div>সর্বমোট বিল: <span class="text-emerald-400 font-bold text-base" id="lbl-sales-total">৳০</span></div>
+            <div>বাকি থাকবে: <span class="text-rose-400 font-bold text-base" id="lbl-sales-due">৳০</span></div>
+          </div>
+          <button onclick="saveSalesVoucher()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-2 rounded-xl text-xs transition-colors cursor-pointer">💾 বিক্রয় ভাউচার সেভ করুন</button>
+        </div>
+      </div>
+
+      <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800">
+        <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+          <h3 class="text-sm font-bold text-slate-300">📋 পূর্বের বিক্রয় মেমো তালিকা</h3>
+          <input type="text" id="search-sales" oninput="renderSalesHistory()" placeholder="🔍 কাস্টমার বা পণ্য খুঁজুন..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-1.5 text-xs text-white focus:outline-none w-64" />
+        </div>
+        <div id="sales-history-container" class="space-y-3">
+          </div>
+      </div>
+    </section>
+
+    <section id="page-purchase" class="page-section hidden space-y-6">
+      <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800">
+        <h3 class="text-blue-400 font-bold text-sm mb-4">🛒 নতুন মালামাল ক্রয় এন্ট্রি</h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 p-4 bg-slate-900 rounded-xl mb-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">তারিখ *</label>
+            <input type="date" id="pur-date" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">সাপ্লায়ার নাম *</label>
+            <input type="text" id="pur-supplier" list="dl-suppliers" placeholder="খুঁজুন বা লিখুন" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">মেমো নম্বর</label>
+            <input type="text" id="pur-memo" placeholder="মেমো নং" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">পরিশোধ (টাকা)</label>
+            <input type="number" id="pur-paid" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">মাধ্যম</label>
+            <select id="pur-bank" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500"></select>
+          </div>
+        </div>
+
+        <div class="border border-slate-800 rounded-xl overflow-hidden mb-4">
+          <div class="grid grid-cols-12 gap-2 bg-slate-900 p-3 text-xs font-bold text-slate-400 border-b border-slate-800">
+            <div class="col-span-6">পণ্যের বিবরণ</div>
+            <div class="col-span-2 text-right">পরিমাণ</div>
+            <div class="col-span-2 text-right">ক্রয় মূল্য</div>
+            <div class="col-span-2 text-right">ডিসকাউন্ট</div>
+          </div>
+          <div id="pur-lines-container" class="divide-y divide-slate-800/50">
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 p-3 bg-slate-900 rounded-xl">
+          <div class="flex flex-wrap gap-4 text-sm font-semibold">
+            <div>সর্বমোট ভাউচার: <span class="text-blue-400 font-bold text-base" id="lbl-pur-total">৳০</span></div>
+            <div>সাপ্লায়ার বাকি: <span class="text-orange-400 font-bold text-base" id="lbl-pur-due">৳০</span></div>
+          </div>
+          <button onclick="savePurchaseVoucher()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-5 py-2 rounded-xl text-xs transition-colors cursor-pointer">💾 ক্রয় ভাউচার সেভ করুন</button>
+        </div>
+      </div>
+
+      <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800">
+        <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+          <h3 class="text-sm font-bold text-slate-300">📋 পূর্বের ক্রয় ভাউচার তালিকা</h3>
+          <input type="text" id="search-purchase" oninput="renderPurchaseHistory()" placeholder="🔍 সাপ্লায়ার বা পণ্য খুঁজুন..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-1.5 text-xs text-white focus:outline-none w-64" />
+        </div>
+        <div id="pur-history-container" class="space-y-3">
+          </div>
+      </div>
+    </section>
+
+    <section id="page-reports" class="page-section hidden space-y-6">
+      <div class="flex flex-wrap gap-2">
+        <button onclick="switchReportTab('stock')" id="tab-stock" class="report-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white border border-slate-700">📦 বর্তমান স্টক পজিশন</button>
+        <button onclick="switchReportTab('customer')" id="tab-customer" class="report-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-950 text-slate-400 hover:bg-slate-900">👥 কাস্টমার লেজার (বাকি)</button>
+        <button onclick="switchReportTab('supplier')" id="tab-supplier" class="report-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-950 text-slate-400 hover:bg-slate-900">🏪 সাপ্লায়ার লেজার (পাওনা)</button>
+      </div>
+
+      <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800">
+        <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+          <h3 class="text-sm font-bold text-slate-200" id="report-title">স্টক তালিকা</h3>
+          <input type="text" id="search-report" oninput="renderReportTable()" placeholder="🔍 এখানে খুঁজুন..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-1.5 text-xs text-white focus:outline-none w-64" />
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left text-sm text-slate-300 border-collapse">
+            <thead>
+              <tr class="bg-slate-900 text-xs text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <th class="p-3">বিবরণ / নাম</th>
+                <th class="p-3 text-right" id="th-value">পরিমাণ</th>
+              </tr>
+            </thead>
+            <tbody id="report-table-body" class="divide-y divide-slate-800/60">
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <datalist id="dl-customers"></datalist>
+  <datalist id="dl-suppliers"></datalist>
+  <datalist id="dl-products"></datalist>
+
+  <div id="toast" class="fixed bottom-5 right-5 px-5 py-3 rounded-xl shadow-xl font-bold text-xs transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2"></div>
+
+  <script>
+    // ১. মূল ডেটা কালেকশন (মাস্টার লিস্ট)
+    const MASTER_CUSTOMERS = ["CASH CUSTOMER","DILRUBA EL LALBAG","KHOLIL EL LALBAG","TANJIL EL LALBAG","AMIN EL LALBAG","EMONISTOR LALBAG","FATEMA EL LALBAG","FYSAL EL LALBAG","KHAN EL LALBAG","DINAZPUR EL LALBAG","DR EL LALBAG","JAJIRA EL LALBAG","MAERDOA EL LALBAG","MAERDOA NOBABPUR","MASUM EL LALBAG","MORIYOM EL LALBAG","MUNSI EL LALBAG","NOAKHALI EL LALBAG","RITOM","ISLAM AND BROTHER","HK POWER","IMRAN BONGSAL","JAFOR SURITOLA","MASUD DOAGONG","MINTU EL MANIQGONG","RAJIA EL GORADOR","NOWAAKHALI EL","OMORFAARUK"];
+    const MASTER_SUPPLIERS = ["RM LED LIGHTING","SAMIA ENTERPRISE","NEW AMENA EL","IMAM POWER","IR ELECTRICK","AZAD LED","FLOORA CO K2 F2","NEW ISLAM EI K2","SHARMIN TRADE IN","EAKIN EL","RAFIQ EL","BETAR EL","MOON SUPER","OSAN","SWICH PAC ENG K2","GRAMIN","INTEX","BEST LINE HITEK CO","MAX LINE","VEE","SHARIF ELECTRICK","KING BIDDUT BITAN","BONDHU LIGHTING","RITOM EL","MADINA EL","RAJEN AND BROTHERS","JIHAD PIPE","TISA EL","SP ELECTRIC CO","NABIL ENTERPRISE","ELECTRIC PALACE","GFC","JASHIRA EL HOUSE"];
+    const MASTER_PRODUCTS = ["OSAKA CATA 40W","OSAKA CATA 20W","OSAKA CATA 60W","OSAKA ACDC 12W","OSAKA ACDC 18.5W","OSAKA 20W","OSAKA 18W","OSAKA 40W","OSAKA 50W","PS 20W","PS 12W","SS 20W","SSD 20W","SEIKO 20W","IC 5W D","IC 5W A","IC 20W","ROCK STAR 20W","CHINA DIM LICHU","CHINA DIM TOMATO","CHINA 50W","INTEX 34M2","INTEX 34M5","INTEX 33M5","INTEX 813M5","INTEX 814M5","INTEX 23M5","INTEX 24M5","INTEX T STAR MALTY","BEST CTOP 2m","BEST CTOP 5m","BEST LINE 315","BEST LINE 415","BEST LINE 515","MAX017 10F","MAX017 20F","CAPACITOR 3.5","CAPACITOR 2.5","KOHLINUR 30A","KOHLINUR 15A","DP SWICH H","DP SWICH N","CABOL CLIB 6MM","CABOL CLIB 7MM","CABOL CLIB 8MM","CABOL CLIB 10MM","CABOL TAI 10IN","MK DIMAR NORMAL","CHALTHA NORMAL","OSAKA TAP","DEER TAP","NOKIA","COLING BAL","IPS DIMAR","CONVATAR","LED TUB GLASS","DC T8 TUB","GFC 12IN FAN","1HOL BOARD","3HOL BOARD","4HOL BOARD","TATAR","G STAR PENDEL HOLDAR SAPTY","G STAR WINAR SWISS","MC RAJA PLACK","PC SUPER DIMAR MK","VEE 503M5","VEE 504M5","VEE 505M5","VEE ACDC","CANDAR 12W","COSCO 18W","SUN+ ACDC 20W","CLICK MALTY PLACK 4G"];
+    const MASTER_BANKS = ["হাতে নগদ", "DBBL", "BRAC BANK", "IBBL", "bKash", "Nagad"];
+
+    // অ্যাপ স্টেট (State)
+    let sales = JSON.parse(localStorage.getItem("bb_sales_v2")) || [];
+    let purchases = JSON.parse(localStorage.getItem("bb_purchases_v2")) || [];
+    let currentReportTab = "stock";
+
+    // ২. হেল্পার মেথডসমূহ
+    function getTodayDate() { return new Date().toISOString().split("T")[0]; }
+    function fmtNum(n) { return Number(n || 0).toLocaleString("bn-BD"); }
+    function fmtDate(d) {
+      if(!d) return "";
+      return new Date(d).toLocaleDateString("bn-BD", { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function showToast(msg, isError = false) {
+      const el = document.getElementById("toast");
+      el.innerText = msg;
+      if(isError) {
+        el.className = "fixed bottom-5 right-5 px-5 py-3 rounded-xl shadow-xl font-bold text-xs text-white bg-red-600 transform translate-y-0 opacity-100 z-50 flex items-center gap-2 transition-all duration-300";
+      } else {
+        el.className = "fixed bottom-5 right-5 px-5 py-3 rounded-xl shadow-xl font-bold text-xs text-slate-950 bg-emerald-400 transform translate-y-0 opacity-100 z-50 flex items-center gap-2 transition-all duration-300";
       }
-      return null;
-    };
+      setTimeout(() => {
+        el.className = "fixed bottom-5 right-5 px-5 py-3 rounded-xl shadow-xl font-bold text-xs transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2";
+      }, 3000);
+    }
 
-    // ══════════════════════════════════════════════════
-    // ১. হোম ড্যাশবোর্ড পেজ
-    // ══════════════════════════════════════════════════
-    const PIE_COLORS = ["#00d4aa","#54a0ff","#ff9f43","#5f27cd","#ff6b6b","#feca57"];
+    // ৩. মেমোরি থেকে লাইভ স্টক গণনা ম্যাপ
+    function generateStockMap() {
+      let map = {};
+      MASTER_PRODUCTS.forEach(p => map[p] = 0);
+      purchases.forEach(p => { map[p.product] = (map[p.product] || 0) + Number(p.qty || 0); });
+      sales.forEach(s => { map[s.product] = (map[s.product] || 0) - Number(s.qty || 0); });
+      return map;
+    }
 
-    function HomePage({ totalSales, totalPurchase, totalCustDue, totalSuppDue, stockMap, sales, purchases }) {
-      const productSales = {};
-      sales.forEach(s => { productSales[s.product] = (productSales[s.product] || 0) + Number(s.qty || 0); });
-      const topProducts = Object.entries(productSales).sort(([,a],[,b]) => b-a).slice(0,8)
-        .map(([name, qty]) => ({ name: name.length > 15 ? name.slice(0,15)+"…" : name, qty }));
+    function getLastCostPrice(prod) {
+      let match = [...purchases].reverse().find(p => p.product === prod);
+      return match ? Number(match.price || 0) : 0;
+    }
 
-      const monthSales = {};
-      sales.forEach(s => {
-        if (!s.date) return;
-        const m = s.date.slice(0,7);
-        monthSales[m] = (monthSales[m] || 0) + Number(s.total || 0);
-      });
-      const monthlySalesData = Object.entries(monthSales).sort().slice(-6)
-        .map(([m, v]) => ({ month: m.slice(5)+" মাস", value: v }));
-
-      const recentSales = [...sales].reverse().slice(0,6);
-      const totalProfit = sales.reduce((s,r) => s + Number(r.profit||0), 0);
+    // ৪. পেজ ন্যাভিগেশন পরিবর্তন কন্ট্রোল
+    function switchPage(pageId) {
+      document.querySelectorAll(".page-section").forEach(sec => sec.classList.add("hidden"));
+      document.getElementById(`page-${pageId}`).classList.remove("hidden");
       
-      const totalStockValue = Object.entries(stockMap).reduce((s,[name,qty]) => {
-        if (qty <= 0) return s;
-        const lp = [...purchases].reverse().find(p => p.product === name);
-        return s + qty * Number(lp?.price || 0);
+      document.querySelectorAll(".nav-tab").forEach(btn => {
+        btn.className = "nav-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-slate-800";
+      });
+      let activeBtn = document.getElementById(`btn-${pageId}`);
+      if(pageId === 'sales') activeBtn.className = "nav-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-500 text-slate-950";
+      else if(pageId === 'purchase') activeBtn.className = "nav-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-500 text-white";
+      else if(pageId === 'reports') activeBtn.className = "nav-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-700 text-white";
+      else activeBtn.className = "nav-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-500 text-slate-950";
+
+      if(pageId === 'home') renderDashboard();
+      if(pageId === 'sales') { resetSalesForm(); renderSalesHistory(); }
+      if(pageId === 'purchase') { resetPurchaseForm(); renderPurchaseHistory(); }
+      if(pageId === 'reports') renderReportTable();
+    }
+
+    // ══════════════════════════════════════════════════
+    // ড্যাশবোর্ড লজিক (Dashboard Logic)
+    // ══════════════════════════════════════════════════
+    function renderDashboard() {
+      let stockMap = generateStockMap();
+      
+      let totalSales = sales.reduce((s, r) => s + Number(r.total || 0), 0);
+      let totalPurchase = purchases.reduce((s, r) => s + Number(r.total || 0), 0);
+      let totalProfit = sales.reduce((s, r) => s + Number(r.profit || 0), 0);
+      
+      // ইউনিক বিল আইডি অনুযায়ী মোট বাকি হিসেব
+      let seenSales = new Set();
+      let totalCustDue = sales.reduce((s, r) => {
+        let key = r.billId || r.id;
+        if(!seenSales.has(key)){ seenSales.add(key); return s + Number(r.due || 0); }
+        return s;
       }, 0);
 
-      const pieData = [
-        { name: "বিক্রয়", value: totalSales },
-        { name: "ক্রয়", value: totalPurchase },
-        { name: "কাস্টমার বাকি", value: totalCustDue },
-        { name: "সাপ্লায়ার বাকি", value: totalSuppDue },
-      ].filter(d => d.value > 0);
+      let seenPur = new Set();
+      let totalSuppDue = purchases.reduce((s, r) => {
+        let key = r.memoId || r.id;
+        if(!seenPur.has(key)){ seenPur.add(key); return s + Number(r.due || 0); }
+        return s;
+      }, 0);
 
-      const negStock = Object.entries(stockMap).filter(([,v]) => v < 0);
-      const lowStock = Object.entries(stockMap).filter(([,v]) => v >= 0 && v <= 5);
+      let totalStockValue = Object.entries(stockMap).reduce((s, [name, qty]) => {
+        if(qty <= 0) return s;
+        return s + (qty * getLastCostPrice(name));
+      }, 0);
 
-      return (
-        <div style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #0d1b2a 100%)", minHeight: "100vh", margin: -20, padding: 20 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 20 }}>
-            {[
-              { label: "মোট বিক্রয়", value: totalSales, color: "#00d4aa", bg: "#00d4aa18", icon: "💰" },
-              { label: "মোট ক্রয়", value: totalPurchase, color: "#54a0ff", bg: "#54a0ff18", icon: "🛒" },
-              { label: "মোট লাভ", value: totalProfit, color: totalProfit >= 0 ? "#2ecc71" : "#ff6b6b", bg: "#2ecc7118", icon: "📈" },
-              { label: "স্টক মূল্য", value: totalStockValue, color: "#ff9f43", bg: "#ff9f4318", icon: "📦" },
-              { label: "কাস্টমার বাকি", value: totalCustDue, color: "#ff6b6b", bg: "#ff6b6b18", icon: "👥" },
-              { label: "সাপ্লায়ার বাকি", value: totalSuppDue, color: "#feca57", bg: "#feca5718", icon: "🏪" },
-            ].map((d,i) => (
-              <div key={i} style={{ background: d.bg, border: `1px solid ${d.color}30`, borderRadius: 16, padding: "14px 16px" }}>
-                <div style={{ fontSize: 22 }}>{d.icon}</div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: d.color, marginTop: 4 }}>৳{fmtNum(d.value)}</div>
-                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{d.label}</div>
+      // DOM আপডেট
+      document.getElementById("stat-sales").innerText = fmtNum(totalSales);
+      document.getElementById("stat-purchase").innerText = fmtNum(totalPurchase);
+      document.getElementById("stat-profit").innerText = fmtNum(totalProfit);
+      document.getElementById("stat-stock-val").innerText = fmtNum(totalStockValue);
+      document.getElementById("stat-cust-due").innerText = fmtNum(totalCustDue);
+      document.getElementById("stat-supp-due").innerText = fmtNum(totalSuppDue);
+
+      // সাম্প্রতিক বিক্রয়
+      let recentHTML = "";
+      let lastSales = [...sales].reverse().slice(0, 6);
+      if(lastSales.length === 0) recentHTML = `<div class="text-slate-500 py-4 text-center">কোনো বিক্রয় রেকর্ড নেই</div>`;
+      else {
+        lastSales.forEach(s => {
+          recentHTML += `
+            <div class="py-2.5 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-slate-200">${s.customer}</div>
+                <div class="text-xs text-slate-500">${s.product} × ${s.qty} পিস | ${fmtDate(s.date)}</div>
               </div>
-            ))}
-          </div>
+              <div class="text-right font-black text-emerald-400">৳${fmtNum(s.total)}</div>
+            </div>`;
+        });
+      }
+      document.getElementById("recent-sales-list").innerHTML = recentHTML;
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 16, marginBottom: 16 }}>
-            <DarkCard>
-              <SectionTitle icon="🏆" title="সর্বাধিক বিক্রিত পণ্য" />
-              {topProducts.length === 0
-                ? <div style={{ color: "#475569", textAlign: "center", padding: 20 }}>এখনো বিক্রয় নেই</div>
-                : <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={topProducts} layout="vertical" barSize={12}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
-                      <XAxis type="number" tick={{ fill: "#64748b", fontSize: 10 }} />
-                      <YAxis type="category" dataKey="name" width={100} tick={{ fill: "#94a3b8", fontSize: 10 }} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="qty" name="বিক্রয় (পিস)" fill="#00d4aa" radius={[0,6,6,0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-              }
-            </DarkCard>
-
-            <DarkCard>
-              <SectionTitle icon="📊" title="মাসিক বিক্রয় (টাকা)" />
-              {monthlySalesData.length === 0
-                ? <div style={{ color: "#475569", textAlign: "center", padding: 20 }}>এখনো ডেটা নেই</div>
-                : <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={monthlySalesData} barSize={28}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                      <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 10 }} />
-                      <YAxis tick={{ fill: "#64748b", fontSize: 10 }} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="value" name="বিক্রয়" fill="#54a0ff" radius={[6,6,0,0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-              }
-            </DarkCard>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 16 }}>
-            <DarkCard>
-              <SectionTitle icon="🕐" title="সাম্প্রতিক বিক্রয়" />
-              {recentSales.length === 0
-                ? <div style={{ color: "#475569", textAlign: "center", padding: 20 }}>এখনো বিক্রয় নেই</div>
-                : recentSales.map((s,i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #1e293b" }}>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0" }}>{s.customer}</div>
-                      <div style={{ fontSize: 11, color: "#64748b" }}>{s.product} × {s.qty} | {fmtDate(s.date)}</div>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#00d4aa" }}>৳{fmtNum(s.total)}</div>
-                    </div>
-                  </div>
-                ))
-              }
-            </DarkCard>
-
-            <DarkCard>
-              <SectionTitle icon="⚠️" title="স্টক সতর্কতা ও চিত্র" />
-              <div style={{ maxHeight: 120, overflowY: "auto", marginBottom: 12 }}>
-                {negStock.length === 0 && lowStock.length === 0
-                  ? <div style={{ color: "#2ecc71", fontSize: 13, textAlign: "center" }}>✅ সব স্টক ঠিকঠাক</div>
-                  : [...negStock, ...lowStock].slice(0,5).map(([name,qty]) => (
-                    <div key={name} style={{ display: "flex", justifyContent: "space-between", padding: "6px 10px", borderRadius: 6, marginBottom: 4, background: qty < 0 ? "#ff6b6b10" : "#ff9f4310", border: `1px solid ${qty < 0 ? "#ff6b6b30" : "#ff9f4330"}`, fontSize: 12 }}>
-                      <span style={{ color: "#e2e8f0" }}>{qty < 0 ? "🔴" : "🟡"} {name}</span>
-                      <span style={{ fontWeight: 700, color: qty < 0 ? "#ff6b6b" : "#ff9f43" }}>{qty} পিস</span>
-                    </div>
-                  ))
-                }
-              </div>
-              {pieData.length > 0 && (
-                <ResponsiveContainer width="100%" height={120}>
-                  <PieChart>
-                    <Pie data={pieData} cx="50%" cy="50%" outerRadius={45} innerRadius={22} dataKey="value" stroke="none">
-                      {pieData.map((_,i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend wrapperStyle={{ fontSize: 10, color: "#94a3b8" }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              )}
-            </DarkCard>
-          </div>
-        </div>
-      );
+      // স্টক সতর্কতা (নেগেটিভ ও স্টক ০-৫ পিস)
+      let alertHTML = "";
+      let warnings = Object.entries(stockMap).filter(([_, qty]) => qty <= 5);
+      if(warnings.length === 0) alertHTML = `<div class="text-emerald-500 py-3 text-center font-semibold">✅ সব মালামালের স্টক পর্যাপ্ত!</div>`;
+      else {
+        warnings.slice(0, 8).forEach(([name, qty]) => {
+          let badgeColor = qty < 0 ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-amber-500/10 border-amber-500/30 text-amber-400";
+          alertHTML += `
+            <div class="p-2 border rounded-xl flex justify-between items-center ${badgeColor}">
+              <span class="font-semibold">${qty < 0 ? '🔴' : '🟡'} ${name}</span>
+              <span class="font-bold text-right">${qty} পিস</span>
+            </div>`;
+        });
+      }
+      document.getElementById("stock-warnings-list").innerHTML = alertHTML;
     }
 
     // ══════════════════════════════════════════════════
-    // ২. ক্রয় (Purchase) পেজ
+    // বিক্রয় পেজ লজিক (Sales Logic)
     // ══════════════════════════════════════════════════
-    function PurchasePage({ purchases, setPurchases, suppliers, products, showToast }) {
-      const [header, setHeader] = useState({ date: today(), supplier: "", memo: "", paid: "", bank: "হাতে নগদ" });
-      const setH = (k,v) => setHeader(h => ({ ...h, [k]: v }));
-      const emptyLine = { product: "", qty: "", price: "", discount: "" };
-      const [lines, setLines] = useState([{ ...emptyLine, _id: Date.now() }]);
-      const [search, setSearch] = useState("");
+    function resetSalesForm() {
+      document.getElementById("sales-date").value = getTodayDate();
+      document.getElementById("sales-customer").value = "";
+      document.getElementById("sales-bill").value = "";
+      document.getElementById("sales-paid").value = "";
+      document.getElementById("sales-bank").value = "হাতে নগদ";
+      
+      document.getElementById("sales-lines-container").innerHTML = "";
+      addSalesLineRow(); // একটি শুরুর খালি লাইন তৈরি
+      calculateSalesTotal();
+    }
 
-      const setLine = (idx,k,v) => {
-        setLines(ls => {
-          const updated = ls.map((l,i) => i===idx ? { ...l, [k]: v } : l);
-          const last = updated[updated.length-1];
-          if (idx === updated.length-1 && (last.product || last.qty || last.price)) {
-            return [...updated, { ...emptyLine, _id: Date.now()+Math.random() }];
+    function addSalesLineRow() {
+      const container = document.getElementById("sales-lines-container");
+      const rowId = "sales-row-" + Date.now() + Math.floor(Math.random()*100);
+      const div = document.createElement("div");
+      div.id = rowId;
+      div.className = "grid grid-cols-12 gap-2 p-2 items-center hover:bg-slate-900/50";
+      div.innerHTML = `
+        <div class="col-span-6 flex gap-2 items-center">
+          <button onclick="removeSalesRow('${rowId}')" class="text-rose-500 hover:text-rose-400 font-bold px-1 text-sm cursor-pointer">✕</button>
+          <input type="text" list="dl-products" placeholder="পণ্য বেছে নিন" oninput="onSalesProductChange('${rowId}', this.value)" class="row-prod w-full bg-slate-800/80 border border-slate-700/60 rounded-lg px-2 py-1 text-xs focus:outline-none text-white" />
+        </div>
+        <div class="col-span-2"><input type="number" placeholder="0" oninput="calculateSalesTotal()" class="row-qty w-full text-right bg-slate-800/80 border border-slate-700/60 rounded-lg px-2 py-1 text-xs focus:outline-none text-white" /></div>
+        <div class="col-span-2"><input type="number" placeholder="0" oninput="calculateSalesTotal()" class="row-price w-full text-right bg-slate-800/80 border border-slate-700/60 rounded-lg px-2 py-1 text-xs focus:outline-none text-white" /></div>
+        <div class="col-span-2"><input type="number" placeholder="0" oninput="calculateSalesTotal()" class="row-disc w-full text-right bg-slate-800/80 border border-slate-700/60 rounded-lg px-2 py-1 text-xs focus:outline-none text-white" /></div>
+      `;
+      container.appendChild(div);
+    }
+
+    function onSalesProductChange(rowId, val) {
+      let rows = document.getElementById("sales-lines-container").children;
+      let lastRow = rows[rows.length - 1];
+      if (lastRow.id === rowId && val.trim() !== "") {
+        addSalesLineRow(); // ইউজার টাইপ করা শুরু করলে স্বয়ংক্রিয় নতুন লাইন তৈরি
+      }
+      calculateSalesTotal();
+    }
+
+    function removeSalesRow(rowId) {
+      let rows = document.getElementById("sales-lines-container").children;
+      if (rows.length > 1) {
+        document.getElementById(rowId).remove();
+        calculateSalesTotal();
+      }
+    }
+
+    function calculateSalesTotal() {
+      let grandTotal = 0;
+      let rows = document.getElementById("sales-lines-container").children;
+      
+      for(let r of rows) {
+        let q = Number(r.querySelector(".row-qty").value || 0);
+        let p = Number(r.querySelector(".row-price").value || 0);
+        let d = Number(r.querySelector(".row-disc").value || 0);
+        grandTotal += (q * p) - d;
+      }
+      
+      let paid = Number(document.getElementById("sales-paid").value || 0);
+      let cust = document.getElementById("sales-customer").value;
+      let due = cust === "CASH CUSTOMER" ? 0 : grandTotal - paid;
+      
+      document.getElementById("lbl-sales-total").innerText = `৳${fmtNum(grandTotal)}`;
+      document.getElementById("lbl-sales-due").innerText = `৳${fmtNum(due < 0 ? 0 : due)}`;
+    }
+
+    // নগদ গ্রাহণ ফিল্ডে হাত দিলেও সাথে সাথে বাকি আপডেট হবে
+    document.getElementById("sales-paid").addEventListener("input", calculateSalesTotal);
+    document.getElementById("sales-customer").addEventListener("input", calculateSalesTotal);
+
+    function saveSalesVoucher() {
+      let date = document.getElementById("sales-date").value;
+      let customer = document.getElementById("sales-customer").value.trim();
+      let billNo = document.getElementById("sales-bill").value.trim();
+      let paid = Number(document.getElementById("sales-paid").value || 0);
+      let bank = document.getElementById("sales-bank").value;
+
+      if(!customer) return showToast("⚠️ কাস্টমারের নাম নির্বাচন করুন!", true);
+      
+      let rows = document.getElementById("sales-lines-container").children;
+      let validEntries = [];
+      let stockMap = generateStockMap();
+
+      for(let r of rows) {
+        let product = r.querySelector(".row-prod").value.trim();
+        let qty = Number(r.querySelector(".row-qty").value || 0);
+        let price = Number(r.querySelector(".row-price").value || 0);
+        let discount = Number(r.querySelector(".row-disc").value || 0);
+
+        if(product && qty > 0 && price > 0) {
+          // লাইভ স্টক ভ্যালিডেশন চেক
+          if(qty > (stockMap[product] || 0)) {
+            return showToast(`❌ দুঃখিত, ${product} এর পর্যাপ্ত স্টক নেই! (বর্তমানে আছে: ${stockMap[product] || 0} পিস)`, true);
           }
-          return updated;
+          
+          let total = (qty * price) - discount;
+          let costPrice = getLastCostPrice(product);
+          let profit = total - (costPrice * qty);
+
+          validEntries.push({ product, qty, price, discount, total, profit });
+        }
+      }
+
+      if(validEntries.length === 0) return showToast("⚠️ অনুগ্রহ করে কমপক্ষে ১টি আইটেম সঠিক তথ্যসহ দিন!", true);
+
+      let billId = Date.now();
+      let grandTotal = validEntries.reduce((s, x) => s + x.total, 0);
+      let due = customer === "CASH CUSTOMER" ? 0 : grandTotal - paid;
+
+      validEntries.forEach((entry, idx) => {
+        sales.push({
+          billId,
+          id: billId + idx,
+          date, customer, billNo, bank,
+          paid: idx === 0 ? paid : 0,
+          due: idx === 0 ? due : 0,
+          ...entry
         });
-      };
-      const removeLine = (idx) => setLines(ls => ls.length > 1 ? ls.filter((_,i) => i!==idx) : ls);
+      });
 
-      const lineTotal = (l) => Number(l.qty||0) * Number(l.price||0) - Number(l.discount||0);
-      const grandTotal = lines.reduce((s,l) => s + lineTotal(l), 0);
-      const due = grandTotal - Number(header.paid||0);
+      localStorage.setItem("bb_sales_v2", JSON.stringify(sales));
+      showToast(`✅ ${validEntries.length}টি পণ্যের বিক্রয় মেমো সফলভাবে সেভ হয়েছে!`);
+      resetSalesForm();
+      renderSalesHistory();
+    }
 
-      const submit = () => {
-        if (!header.supplier) return showToast("সাপ্লায়ারের নাম দিন", "err");
-        const validLines = lines.filter(l => l.product && l.qty && l.price);
-        if (validLines.length === 0) return showToast("কমপক্ষে একটি পণ্য দিন", "err");
+    function renderSalesHistory() {
+      let q = document.getElementById("search-sales").value.toLowerCase();
+      
+      // ইউনিক মেমো গ্রুপিং লজিক
+      let grouped = {};
+      sales.forEach(s => {
+        let key = s.billId || s.id;
+        if(!grouped[key]) grouped[key] = [];
+        grouped[key].push(s);
+      });
+
+      let html = "";
+      let sortedKeys = Object.keys(grouped).sort((a,b) => b - a); // নতুন ভাউচার উপরে থাকবে
+
+      let count = 0;
+      sortedKeys.forEach(key => {
+        let items = grouped[key];
+        let first = items[0];
         
-        const memoId = Date.now();
-        const newEntries = validLines.map((l,i) => ({
-          ...header, product: l.product, qty: Number(l.qty), price: Number(l.price),
-          discount: Number(l.discount||0), total: lineTotal(l), due: i===0 ? due : 0,
-          memoId, id: memoId+i,
-        }));
-
-        setPurchases(p => [...p, ...newEntries]);
-        setHeader({ date: today(), supplier: "", memo: "", paid: "", bank: "হাতে নগদ" });
-        setLines([{ ...emptyLine, _id: Date.now() }]);
-        showToast(`✅ ${validLines.length}টি পণ্য ক্রয় সফল হয়েছে`);
-      };
-
-      const grouped = useMemo(() => {
-        const res = [];
-        const seen = new Set();
-        [...purchases].reverse().forEach(p => {
-          const key = p.memoId || p.id;
-          if (!seen.has(key)) {
-            seen.add(key);
-            const group = purchases.filter(x => (x.memoId||x.id)===key);
-            res.push({ key, group, supplier: p.supplier, date: p.date, memo: p.memo, due: group[0]?.due||0, total: group.reduce((s,x) => s+Number(x.total||0),0) });
-          }
-        });
-        return res;
-      }, [purchases]);
-
-      const filtered = grouped.filter(g =>
-        g.supplier?.toLowerCase().includes(search.toLowerCase()) ||
-        g.group.some(x => x.product?.toLowerCase().includes(search.toLowerCase()))
-      );
-
-      return (
-        <div>
-          <datalist id="dl_sup">{suppliers.map(s => <option key={s} value={s} />)}</datalist>
-          <datalist id="dl_pro">{products.map(s => <option key={s} value={s} />)}</datalist>
-          <Card>
-            <h3 style={{ margin: "0 0 16px", color: "#1a5276", fontSize: 15 }}>🛒 নতুন ক্রয় — একাধিক পণ্য একসাথে</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 16, padding: 12, background: "#eaf0fb", borderRadius: 10 }}>
-              <Input label="তারিখ *" type="date" value={header.date} onChange={v => setH("date",v)} />
-              <Input label="সাপ্লায়ার *" value={header.supplier} onChange={v => setH("supplier",v)} list="dl_sup" placeholder="নাম খুঁজুন বা লিখুন" />
-              <Input label="মেমো নং" value={header.memo} onChange={v => setH("memo",v)} placeholder="মেমো নম্বর" />
-              <Input label="পরিশোধ (মোট)" type="number" value={header.paid} onChange={v => setH("paid",v)} placeholder="0" />
-              <Select label="মাধ্যম" value={header.bank} onChange={v => setH("bank",v)} options={INIT_BANKS} />
+        let match = first.customer.toLowerCase().includes(q) || first.billNo.toLowerCase().includes(q) || items.some(x => x.product.toLowerCase().includes(q));
+        if(!match) return;
+        
+        count++;
+        let memoTotal = items.reduce((s, x) => s + x.total, 0);
+        
+        html += `
+          <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/40">
+            <div class="bg-slate-950 p-3 flex flex-wrap justify-between items-center gap-2 border-b border-slate-800">
+              <div class="text-xs font-bold text-slate-200">
+                👤 <span class="text-emerald-400 font-extrabold">${first.customer}</span> 
+                ${first.billNo ? `| বিল নং: <span class="text-slate-300">#${first.billNo}</span>` : ''} 
+                <span class="text-slate-500 font-normal">(${fmtDate(first.date)})</span>
+              </div>
+              <div class="flex items-center gap-4 text-xs font-bold">
+                <span class="text-slate-300">মোট: ৳${fmtNum(memoTotal)}</span>
+                <span class="${first.due > 0 ? 'text-amber-400' : 'text-emerald-400'}">বাকি: ৳${fmtNum(first.due)}</span>
+                <button onclick="deleteSalesBill('${key}')" class="text-rose-500 hover:text-rose-400 cursor-pointer">🗑️ মুছুন</button>
+              </div>
             </div>
+            <div class="p-2 space-y-1 text-xs">`;
             
-            <div style={{ marginBottom: 12, borderRadius: 8, overflow: "hidden", border: "1px solid #e2e8f0" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 80px 100px 80px 40px", gap: 8, padding: 10, background: "#1a3a5c" }}>
-                {["পণ্যের নাম","পরিমাণ","একক দাম","ডিসকাউন্ট",""].map(h => (
-                  <div key={h} style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}>{h}</div>
-                ))}
-              </div>
-              {lines.map((l,idx) => (
-                <div key={l._id} style={{ display: "grid", gridTemplateColumns: "2fr 80px 100px 80px 40px", gap: 8, padding: 8, background: idx%2===0 ? "#f8fafc" : "#fff", borderBottom: "1px solid #eee", alignItems: "center" }}>
-                  <input value={l.product} onChange={e => setLine(idx,"product",e.target.value)} list="dl_pro" placeholder="পণ্য বেছে নিন..."
-                    style={{ padding: 6, border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%" }} />
-                  <input type="number" value={l.qty} onChange={e => setLine(idx,"qty",e.target.value)} placeholder="0"
-                    style={{ padding: 6, border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%" }} />
-                  <input type="number" value={l.price} onChange={e => setLine(idx,"price",e.target.value)} placeholder="0"
-                    style={{ padding: 6, border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%" }} />
-                  <input type="number" value={l.discount} onChange={e => setLine(idx,"discount",e.target.value)} placeholder="0"
-                    style={{ padding: 6, border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%" }} />
-                  <button onClick={() => removeLine(idx)} disabled={lines.length===1} style={{ background: "none", border: "none", cursor: "pointer", color: "#e74c3c", fontSize: 16 }}>🗑️</button>
-                </div>
-              ))}
-            </div>
+        items.forEach(it => {
+          html += `
+            <div class="flex justify-between text-slate-400 px-2 py-0.5">
+              <span>📦 ${it.product} <span class="text-slate-600">(${it.qty} পিস × ৳${it.price})</span></span>
+              <span class="font-bold text-slate-300">৳${fmtNum(it.total)}</span>
+            </div>`;
+        });
 
-            <div style={{ display: "flex", gap: 20, padding: 12, background: "#f0f4f8", borderRadius: 8, fontSize: 13, alignItems: "center", flexWrap: "wrap" }}>
-              <span>মোট আইটেম: <strong>{lines.filter(l=>l.product).length}টি</strong></span>
-              <span>সর্বমোট: <strong style={{ color: "#1a5276", fontSize: 15 }}>৳{fmtNum(grandTotal)}</strong></span>
-              <span>বাকি: <strong style={{ color: due>0?"#e74c3c":"#2ecc71" }}>৳{fmtNum(due)}</strong></span>
-              <div style={{ marginLeft: "auto" }}><Btn onClick={submit}>💾 ক্রয় ভাউচার সেভ করুন</Btn></div>
-            </div>
-          </Card>
+        html += `</div></div>`;
+      });
 
-          <Card>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-              <h3 style={{ margin: 0, fontSize: 15, color: "#1a5276" }}>📋 ক্রয়ের মেমো তালিকা ({filtered.length}টি)</h3>
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 মেমো বা সাপ্লায়ার খুঁজুন..."
-                style={{ padding: "6px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, width: 220 }} />
-            </div>
-            {filtered.map(g => (
-              <div key={g.key} style={{ marginBottom: 12, border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden" }}>
-                <div style={{ background: "#1a3a5c", padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                  <div style={{ color: "white", fontSize: 13 }}>
-                    <strong>{g.supplier}</strong> {g.memo && <span>(মেমো: #{g.memo})</span>} — <span style={{ color: "#94a3b8" }}>{fmtDate(g.date)}</span>
-                  </div>
-                  <div style={{ display: "flex", gap: 16, alignItems: "center", color: "#fff", fontSize: 13 }}>
-                    <span style={{ color: "#00d4aa" }}>মোট: ৳{fmtNum(g.total)}</span>
-                    <span style={{ color: g.due>0?"#ff9f43":"#2ecc71" }}>বাকি: ৳{fmtNum(g.due)}</span>
-                    <Btn small color="#ff6b6b" onClick={() => { setPurchases(ps => ps.filter(x => (x.memoId||x.id)!==g.key)); showToast("ক্রয় রিলিজ করা হয়েছে", "err"); }}>মুছুন</Btn>
-                  </div>
-                </div>
-                {g.group.map((p,i) => (
-                  <div key={p.id} style={{ display: "flex", justify: "space-between", padding: "8px 16px", background: i%2===0?"#f8fafc":"#fff", fontSize: 13, borderBottom: "1px solid #eee" }}>
-                    <span style={{ flex: 2 }}>📦 {p.product}</span>
-                    <span style={{ flex: 1, text: "right", color: "#7f8c8d" }}>{p.qty} পিস × ৳{fmtNum(p.price)}</span>
-                    <span style={{ fontWeight: 600 }}>৳{fmtNum(p.total)}</span>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </Card>
-        </div>
-      );
+      if(count === 0) html = `<div class="text-slate-500 text-center py-6 text-xs">কোনো বিক্রয় রেকর্ড পাওয়া যায়নি</div>`;
+      document.getElementById("sales-history-container").innerHTML = html;
     }
 
-    // ══════════════════════════════════════════════════
-    // ৩. বিক্রয় (Sales) পেজ
-    // ══════════════════════════════════════════════════
-    function SalesPage({ sales, setSales, customers, products, showToast, stockMap, purchases }) {
-      const [header, setHeader] = useState({ date: today(), customer: "", billNo: "", paid: "", bank: "হাতে নগদ" });
-      const [lines, setLines] = useState([{ product: "", qty: "", price: "", costPrice: "", discount: "", _id: Date.now() }]);
-      const [search, setSearch] = useState("");
+    function deleteSalesBill(billId) {
+      if(confirm("আপনি কি নিশ্চিতভাবে এই বিক্রয় ভাউচারটি সম্পূর্ণ ডিলেট করতে চান?")) {
+        sales = sales.filter(x => (x.billId || x.id).toString() !== billId.toString());
+        localStorage.setItem("bb_sales_v2", JSON.stringify(sales));
+        showToast("🗑️ বিক্রয় ভাউচারটি মুছে ফেলা হয়েছে", true);
+        renderSalesHistory();
+      }
+    }
 
-      const getLastCostPrice = (prod) => {
-        const last = [...purchases].reverse().find(p => p.product === prod);
-        return last ? last.price : 0;
-      };
 
-      const setLine = (idx, k, v) => {
-        setLines(ls => {
-          const updated = ls.map((l, i) => {
-            if (i !== idx) return l;
-            const newLine = { ...l, [k]: v };
-            if (k === "product" && v) {
-              newLine.costPrice = getLastCostPrice(v);
-            }
-            return newLine;
-          });
-          const last = updated[updated.length - 1];
-          if (idx === updated.length - 1 && (last.product || last.qty || last.price)) {
-            return [...updated, { product: "", qty: "", price: "", costPrice: "", discount: "", _id: Date.now() + Math.random() }];
-          }
-          return updated;
+    // ══════════════════════════════════════════════════
+    // ক্রয় পেজ লজিক (Purchase Logic)
+    // ══════════════════════════════════════════════════
+    function resetPurchaseForm() {
+      document.getElementById("pur-date").value = getTodayDate();
+      document.getElementById("pur-supplier").value = "";
+      document.getElementById("pur-memo").value = "";
+      document.getElementById("pur-paid").value = "";
+      document.getElementById("pur-bank").value = "হাতে নগদ";
+      
+      document.getElementById("pur-lines-container").innerHTML = "";
+      addPurchaseLineRow();
+      calculatePurchaseTotal();
+    }
+
+    function addPurchaseLineRow() {
+      const container = document.getElementById("pur-lines-container");
+      const rowId = "pur-row-" + Date.now() + Math.floor(Math.random()*100);
+      const div = document.createElement("div");
+      div.id = rowId;
+      div.className = "grid grid-cols-12 gap-2 p-2 items-center hover:bg-slate-900/50";
+      div.innerHTML = `
+        <div class="col-span-6 flex gap-2 items-center">
+          <button onclick="removePurRow('${rowId}')" class="text-rose-500 hover:text-rose-400 font-bold px-1 text-sm cursor-pointer">✕</button>
+          <input type="text" list="dl-products" placeholder="পণ্য বেছে নিন" oninput="onPurProductChange('${rowId}', this.value)" class="row-p-prod w-full bg-slate-800/80 border border-slate-700/60 rounded-lg px-2 py-1 text-xs focus:outline-none text-white" />
+        </div>
+        <div class="col-span-2"><input type="number" placeholder="0" oninput="calculatePurchaseTotal()" class="row-p-qty w-full text-right bg-slate-800/80 border border-slate-700/60 rounded-lg px-2 py-1 text-xs focus:outline-none text-white" /></div>
+        <div class="col-span-2"><input type="number" placeholder="0" oninput="calculatePurchaseTotal()" class="row-p-price w-full text-right bg-slate-800/80 border border-slate-700/60 rounded-lg px-2 py-1 text-xs focus:outline-none text-white" /></div>
+        <div class="col-span-2"><input type="number" placeholder="0" oninput="calculatePurchaseTotal()" class="row-p-disc w-full text-right bg-slate-800/80 border border-slate-700/60 rounded-lg px-2 py-1 text-xs focus:outline-none text-white" /></div>
+      `;
+      container.appendChild(div);
+    }
+
+    function onPurProductChange(rowId, val) {
+      let rows = document.getElementById("pur-lines-container").children;
+      let lastRow = rows[rows.length - 1];
+      if (lastRow.id === rowId && val.trim() !== "") {
+        addPurchaseLineRow();
+      }
+      calculatePurchaseTotal();
+    }
+
+    function removePurRow(rowId) {
+      let rows = document.getElementById("pur-lines-container").children;
+      if (rows.length > 1) {
+        document.getElementById(rowId).remove();
+        calculatePurchaseTotal();
+      }
+    }
+
+    function calculatePurchaseTotal() {
+      let grandTotal = 0;
+      let rows = document.getElementById("pur-lines-container").children;
+      
+      for(let r of rows) {
+        let q = Number(r.querySelector(".row-p-qty").value || 0);
+        let p = Number(r.querySelector(".row-p-price").value || 0);
+        let d = Number(r.querySelector(".row-p-disc").value || 0);
+        grandTotal += (q * p) - d;
+      }
+      
+      let paid = Number(document.getElementById("pur-paid").value || 0);
+      let due = grandTotal - paid;
+      
+      document.getElementById("lbl-pur-total").innerText = `৳${fmtNum(grandTotal)}`;
+      document.getElementById("lbl-pur-due").innerText = `৳${fmtNum(due < 0 ? 0 : due)}`;
+    }
+
+    document.getElementById("pur-paid").addEventListener("input", calculatePurchaseTotal);
+
+    function savePurchaseVoucher() {
+      let date = document.getElementById("pur-date").value;
+      let supplier = document.getElementById("pur-supplier").value.trim();
+      let memo = document.getElementById("pur-memo").value.trim();
+      let paid = Number(document.getElementById("pur-paid").value || 0);
+      let bank = document.getElementById("pur-bank").value;
+
+      if(!supplier) return showToast("⚠️ সাপ্লায়ারের নাম নির্বাচন করুন!", true);
+      
+      let rows = document.getElementById("pur-lines-container").children;
+      let validEntries = [];
+
+      for(let r of rows) {
+        let product = r.querySelector(".row-p-prod").value.trim();
+        let qty = Number(r.querySelector(".row-p-qty").value || 0);
+        let price = Number(r.querySelector(".row-p-price").value || 0);
+        let discount = Number(r.querySelector(".row-p-disc").value || 0);
+
+        if(product && qty > 0 && price > 0) {
+          validEntries.push({ product, qty, price, discount, total: (qty * price) - discount });
+        }
+      }
+
+      if(validEntries.length === 0) return showToast("⚠️ কমপক্ষে ১টি পণ্যের সঠিক বিবরণ লিখুন!", true);
+
+      let memoId = Date.now();
+      let grandTotal = validEntries.reduce((s, x) => s + x.total, 0);
+      let due = grandTotal - paid;
+
+      validEntries.forEach((entry, idx) => {
+        purchases.push({
+          memoId,
+          id: memoId + idx,
+          date, supplier, memo, bank,
+          paid: idx === 0 ? paid : 0,
+          due: idx === 0 ? due : 0,
+          ...entry
         });
-      };
+      });
+
+      localStorage.setItem("bb_purchases_v2", JSON.stringify(purchases));
+      showToast(`✅ ${validEntries.length}টি পণ্য স্টকে যোগ করা সফল হয়েছে!`);
+      resetPurchaseForm();
+      renderPurchaseHistory();
+    }
+
+    function renderPurchaseHistory() {
+      let q = document.getElementById("search-purchase").value.toLowerCase();
+      let grouped = {};
       
-      const removeLine = (idx) => setLines(ls => ls.length > 1 ? ls.filter((_, i) => i !== idx) : ls);
+      purchases.forEach(p => {
+        let key = p.memoId || p.id;
+        if(!grouped[key]) grouped[key] = [];
+        grouped[key].push(p);
+      });
 
-      const lineTotal = (l) => Number(l.qty || 0) * Number(l.price || 0) - Number(l.discount || 0);
-      const lineProfit = (l) => lineTotal(l) - (Number(l.costPrice || 0) * Number(l.qty || 0));
+      let html = "";
+      let sortedKeys = Object.keys(grouped).sort((a,b) => b - a);
+
+      let count = 0;
+      sortedKeys.forEach(key => {
+        let items = grouped[key];
+        let first = items[0];
+        
+        let match = first.supplier.toLowerCase().includes(q) || first.memo.toLowerCase().includes(q) || items.some(x => x.product.toLowerCase().includes(q));
+        if(!match) return;
+        
+        count++;
+        let memoTotal = items.reduce((s, x) => s + x.total, 0);
+        
+        html += `
+          <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/40">
+            <div class="bg-slate-950 p-3 flex flex-wrap justify-between items-center gap-2 border-b border-slate-800">
+              <div class="text-xs font-bold text-slate-200">
+                🏪 <span class="text-blue-400 font-extrabold">${first.supplier}</span> 
+                ${first.memo ? `| মেমো: <span class="text-slate-300">#${first.memo}</span>` : ''} 
+                <span class="text-slate-500 font-normal">(${fmtDate(first.date)})</span>
+              </div>
+              <div class="flex items-center gap-4 text-xs font-bold">
+                <span class="text-slate-300">মোট: ৳${fmtNum(memoTotal)}</span>
+                <span class="${first.due > 0 ? 'text-orange-400' : 'text-emerald-400'}">বাকি: ৳${fmtNum(first.due)}</span>
+                <button onclick="deletePurchaseBill('${key}')" class="text-rose-500 hover:text-rose-400 cursor-pointer">🗑️ মুছুন</button>
+              </div>
+            </div>
+            <div class="p-2 space-y-1 text-xs">`;
+            
+        items.forEach(it => {
+          html += `
+            <div class="flex justify-between text-slate-400 px-2 py-0.5">
+              <span>📦 ${it.product} <span class="text-slate-600">(${it.qty} পিস × ৳${it.price})</span></span>
+              <span class="font-bold text-slate-300">৳${fmtNum(it.total)}</span>
+            </div>`;
+        });
+
+        html += `</div></div>`;
+      });
+
+      if(count === 0) html = `<div class="text-slate-500 text-center py-6 text-xs">কোনো ক্রয়ের ভাউচার পাওয়া যায়নি</div>`;
+      document.getElementById("pur-history-container").innerHTML = html;
+    }
+
+    function deletePurchaseBill(memoId) {
+      if(confirm("আপনি কি নিশ্চিতভাবে এই ক্রয় মেমোটি স্টক থেকে ডিলেট করতে চান?")) {
+        purchases = purchases.filter(x => (x.memoId || x.id).toString() !== memoId.toString());
+        localStorage.setItem("bb_purchases_v2", JSON.stringify(purchases));
+        showToast("🗑️ ক্রয় ভাউচারটি স্টক থেকে রিলিজ করা হয়েছে", true);
+        renderPurchaseHistory();
+      }
+    }
+
+
+    // ══════════════════════════════════════════════════
+    // চার্ট ছাড়া লেজার ও রিপোর্ট (Report Table Section)
+    // ══════════════════════════════════════════════════
+    function switchReportTab(tab) {
+      currentReportTab = tab;
+      document.querySelectorAll(".report-tab").forEach(b => {
+        b.className = "report-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-950 text-slate-400 hover:bg-slate-900";
+      });
+      document.getElementById(`tab-${tab}`).className = "report-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white border border-slate-700";
       
-      const grandTotal = lines.reduce((s, l) => s + lineTotal(l), 0);
-      const due = header.customer === "CASH CUSTOMER" ? 0 : grandTotal - Number(header.paid || 0);
+      document.getElementById("search-report").value = "";
+      renderReportTable();
+    }
 
-      const submit = () => {
-        if (!header.customer) return showToast("কাস্টমারের নাম দিন", "err");
-        const validLines = lines.filter(l => l.product && l.qty && l.price);
-        if (validLines.length === 0) return showToast("কমপক্ষে একটি পণ্য যোগ করুন", "err");
+    function renderReportTable() {
+      let q = document.getElementById("search-report").value.toLowerCase();
+      let html = "";
+      let title = "";
+      let thValue = "";
 
-        // লাইভ স্টক চেক
+      if(currentReportTab === "stock") {
+        title = "📊 বর্তমান স্টক পজিশন বিবরণ";
+        thValue = "স্টক স্টক (পিস)";
+        let stockMap = generateStockMap();
+        
+        Object.entries(stockMap).forEach(([name, qty]) => {
+          if(!name.toLowerCase().includes(q)) return;
+          let color = qty < 0 ? 'text-rose-400 font-bold' : (qty <= 5 ? 'text-amber-400' : 'text-slate-300');
+          html += `
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="p-3 text-slate-300 font-medium">📦 ${name}</td>
+              <td class="p-3 text-right ${color}">${qty} পিস</td>
+            </tr>`;
+        });
+      } 
+      else if(currentReportTab === "customer") {
+        title = "👥 কাস্টমার লেজার এবং বাকি তালিকা";
+        thValue = "বাকি টাকা (৳)";
+        let bal = {};
+        MASTER_CUSTOMERS.forEach(c => bal[c] = 0);
+        sales.forEach(s => { bal[s.customer] = (bal[s.customer] || 0) + Number(s.due || 0); });
+
+        Object.entries(bal).forEach(([name, due]) => {
+          if(!name.toLowerCase().includes(q)) return;
+          if(name === "CASH CUSTOMER" && due === 0) return; // ক্যাশ কাস্টমার ০ বাকি হাইড রাখলাম
+          html += `
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="p-3 text-slate-300">👤 ${name}</td>
+              <td class="p-3 text-right font-bold ${due > 0 ? 'text-rose-400' : 'text-emerald-400'}">৳${fmtNum(due)}</td>
+            </tr>`;
+        });
+      } 
+      else if(currentReportTab === "supplier") {
+        title = "🏪 সাপ্লায়ার লেজার এবং বকেয়া পাওনা";
+        thValue = "পাওনা টাকা (৳)";
+        let bal = {};
+        MASTER_SUPPLIERS.forEach(s => bal[s] = 0);
+        purchases.forEach(p => { bal[p.supplier] = (bal[p.supplier] || 0) + Number(p.due || 0); });
+
+        Object.entries(bal).forEach(([name, due]) => {
+          if(!name.toLowerCase().includes(q)) return;
+          html += `
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="p-3 text-slate-300">🏪 ${name}</td>
+              <td class="p-3 text-right font-bold ${due > 0 ? 'text-orange-400' : 'text-emerald-400'}">৳${fmtNum(due)}</td>
+            </tr>`;
+        });
+      }
+
+      document.getElementById("report-title").innerText = title;
+      document.getElementById("th-value").innerText = thValue;
+      document.getElementById("report-table-body").innerHTML = html || `<tr><td colspan="2" class="p-4 text-center text-slate-500 text-xs">কোনো ডেটা মিল পাওয়া যায়নি</td></tr>`;
+    }
+
+    // ৫. শুরুতে অটো-কমপ্লিট ড্রপডাউন ডাটা পূরণ করা
+    function initDatalists() {
+      document.getElementById("dl-customers").innerHTML = MASTER_CUSTOMERS.map(c => `<option value="${c}"></option>`).join("");
+      document.getElementById("dl-suppliers").innerHTML = MASTER_SUPPLIERS.map(s => `<option value="${s}"></option>`).join("");
+      document.getElementById("dl-products").innerHTML = MASTER_PRODUCTS.map(p => `<option value="${p}"></option>`).join("");
+      
+      let bankOptions = MASTER_BANKS.map(b => `<option value="${b}">${b}</option>`).join("");
+      document.getElementById("sales-bank").innerHTML = bankOptions;
+      document.getElementById("pur-bank").innerHTML = bankOptions;
+    }
+
+    // অ্যাপ চালুকরণ (On Load)
+    initDatalists();
+    renderDashboard();
+  </script>
+</body>
+</html>
