@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bulbul Enterprise — হিসাব সিস্টেম</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#1a3a5c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Bulbul Hisab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.7.2/Recharts.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; background: #f0f4f8; color: #2c3e50; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #1a3a5c; border-radius: 3px; }
+    input, select, button { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; }
+    
+    /* Navigation Bar Styles */
+    .navbar { background: #1a3a5c; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nav-btn { background: transparent; border: none; color: #cbd5e1; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s; }
+    .nav-btn:hover { color: white; background: rgba(255,255,255,0.1); }
+    .nav-btn.active { background: #00d4aa; color: #0f172a; }
+    
+    /* Content wrapper */
+    .container { padding: 20px; max-width: 1400px; margin: 0 auto; }
+    
+    /* Toast styles */
+    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: 600; font-size: 14px; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; }
+    .toast.success { background: #2ecc71; }
+    .toast.error { background: #e74c3c; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
+    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } = Recharts;
+
+    // ══════════════════════════════════════════════════
+    // লোকাল স্টোরেজ হেল্পার
+    // ══════════════════════════════════════════════════
+    const load = (key, def) => {
+      try {
+        const v = localStorage.getItem(key);
+        return v ? JSON.parse(v) : def;
+      } catch { return def; }
+    };
+    const save = (key, val) => {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+    };
+
+    const today = () => new Date().toISOString().split("T")[0];
+    const fmtDate = (d) => {
+      if (!d) return "";
+      return new Date(d).toLocaleDateString("bn-BD", { day: "2-digit", month: "short", year: "numeric" });
+    };
+    const fmtNum = (n) => Number(n || 0).toLocaleString("bn-BD");
+
+    // ══════════════════════════════════════════════════
+    // মাস্টার ডেটা (প্রাথমিক তালিকা)
+    // ══════════════════════════════════════════════════
+    const INIT_CUSTOMERS = ["CASH CUSTOMER","DILRUBA EL LALBAG","KHOLIL EL LALBAG","TANJIL EL LALBAG","AMIN EL LALBAG","EMONISTOR LALBAG","FATEMA EL LALBAG","FYSAL EL LALBAG","KHAN EL LALBAG","DINAZPUR EL LALBAG","DR EL LALBAG","JAJIRA EL LALBAG","MAERDOA EL LALBAG","MAERDOA NOBABPUR","MASUM EL LALBAG","MORIYOM EL LALBAG","MUNSI EL LALBAG","NOAKHALI EL LALBAG","RITOM","ISLAM AND BROTHER","HK POWER","IMRAN BONGSAL","JAFOR SURITOLA","MASUD DOAGONG","MINTU EL MANIQGONG","RAJIA EL GORADOR","NOWAAKHALI EL","OMORFAARUK"];
+    const INIT_SUPPLIERS = ["RM LED LIGHTING","SAMIA ENTERPRISE","NEW AMENA EL","IMAM POWER","IR ELECTRICK","AZAD LED","FLOORA CO K2 F2","NEW ISLAM EI K2","SHARMIN TRADE IN","EAKIN EL","RAFIQ EL","BETAR EL","MOON SUPER","OSAN","SWICH PAC ENG K2","GRAMIN","INTEX","BEST LINE HITEK CO","MAX LINE","VEE","SHARIF ELECTRICK","KING BIDDUT BITAN","BONDHU LIGHTING","RITOM EL","MADINA EL","RAJEN AND BROTHERS","JIHAD PIPE","TISA EL","SP ELECTRIC CO","NABIL ENTERPRISE","ELECTRIC PALACE","GFC","JASHIRA EL HOUSE"];
+    const INIT_PRODUCTS = ["OSAKA CATA 40W","OSAKA CATA 20W","OSAKA CATA 60W","OSAKA ACDC 12W","OSAKA ACDC 18.5W","OSAKA 20W","OSAKA 18W","OSAKA 40W","OSAKA 50W","PS 20W","PS 12W","SS 20W","SSD 20W","SEIKO 20W","IC 5W D","IC 5W A","IC 20W","ROCK STAR 20W","CHINA DIM LICHU","CHINA DIM TOMATO","CHINA 50W","INTEX 34M2","INTEX 34M5","INTEX 33M5","INTEX 813M5","INTEX 814M5","INTEX 23M5","INTEX 24M5","INTEX T STAR MALTY","BEST CTOP 2m","BEST CTOP 5m","BEST LINE 315","BEST LINE 415","BEST LINE 515","MAX017 10F","MAX017 20F","CAPACITOR 3.5","CAPACITOR 2.5","KOHLINUR 30A","KOHLINUR 15A","DP SWICH H","DP SWICH N","CABOL CLIB 6MM","CABOL CLIB 7MM","CABOL CLIB 8MM","CABOL CLIB 10MM","CABOL TAI 10IN","MK DIMAR NORMAL","CHALTHA NORMAL","OSAKA TAP","DEER TAP","NOKIA","COLING BAL","IPS DIMAR","CONVATAR","LED TUB GLASS","DC T8 TUB","GFC 12IN FAN","1HOL BOARD","3HOL BOARD","4HOL BOARD","TATAR","G STAR PENDEL HOLDAR SAPTY","G STAR WINAR SWISS","MC RAJA PLACK","PC SUPER DIMAR MK","VEE 503M5","VEE 504M5","VEE 505M5","VEE ACDC","CANDAR 12W","COSCO 18W","SUN+ ACDC 20W","CLICK MALTY PLACK 4G"];
+    const INIT_BANKS = ["হাতে নগদ", "DBBL", "BRAC BANK", "IBBL", "bKash", "Nagad"];
+
+    // ══════════════════════════════════════════════════
+    // শেয়ারড কম্পোনেন্টস
+    // ══════════════════════════════════════════════════
+    const Card = ({ children, style = {} }) => (
+      <div style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16, ...style }}>{children}</div>
+    );
+
+    const Btn = ({ children, onClick, color = "#1a5276", small = false, outline = false, disabled = false }) => (
+      <button onClick={onClick} disabled={disabled} style={{
+        background: outline ? "transparent" : color, color: outline ? color : "#fff",
+        border: `2px solid ${color}`, borderRadius: 8,
+        padding: small ? "5px 12px" : "8px 16px",
+        cursor: disabled ? "not-allowed" : "pointer",
+        fontWeight: 600, fontSize: small ? 12 : 13,
+        opacity: disabled ? 0.5 : 1, transition: "all 0.2s"
+      }}>{children}</button>
+    );
+
+    const Input = ({ label, value, onChange, type = "text", list, required, placeholder }) => (
+      <div style={{ marginBottom: 12 }}>
+        {label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label}{required && <span style={{ color: "red" }}> *</span>}</div>}
+        <input type={type} value={value} onChange={e => onChange(e.target.value)} list={list} placeholder={placeholder}
+          style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, boxSizing: "border-box", outline: "none" }} />
+      </div>
+    );
+
+    const Select = ({ label, value, onChange, options, required }) => (
+      <div style={{ marginBottom: 12 }}>
+        {label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label}{required && <span style={{ color: "red" }}> *</span>}</div>}
+        <select value={value} onChange={e => onChange(e.target.value)}
+          style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, background: "#fff", outline: "none" }}>
+          <option value="">-- বেছে নিন --</option>
+          {options.map(o => <option key={o} value={o}>{o}</option>)}
+        </select>
+      </div>
+    );
+
+    const DarkCard = ({ children, style = {} }) => (
+      <div style={{ background: "#0f172a", borderRadius: 16, padding: 20, border: "1px solid #1e293b", ...style }}>{children}</div>
+    );
+
+    const SectionTitle = ({ icon, title }) => (
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+        <span style={{ fontSize: 18 }}>{icon}</span>
+        <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#e2e8f0" }}>{title}</h2>
+        <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, #334155, transparent)", marginLeft: 8 }} />
+      </div>
+    );
+
+    const CustomTooltip = ({ active, payload, label }) => {
+      if (active && payload && payload.length) {
+        return (
+          <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, padding: "8px 12px", fontSize: 12 }}>
+            <div style={{ color: "#94a3b8", marginBottom: 4 }}>{label}</div>
+            {payload.map((p, i) => (
+              <div key={i} style={{ color: p.color, fontWeight: 600 }}>
+                {p.name}: ৳{Number(p.value).toLocaleString()}
+              </div>
+            ))}
+          </div>
+        );
+      }
+      return null;
+    };
+
+    // ══════════════════════════════════════════════════
+    // ১. হোম ড্যাশবোর্ড পেজ
+    // ══════════════════════════════════════════════════
+    const PIE_COLORS = ["#00d4aa","#54a0ff","#ff9f43","#5f27cd","#ff6b6b","#feca57"];
+
+    function HomePage({ totalSales, totalPurchase, totalCustDue, totalSuppDue, stockMap, sales, purchases }) {
+      const productSales = {};
+      sales.forEach(s => { productSales[s.product] = (productSales[s.product] || 0) + Number(s.qty || 0); });
+      const topProducts = Object.entries(productSales).sort(([,a],[,b]) => b-a).slice(0,8)
+        .map(([name, qty]) => ({ name: name.length > 15 ? name.slice(0,15)+"…" : name, qty }));
+
+      const monthSales = {};
+      sales.forEach(s => {
+        if (!s.date) return;
+        const m = s.date.slice(0,7);
+        monthSales[m] = (monthSales[m] || 0) + Number(s.total || 0);
+      });
+      const monthlySalesData = Object.entries(monthSales).sort().slice(-6)
+        .map(([m, v]) => ({ month: m.slice(5)+" মাস", value: v }));
+
+      const recentSales = [...sales].reverse().slice(0,6);
+      const totalProfit = sales.reduce((s,r) => s + Number(r.profit||0), 0);
+      
+      const totalStockValue = Object.entries(stockMap).reduce((s,[name,qty]) => {
+        if (qty <= 0) return s;
+        const lp = [...purchases].reverse().find(p => p.product === name);
+        return s + qty * Number(lp?.price || 0);
+      }, 0);
+
+      const pieData = [
+        { name: "বিক্রয়", value: totalSales },
+        { name: "ক্রয়", value: totalPurchase },
+        { name: "কাস্টমার বাকি", value: totalCustDue },
+        { name: "সাপ্লায়ার বাকি", value: totalSuppDue },
+      ].filter(d => d.value > 0);
+
+      const negStock = Object.entries(stockMap).filter(([,v]) => v < 0);
+      const lowStock = Object.entries(stockMap).filter(([,v]) => v >= 0 && v <= 5);
+
+      return (
+        <div style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #0d1b2a 100%)", minHeight: "100vh", margin: -20, padding: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 20 }}>
+            {[
+              { label: "মোট বিক্রয়", value: totalSales, color: "#00d4aa", bg: "#00d4aa18", icon: "💰" },
+              { label: "মোট ক্রয়", value: totalPurchase, color: "#54a0ff", bg: "#54a0ff18", icon: "🛒" },
+              { label: "মোট লাভ", value: totalProfit, color: totalProfit >= 0 ? "#2ecc71" : "#ff6b6b", bg: "#2ecc7118", icon: "📈" },
+              { label: "স্টক মূল্য", value: totalStockValue, color: "#ff9f43", bg: "#ff9f4318", icon: "📦" },
+              { label: "কাস্টমার বাকি", value: totalCustDue, color: "#ff6b6b", bg: "#ff6b6b18", icon: "👥" },
+              { label: "সাপ্লায়ার বাকি", value: totalSuppDue, color: "#feca57", bg: "#feca5718", icon: "🏪" },
+            ].map((d,i) => (
+              <div key={i} style={{ background: d.bg, border: `1px solid ${d.color}30`, borderRadius: 16, padding: "14px 16px" }}>
+                <div style={{ fontSize: 22 }}>{d.icon}</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: d.color, marginTop: 4 }}>৳{fmtNum(d.value)}</div>
+                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{d.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 16, marginBottom: 16 }}>
+            <DarkCard>
+              <SectionTitle icon="🏆" title="সর্বাধিক বিক্রিত পণ্য" />
+              {topProducts.length === 0
+                ? <div style={{ color: "#475569", textAlign: "center", padding: 20 }}>এখনো বিক্রয় নেই</div>
+                : <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={topProducts} layout="vertical" barSize={12}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
+                      <XAxis type="number" tick={{ fill: "#64748b", fontSize: 10 }} />
+                      <YAxis type="category" dataKey="name" width={100} tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="qty" name="বিক্রয় (পিস)" fill="#00d4aa" radius={[0,6,6,0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+              }
+            </DarkCard>
+
+            <DarkCard>
+              <SectionTitle icon="📊" title="মাসিক বিক্রয় (টাকা)" />
+              {monthlySalesData.length === 0
+                ? <div style={{ color: "#475569", textAlign: "center", padding: 20 }}>এখনো ডেটা নেই</div>
+                : <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={monthlySalesData} barSize={28}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                      <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 10 }} />
+                      <YAxis tick={{ fill: "#64748b", fontSize: 10 }} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="value" name="বিক্রয়" fill="#54a0ff" radius={[6,6,0,0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+              }
+            </DarkCard>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 16 }}>
+            <DarkCard>
+              <SectionTitle icon="🕐" title="সাম্প্রতিক বিক্রয়" />
+              {recentSales.length === 0
+                ? <div style={{ color: "#475569", textAlign: "center", padding: 20 }}>এখনো বিক্রয় নেই</div>
+                : recentSales.map((s,i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #1e293b" }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0" }}>{s.customer}</div>
+                      <div style={{ fontSize: 11, color: "#64748b" }}>{s.product} × {s.qty} | {fmtDate(s.date)}</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#00d4aa" }}>৳{fmtNum(s.total)}</div>
+                    </div>
+                  </div>
+                ))
+              }
+            </DarkCard>
+
+            <DarkCard>
+              <SectionTitle icon="⚠️" title="স্টক সতর্কতা ও চিত্র" />
+              <div style={{ maxHeight: 120, overflowY: "auto", marginBottom: 12 }}>
+                {negStock.length === 0 && lowStock.length === 0
+                  ? <div style={{ color: "#2ecc71", fontSize: 13, textAlign: "center" }}>✅ সব স্টক ঠিকঠাক</div>
+                  : [...negStock, ...lowStock].slice(0,5).map(([name,qty]) => (
+                    <div key={name} style={{ display: "flex", justifyContent: "space-between", padding: "6px 10px", borderRadius: 6, marginBottom: 4, background: qty < 0 ? "#ff6b6b10" : "#ff9f4310", border: `1px solid ${qty < 0 ? "#ff6b6b30" : "#ff9f4330"}`, fontSize: 12 }}>
+                      <span style={{ color: "#e2e8f0" }}>{qty < 0 ? "🔴" : "🟡"} {name}</span>
+                      <span style={{ fontWeight: 700, color: qty < 0 ? "#ff6b6b" : "#ff9f43" }}>{qty} পিস</span>
+                    </div>
+                  ))
+                }
+              </div>
+              {pieData.length > 0 && (
+                <ResponsiveContainer width="100%" height={120}>
+                  <PieChart>
+                    <Pie data={pieData} cx="50%" cy="50%" outerRadius={45} innerRadius={22} dataKey="value" stroke="none">
+                      {pieData.map((_,i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend wrapperStyle={{ fontSize: 10, color: "#94a3b8" }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </DarkCard>
+          </div>
+        </div>
+      );
+    }
+
+    // ══════════════════════════════════════════════════
+    // ২. ক্রয় (Purchase) পেজ
+    // ══════════════════════════════════════════════════
+    function PurchasePage({ purchases, setPurchases, suppliers, products, showToast }) {
+      const [header, setHeader] = useState({ date: today(), supplier: "", memo: "", paid: "", bank: "হাতে নগদ" });
+      const setH = (k,v) => setHeader(h => ({ ...h, [k]: v }));
+      const emptyLine = { product: "", qty: "", price: "", discount: "" };
+      const [lines, setLines] = useState([{ ...emptyLine, _id: Date.now() }]);
+      const [search, setSearch] = useState("");
+
+      const setLine = (idx,k,v) => {
+        setLines(ls => {
+          const updated = ls.map((l,i) => i===idx ? { ...l, [k]: v } : l);
+          const last = updated[updated.length-1];
+          if (idx === updated.length-1 && (last.product || last.qty || last.price)) {
+            return [...updated, { ...emptyLine, _id: Date.now()+Math.random() }];
+          }
+          return updated;
+        });
+      };
+      const removeLine = (idx) => setLines(ls => ls.length > 1 ? ls.filter((_,i) => i!==idx) : ls);
+
+      const lineTotal = (l) => Number(l.qty||0) * Number(l.price||0) - Number(l.discount||0);
+      const grandTotal = lines.reduce((s,l) => s + lineTotal(l), 0);
+      const due = grandTotal - Number(header.paid||0);
+
+      const submit = () => {
+        if (!header.supplier) return showToast("সাপ্লায়ারের নাম দিন", "err");
+        const validLines = lines.filter(l => l.product && l.qty && l.price);
+        if (validLines.length === 0) return showToast("কমপক্ষে একটি পণ্য দিন", "err");
+        
+        const memoId = Date.now();
+        const newEntries = validLines.map((l,i) => ({
+          ...header, product: l.product, qty: Number(l.qty), price: Number(l.price),
+          discount: Number(l.discount||0), total: lineTotal(l), due: i===0 ? due : 0,
+          memoId, id: memoId+i,
+        }));
+
+        setPurchases(p => [...p, ...newEntries]);
+        setHeader({ date: today(), supplier: "", memo: "", paid: "", bank: "হাতে নগদ" });
+        setLines([{ ...emptyLine, _id: Date.now() }]);
+        showToast(`✅ ${validLines.length}টি পণ্য ক্রয় সফল হয়েছে`);
+      };
+
+      const grouped = useMemo(() => {
+        const res = [];
+        const seen = new Set();
+        [...purchases].reverse().forEach(p => {
+          const key = p.memoId || p.id;
+          if (!seen.has(key)) {
+            seen.add(key);
+            const group = purchases.filter(x => (x.memoId||x.id)===key);
+            res.push({ key, group, supplier: p.supplier, date: p.date, memo: p.memo, due: group[0]?.due||0, total: group.reduce((s,x) => s+Number(x.total||0),0) });
+          }
+        });
+        return res;
+      }, [purchases]);
+
+      const filtered = grouped.filter(g =>
+        g.supplier?.toLowerCase().includes(search.toLowerCase()) ||
+        g.group.some(x => x.product?.toLowerCase().includes(search.toLowerCase()))
+      );
+
+      return (
+        <div>
+          <datalist id="dl_sup">{suppliers.map(s => <option key={s} value={s} />)}</datalist>
+          <datalist id="dl_pro">{products.map(s => <option key={s} value={s} />)}</datalist>
+          <Card>
+            <h3 style={{ margin: "0 0 16px", color: "#1a5276", fontSize: 15 }}>🛒 নতুন ক্রয় — একাধিক পণ্য একসাথে</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 16, padding: 12, background: "#eaf0fb", borderRadius: 10 }}>
+              <Input label="তারিখ *" type="date" value={header.date} onChange={v => setH("date",v)} />
+              <Input label="সাপ্লায়ার *" value={header.supplier} onChange={v => setH("supplier",v)} list="dl_sup" placeholder="নাম খুঁজুন বা লিখুন" />
+              <Input label="মেমো নং" value={header.memo} onChange={v => setH("memo",v)} placeholder="মেমো নম্বর" />
+              <Input label="পরিশোধ (মোট)" type="number" value={header.paid} onChange={v => setH("paid",v)} placeholder="0" />
+              <Select label="মাধ্যম" value={header.bank} onChange={v => setH("bank",v)} options={INIT_BANKS} />
+            </div>
+            
+            <div style={{ marginBottom: 12, borderRadius: 8, overflow: "hidden", border: "1px solid #e2e8f0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 80px 100px 80px 40px", gap: 8, padding: 10, background: "#1a3a5c" }}>
+                {["পণ্যের নাম","পরিমাণ","একক দাম","ডিসকাউন্ট",""].map(h => (
+                  <div key={h} style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}>{h}</div>
+                ))}
+              </div>
+              {lines.map((l,idx) => (
+                <div key={l._id} style={{ display: "grid", gridTemplateColumns: "2fr 80px 100px 80px 40px", gap: 8, padding: 8, background: idx%2===0 ? "#f8fafc" : "#fff", borderBottom: "1px solid #eee", alignItems: "center" }}>
+                  <input value={l.product} onChange={e => setLine(idx,"product",e.target.value)} list="dl_pro" placeholder="পণ্য বেছে নিন..."
+                    style={{ padding: 6, border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%" }} />
+                  <input type="number" value={l.qty} onChange={e => setLine(idx,"qty",e.target.value)} placeholder="0"
+                    style={{ padding: 6, border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%" }} />
+                  <input type="number" value={l.price} onChange={e => setLine(idx,"price",e.target.value)} placeholder="0"
+                    style={{ padding: 6, border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%" }} />
+                  <input type="number" value={l.discount} onChange={e => setLine(idx,"discount",e.target.value)} placeholder="0"
+                    style={{ padding: 6, border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%" }} />
+                  <button onClick={() => removeLine(idx)} disabled={lines.length===1} style={{ background: "none", border: "none", cursor: "pointer", color: "#e74c3c", fontSize: 16 }}>🗑️</button>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: 20, padding: 12, background: "#f0f4f8", borderRadius: 8, fontSize: 13, alignItems: "center", flexWrap: "wrap" }}>
+              <span>মোট আইটেম: <strong>{lines.filter(l=>l.product).length}টি</strong></span>
+              <span>সর্বমোট: <strong style={{ color: "#1a5276", fontSize: 15 }}>৳{fmtNum(grandTotal)}</strong></span>
+              <span>বাকি: <strong style={{ color: due>0?"#e74c3c":"#2ecc71" }}>৳{fmtNum(due)}</strong></span>
+              <div style={{ marginLeft: "auto" }}><Btn onClick={submit}>💾 ক্রয় ভাউচার সেভ করুন</Btn></div>
+            </div>
+          </Card>
+
+          <Card>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+              <h3 style={{ margin: 0, fontSize: 15, color: "#1a5276" }}>📋 ক্রয়ের মেমো তালিকা ({filtered.length}টি)</h3>
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 মেমো বা সাপ্লায়ার খুঁজুন..."
+                style={{ padding: "6px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, width: 220 }} />
+            </div>
+            {filtered.map(g => (
+              <div key={g.key} style={{ marginBottom: 12, border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden" }}>
+                <div style={{ background: "#1a3a5c", padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                  <div style={{ color: "white", fontSize: 13 }}>
+                    <strong>{g.supplier}</strong> {g.memo && <span>(মেমো: #{g.memo})</span>} — <span style={{ color: "#94a3b8" }}>{fmtDate(g.date)}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 16, alignItems: "center", color: "#fff", fontSize: 13 }}>
+                    <span style={{ color: "#00d4aa" }}>মোট: ৳{fmtNum(g.total)}</span>
+                    <span style={{ color: g.due>0?"#ff9f43":"#2ecc71" }}>বাকি: ৳{fmtNum(g.due)}</span>
+                    <Btn small color="#ff6b6b" onClick={() => { setPurchases(ps => ps.filter(x => (x.memoId||x.id)!==g.key)); showToast("ক্রয় রিলিজ করা হয়েছে", "err"); }}>মুছুন</Btn>
+                  </div>
+                </div>
+                {g.group.map((p,i) => (
+                  <div key={p.id} style={{ display: "flex", justify: "space-between", padding: "8px 16px", background: i%2===0?"#f8fafc":"#fff", fontSize: 13, borderBottom: "1px solid #eee" }}>
+                    <span style={{ flex: 2 }}>📦 {p.product}</span>
+                    <span style={{ flex: 1, text: "right", color: "#7f8c8d" }}>{p.qty} পিস × ৳{fmtNum(p.price)}</span>
+                    <span style={{ fontWeight: 600 }}>৳{fmtNum(p.total)}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </Card>
+        </div>
+      );
+    }
+
+    // ══════════════════════════════════════════════════
+    // ৩. বিক্রয় (Sales) পেজ
+    // ══════════════════════════════════════════════════
+    function SalesPage({ sales, setSales, customers, products, showToast, stockMap, purchases }) {
+      const [header, setHeader] = useState({ date: today(), customer: "", billNo: "", paid: "", bank: "হাতে নগদ" });
+      const [lines, setLines] = useState([{ product: "", qty: "", price: "", costPrice: "", discount: "", _id: Date.now() }]);
+      const [search, setSearch] = useState("");
+
+      const getLastCostPrice = (prod) => {
+        const last = [...purchases].reverse().find(p => p.product === prod);
+        return last ? last.price : 0;
+      };
+
+      const setLine = (idx, k, v) => {
+        setLines(ls => {
+          const updated = ls.map((l, i) => {
+            if (i !== idx) return l;
+            const newLine = { ...l, [k]: v };
+            if (k === "product" && v) {
+              newLine.costPrice = getLastCostPrice(v);
+            }
+            return newLine;
+          });
+          const last = updated[updated.length - 1];
+          if (idx === updated.length - 1 && (last.product || last.qty || last.price)) {
+            return [...updated, { product: "", qty: "", price: "", costPrice: "", discount: "", _id: Date.now() + Math.random() }];
+          }
+          return updated;
+        });
+      };
+      
+      const removeLine = (idx) => setLines(ls => ls.length > 1 ? ls.filter((_, i) => i !== idx) : ls);
+
+      const lineTotal = (l) => Number(l.qty || 0) * Number(l.price || 0) - Number(l.discount || 0);
+      const lineProfit = (l) => lineTotal(l) - (Number(l.costPrice || 0) * Number(l.qty || 0));
+      
+      const grandTotal = lines.reduce((s, l) => s + lineTotal(l), 0);
+      const due = header.customer === "CASH CUSTOMER" ? 0 : grandTotal - Number(header.paid || 0);
+
+      const submit = () => {
+        if (!header.customer) return showToast("কাস্টমারের নাম দিন", "err");
+        const validLines = lines.filter(l => l.product && l.qty && l.price);
+        if (validLines.length === 0) return showToast("কমপক্ষে একটি পণ্য যোগ করুন", "err");
+
+        // লাইভ স্টক চেক
