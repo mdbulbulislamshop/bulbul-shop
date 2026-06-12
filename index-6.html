@@ -86,16 +86,13 @@
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">কাস্টমার বাকি</p><p id="dash-cust-due" class="text-base font-bold text-red-600">৳ ০.০০</p></div>
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">সাপ্লায়ার বাকি</p><p id="dash-supp-due" class="text-base font-bold text-amber-600">৳ ০.০০</p></div>
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">ক্যাশ ব্যালেন্স</p><p id="dash-cash-bal" class="text-base font-bold text-green-600">৳ ১০,০০০.০০</p></div>
-                        <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">ব্যাংক ব্যালেন্স</p><p id="dash-bank-bal" class="text-base font-bold text-blue-600">৳ ৫০,০০০.০০</p></div>
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm space-y-4">
                     <h3 class="text-lg font-bold text-gray-700 border-b pb-2"><i class="fa-solid fa-warehouse text-slate-500 mr-2"></i>স্টক অবস্থা</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">মোট প্রোডাক্ট আইটেম</p><p id="dash-total-prod" class="text-base font-bold text-gray-800">০ টি</p></div>
-                        <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">লো-স্টক প্রোডাক্ট</p><p id="dash-low-stock" class="text-base font-bold text-red-500">০ টি</p></div>
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">মোট স্টক মূল্য</p><p id="dash-stock-val" class="text-base font-bold text-emerald-600">৳ ০.০০</p></div>
-                        <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">ড্যামেজ স্টক মূল্য</p><p id="dash-damage-val" class="text-base font-bold text-purple-600">৳ ০.০০</p></div>
                     </div>
                 </div>
             </div>
@@ -214,7 +211,7 @@
                                 </div>
                                 <div>
                                     <label class="text-xs font-semibold text-gray-600">কোড (Auto)</label>
-                                    <input type="text" id="pur-new-code" class="w-full p-2 border rounded">
+                                    <input type="text" id="pur-new-code" class="w-full p-2 border rounded" readonly placeholder="অটো তৈরি হবে">
                                 </div>
                             </div>
                         </div>
@@ -270,10 +267,7 @@
         </section>
 
         <section id="page-stock" class="page-section hidden space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-boxes-stacked text-amber-500 mr-2"></i>ইনভেন্টরি স্টক ও পণ্য তালিকা</h2>
-                <button onclick="openDamageModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded shadow text-sm font-semibold w-full sm:w-auto"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ড্যামেজ এন্ট্রি করুন</button>
-            </div>
+            <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-boxes-stacked text-amber-500 mr-2"></i>ইনভেন্টরি স্টক ও পণ্য তালিকা</h2>
             <div class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
@@ -307,11 +301,9 @@
                     <select id="cust-add-cat" class="w-full p-2 border rounded text-sm bg-white">
                         <option value="Wholesale">Wholesale</option>
                         <option value="Retail">Retail</option>
-                        <option value="Dealer">Dealer</option>
-                        <option value="Corporate">Corporate</option>
                     </select>
                 </div>
-                <button onclick="addNewCustomerAction()" class="bg-blue-600 text-white p-2 rounded text-sm font-bold shadow hover:bg-blue-700">কাস্টমার যুক্ত করুন</button>
+                <button onclick="addNewCustomerAction()" class="bg-blue-600 text-white p-2 rounded text-sm font-bold shadow hover:bg-blue-700">যুক্ত করুন</button>
             </div>
             <div class="bg-white rounded-xl shadow-sm overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
@@ -320,7 +312,6 @@
                             <th class="p-3">নাম ও মোবাইল</th>
                             <th class="p-3">ক্যাটাগরি</th>
                             <th class="p-3 text-right">মোট ক্রয়</th>
-                            <th class="p-3 text-right">মোট পেইড</th>
                             <th class="p-3 text-right text-red-600">চলতি বাকি</th>
                             <th class="p-3 text-center">অ্যাকশন</th>
                         </tr>
@@ -341,7 +332,7 @@
                     <label class="text-xs font-semibold text-gray-600">মোবাইল নং</label>
                     <input type="text" id="supp-add-phone" class="w-full p-2 border rounded text-sm">
                 </div>
-                <button onclick="addNewSupplierAction()" class="bg-green-600 text-white p-2 rounded text-sm font-bold shadow hover:bg-green-700">সাপ্লায়ার সেভ করুন</button>
+                <button onclick="addNewSupplierAction()" class="bg-green-600 text-white p-2 rounded text-sm font-bold shadow hover:bg-green-700">সাপ্লায়ার সেভ</button>
             </div>
             <div class="bg-white rounded-xl shadow-sm overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
@@ -350,7 +341,6 @@
                             <th class="p-3">কোম্পানি/সাপ্লায়ার</th>
                             <th class="p-3">মোবাইল</th>
                             <th class="p-3 text-right">মোট মালামাল ক্রয়</th>
-                            <th class="p-3 text-right">মোট পরিশোধ</th>
                             <th class="p-3 text-right text-amber-600">কোম্পানি পাবে</th>
                             <th class="p-3 text-center">অ্যাকশন</th>
                         </tr>
@@ -376,7 +366,6 @@
                     <select id="coll-method" class="w-full p-2 border rounded bg-white">
                         <option value="Cash">Cash (নগদ)</option>
                         <option value="Bkash">bKash (বিকাশ)</option>
-                        <option value="Nagad">Nagad (নগদ অ্যাপ)</option>
                     </select>
                 </div>
                 <button onclick="saveCollectionAction()" class="w-full bg-amber-500 text-white p-3 rounded-lg font-bold shadow hover:bg-amber-600">কালেকশন ভাউচার সেভ করুন</button>
@@ -391,18 +380,12 @@
                     <select id="exp-category" class="w-full p-2 border rounded bg-white">
                         <option value="Tea">Tea (চা আপ্যায়ন)</option>
                         <option value="Transport">Transport (যাতায়াত ভাড়া)</option>
-                        <option value="Rent">Rent (দোকান ভাড়া)</option>
                         <option value="Salary">Staff Salary (স্টাফ বেতন)</option>
-                        <option value="Others">Others</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-600 mb-1">টাকার পরিমাণ</label>
                     <input type="number" id="exp-amount" class="w-full p-2 border rounded">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-1">রিমার্কস / নোট</label>
-                    <input type="text" id="exp-remarks" class="w-full p-2 border rounded">
                 </div>
                 <button onclick="saveExpenseAction()" class="w-full bg-red-500 text-white p-3 rounded-lg font-bold shadow hover:bg-red-600">খরচ এন্ট্রি সম্পূর্ণ করুন</button>
             </div>
@@ -410,52 +393,17 @@
 
         <section id="page-reports" class="page-section hidden space-y-6">
             <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-file-invoice-dollar text-indigo-600 mr-2"></i>রিপোর্ট প্যানেল</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm space-y-4 border-t-4 border-indigo-600">
-                    <h3 class="font-bold text-gray-700"><i class="fa-solid fa-chart-line text-green-600 mr-2"></i>লাভ-ক্ষতি এনালাইসিস</h3>
-                    <div class="divide-y text-sm">
-                        <div class="py-2 flex justify-between"><span>মোট রেভিনিউ (Sales):</span><span id="rep-total-sales" class="font-bold">৳ ০.০০</span></div>
-                        <div class="py-2 flex justify-between"><span>বিক্রিত মালের খরচ (COGS):</span><span id="rep-total-cogs" class="font-bold text-amber-700">৳ ০.০০</span></div>
-                        <div class="py-2 flex justify-between"><span>গ্রস প্রফিট:</span><span id="rep-gross-profit" class="font-bold text-green-600">৳ ০.০০</span></div>
-                        <div class="py-2 flex justify-between"><span>মোট পরিচালনা খরচ:</span><span id="rep-total-exp" class="font-bold text-red-500">৳ ০.০০</span></div>
-                        <div class="py-2 flex justify-between font-bold text-base bg-indigo-50 p-2 rounded mt-1"><span>নীট লাভ (Net Profit):</span><span id="rep-net-profit" class="text-indigo-700">৳ ০.০০</span></div>
-                    </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm max-w-md space-y-4 border-t-4 border-indigo-600">
+                <h3 class="font-bold text-gray-700">আজকের লাভ-ক্ষতি</h3>
+                <div class="divide-y text-sm">
+                    <div class="py-2 flex justify-between"><span>মোট রেভিনিউ:</span><span id="rep-total-sales" class="font-bold">৳ ০.০০</span></div>
+                    <div class="py-2 flex justify-between"><span>মোট পরিচালনা খরচ:</span><span id="rep-total-exp" class="font-bold text-red-500">৳ ০.০০</span></div>
+                    <div class="py-2 flex justify-between font-bold text-base bg-indigo-50 p-2 rounded mt-1"><span>নীট লাভ (Net Profit):</span><span id="rep-net-profit" class="text-indigo-700">৳ ০.০০</span></div>
                 </div>
             </div>
         </section>
 
     </main>
-
-    <div id="damage-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4 relative">
-            <h3 class="text-lg font-bold text-purple-800">ড্যামেজ স্টক এন্ট্রি</h3>
-            <div>
-                <label class="block text-sm font-semibold text-gray-600">প্রোডাক্ট সিলেক্ট করুন</label>
-                <select id="dmg-product" class="w-full p-2 border rounded bg-white"></select>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600">পরিমাণ</label>
-                    <input type="number" id="dmg-qty" value="1" min="1" class="w-full p-2 border rounded">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600">স্ট্যাটাস</label>
-                    <select id="dmg-status" class="w-full p-2 border rounded bg-white">
-                        <option value="Damage">Damage (নষ্ট স্টক)</option>
-                        <option value="Scrap Sold">Scrap Sold</option>
-                    </select>
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-600">স্ক্র্যাপ রিকভারি ভ্যালু</label>
-                <input type="number" id="dmg-recovery" value="0" class="w-full p-2 border rounded">
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeDamageModal()" class="bg-gray-200 px-4 py-2 rounded text-sm">বাতিল</button>
-                <button onclick="saveDamageAction()" class="bg-purple-600 text-white px-4 py-2 rounded text-sm">সেভ</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         // CORE STATE DATA
@@ -476,84 +424,73 @@
             purchases: [],
             collections: [],
             expenses: [],
-            damages: [],
-            accounts: { cash: 10000, bank: 50000 }
+            accounts: { cash: 10000 }
         };
 
         let salesCart = [];
         let purchaseCart = [];
 
-        window.onload = function() {
+        // Application Init
+        window.addEventListener('DOMContentLoaded', () => {
             generateNextInvoiceNumbers();
             populateDropdowns();
             renderAllData();
-            switchPage('dashboard');
             
             const today = new Date().toISOString().split('T')[0];
             if(document.getElementById('sales-date')) document.getElementById('sales-date').value = today;
             if(document.getElementById('pur-date')) document.getElementById('pur-date').value = today;
-        };
-
-        function switchPage(pageId) {
-            // Hide all sections
-            document.querySelectorAll('.page-section').forEach(section => section.classList.add('hidden'));
             
-            // Show requested section
+            // Auto generate code feature listener securely added
+            const purNameInput = document.getElementById('pur-new-name');
+            if(purNameInput) {
+                purNameInput.addEventListener('input', function() {
+                    let codeField = document.getElementById('pur-new-code');
+                    if(codeField) codeField.value = generateProductCode(this.value);
+                });
+            }
+        });
+
+        // Safe Page Switcher
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => section.classList.add('hidden'));
             const targetPage = document.getElementById(`page-${pageId}`);
             if(targetPage) targetPage.classList.remove('hidden');
 
-            // Update Desktop Sidebar Active Tab CSS
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active-nav'));
             const activeBtn = document.querySelector(`.nav-btn[data-page="${pageId}"]`);
             if(activeBtn) activeBtn.classList.add('active-nav');
 
-            // Update Mobile Header Text
             const mobileTitle = document.getElementById('mobile-page-title');
-            if(mobileTitle) {
-                const bgnText = activeBtn ? activeBtn.innerText.trim() : "ড্যাশবোর্ড";
-                mobileTitle.innerText = bgnText;
-            }
+            if(mobileTitle && activeBtn) mobileTitle.innerText = activeBtn.innerText.trim();
         }
 
         function generateNextInvoiceNumbers() {
-            if(document.getElementById('sales-invoice-no')) {
-                document.getElementById('sales-invoice-no').value = "INV-" + (state.sales.length + 1001);
-            }
-            if(document.getElementById('pur-invoice-no')) {
-                document.getElementById('pur-invoice-no').value = "PUR-" + (state.purchases.length + 5001);
-            }
+            if(document.getElementById('sales-invoice-no')) document.getElementById('sales-invoice-no').value = "INV-" + (state.sales.length + 1001);
+            if(document.getElementById('pur-invoice-no')) document.getElementById('pur-invoice-no').value = "PUR-" + (state.purchases.length + 5001);
         }
 
         function populateDropdowns() {
             const salesCust = document.getElementById('sales-customer');
             const collCust = document.getElementById('coll-customer');
-            let custOptions = state.customers.map(c => `<option value="${c.id}">${c.name} (${c.category})</option>`).join('');
-            
-            if(salesCust) salesCust.innerHTML = custOptions || '<option value="">কোনো কাস্টমার নেই</option>';
-            if(collCust) collCust.innerHTML = custOptions || '<option value="">কোনো কাস্টমার নেই</option>';
+            let custOptions = state.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            if(salesCust) salesCust.innerHTML = custOptions || '<option value="">কাস্টমার নেই</option>';
+            if(collCust) collCust.innerHTML = custOptions || '<option value="">কাস্টমার নেই</option>';
 
             const salesProd = document.getElementById('sales-product-select');
             if(salesProd) {
-                salesProd.innerHTML = state.products.map(p => `<option value="${p.id}">${p.name} [${p.code}] - Stock: ${p.currentStock}</option>`).join('');
-                if(state.products.length > 0) onSalesProductChange();
+                salesProd.innerHTML = state.products.map(p => `<option value="${p.id}">${p.name} (স্টক: ${p.currentStock})</option>`).join('');
+                onSalesProductChange();
             }
 
             const purProd = document.getElementById('pur-product-select');
             if(purProd) {
                 let purOptions = `<option value="NEW">-- নতুন প্রোডাক্ট তৈরি করুন --</option>`;
-                purOptions += state.products.map(p => `<option value="${p.id}">${p.name} [${p.code}]</option>`).join('');
+                purOptions += state.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
                 purProd.innerHTML = purOptions;
             }
 
             const purSupp = document.getElementById('pur-supplier');
-            if(purSupp) {
-                purSupp.innerHTML = state.suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('') || '<option value="">কোনো সাপ্লায়ার নেই</option>';
-            }
-            
-            const dmgProd = document.getElementById('dmg-product');
-            if(dmgProd) {
-                dmgProd.innerHTML = state.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-            }
+            if(purSupp) purSupp.innerHTML = state.suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
         }
 
         function generateProductCode(name) {
@@ -573,57 +510,102 @@
         function onPurProductChange() {
             const val = document.getElementById('pur-product-select').value;
             const fields = document.getElementById('pur-new-product-fields');
-            if(!fields) return;
-            if(val === "NEW") {
-                fields.classList.remove('hidden');
-                const purNameInput = document.getElementById('pur-new-name');
-                if(purNameInput) {
-                    purNameInput.addEventListener('input', function() {
-                        document.getElementById('pur-new-code').value = generateProductCode(this.value);
-                    });
-                }
-            } else {
-                fields.classList.add('hidden');
+            if(fields) {
+                if(val === "NEW") fields.classList.remove('hidden');
+                else fields.classList.add('hidden');
             }
         }
 
-        // --- REMOVE / DELETE ACTIONS ---
-        function deleteProduct(productId) {
-            if(confirm("আপনি কি নিশ্চিতভাবে এই প্রোডাক্টটি চিরতরে বাদ দিতে চান?")) {
-                state.products = state.products.filter(p => p.id !== productId);
-                populateDropdowns();
-                renderAllData();
+        // Action Deletes
+        function deleteProduct(id) {
+            if(confirm("আপনি কি এটি বাদ দিতে চান?")) {
+                state.products = state.products.filter(p => p.id !== id);
+                populateDropdowns(); renderAllData();
+            }
+        }
+        function deleteCustomer(id) {
+            if(confirm("আপনি কি এটি বাদ দিতে চান?")) {
+                state.customers = state.customers.filter(c => c.id !== id);
+                populateDropdowns(); renderAllData();
+            }
+        }
+        function deleteSupplier(id) {
+            if(confirm("আপনি কি এটি বাদ দিতে চান?")) {
+                state.suppliers = state.suppliers.filter(s => s.id !== id);
+                populateDropdowns(); renderAllData();
             }
         }
 
-        function deleteCustomer(customerId) {
-            if(confirm("আপনি কি নিশ্চিতভাবে এই কাস্টমারটিকে বাদ দিতে চান?")) {
-                state.customers = state.customers.filter(c => c.id !== customerId);
-                populateDropdowns();
-                renderAllData();
-            }
-        }
-
-        function deleteSupplier(supplierId) {
-            if(confirm("আপনি কি নিশ্চিতভাবে এই সাপ্লায়ারকে বাদ দিতে চান?")) {
-                state.suppliers = state.suppliers.filter(s => s.id !== supplierId);
-                populateDropdowns();
-                renderAllData();
-            }
-        }
-
-        // SALES
+        // Add Sales Cart
         function addSalesItem() {
             const pId = document.getElementById('sales-product-select').value;
-            if(!pId) return alert("কোনো প্রোডাক্ট সিলেক্ট করা নেই");
             const qty = parseInt(document.getElementById('sales-qty').value) || 0;
             const rate = parseFloat(document.getElementById('sales-rate').value) || 0;
             const prod = state.products.find(p => p.id === pId);
 
-            if(qty <= 0) return alert("সঠিক পরিমাণ দিন");
-            if(qty > prod.currentStock) {
-                alert("দুঃখিত! পর্যাপ্ত মাল স্টক-এ নেই।");
-                return;
-            }
-            salesCart.push({ productId: pId, name: prod.name, qty, rate, unit: prod.unit, total: qty
+            if(!prod || qty <= 0 || qty > prod.currentStock) return alert("স্টক চেক করুন বা সঠিক পরিমাণ দিন!");
+            
+            salesCart.push({ productId: pId, name: prod.name, qty, rate, unit: prod.unit, total: qty * rate });
+            renderSalesCart();
+        }
+
+        function renderSalesCart() {
+            const tbody = document.getElementById('sales-cart-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = salesCart.map((item, idx) => `
+                <tr class="border-b">
+                    <td class="p-2">${item.name}</td>
+                    <td class="p-2 text-center">${item.qty}</td>
+                    <td class="p-2 text-right">৳${item.rate}</td>
+                    <td class="p-2 text-right">৳${item.total}</td>
+                    <td class="p-2 text-center"><button onclick="salesCart.splice(${idx},1); renderSalesCart();" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+            calculateSalesSummary();
+        }
+
+        function calculateSalesSummary() {
+            let total = salesCart.reduce((sum, item) => sum + item.total, 0);
+            let discount = parseFloat(document.getElementById('sales-discount').value) || 0;
+            let net = total - discount;
+            let paid = parseFloat(document.getElementById('sales-paid').value) || 0;
+            
+            if(document.getElementById('sales-total')) document.getElementById('sales-total').innerText = "৳ " + total;
+            if(document.getElementById('sales-net')) document.getElementById('sales-net').innerText = "৳ " + net;
+            if(document.getElementById('sales-due')) document.getElementById('sales-due').innerText = "৳ " + (net - paid);
+        }
+
+        function saveSalesInvoice() {
+            if(salesCart.length === 0) return alert("কার্ট খালি!");
+            const customerId = document.getElementById('sales-customer').value;
+            const netAmount = parseFloat(document.getElementById('sales-net').innerText.replace('৳ ', '')) || 0;
+            const paidAmount = parseFloat(document.getElementById('sales-paid').value) || 0;
+            const dueAmount = netAmount - paidAmount;
+
+            let totalCOGS = 0;
+            salesCart.forEach(item => {
+                const prod = state.products.find(p => p.id === item.productId);
+                if(prod) { prod.currentStock -= item.qty; totalCOGS += (prod.avgCost * item.qty); }
+            });
+
+            const cust = state.customers.find(c => c.id === customerId);
+            if(cust) { cust.totalPurchase += netAmount; cust.due += dueAmount; }
+
+            state.accounts.cash += paidAmount;
+            state.sales.push({ netAmount, paidAmount, profit: netAmount - totalCOGS });
+
+            alert("বিক্রয় ইনভয়েস সফল!");
+            salesCart = [];
+            document.getElementById('sales-discount').value = 0;
+            document.getElementById('sales-paid').value = 0;
+            generateNextInvoiceNumbers(); populateDropdowns(); renderAllData(); switchPage('dashboard');
+        }
+
+        // Add Purchase Cart
+        function addPurItem() {
+            const selectVal = document.getElementById('pur-product-select').value;
+            const qty = parseInt(document.getElementById('pur-qty').value) || 0;
+            const rate = parseFloat(document.getElementById('pur-rate').value) || 0;
+
+            if(qty <= 0)
 
