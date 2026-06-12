@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght=400;600;700&display=swap');
         body { font-family: 'Hind Siliguri', sans-serif; }
     </style>
 </head>
@@ -80,7 +80,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm space-y-4">
-                    <h3 class="text-lg font-bold text-gray-700 border-b pb-2"><i class="fa-solid fa-gavel text-slate-500 mr-2"></i>আর্থিক অবস্থা (Financial Summary)</h3>
+                    <h3 class="text-lg font-bold text-gray-700 border-b pb-2"><i class="fa-solid fa-gavel text-slate-500 mr-2"></i>আর্থিক অবস্থা</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">কাস্টমার বাকি</p><p id="dash-cust-due" class="text-base font-bold text-red-600">৳ ০.০০</p></div>
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">সাপ্লায়ার বাকি</p><p id="dash-supp-due" class="text-base font-bold text-amber-600">৳ ০.০০</p></div>
@@ -89,7 +89,7 @@
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm space-y-4">
-                    <h3 class="text-lg font-bold text-gray-700 border-b pb-2"><i class="fa-solid fa-warehouse text-slate-500 mr-2"></i>স্টক অবস্থা (Inventory Summary)</h3>
+                    <h3 class="text-lg font-bold text-gray-700 border-b pb-2"><i class="fa-solid fa-warehouse text-slate-500 mr-2"></i>স্টক অবস্থা</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">মোট প্রোডাক্ট আইটেম</p><p id="dash-total-prod" class="text-base font-bold text-gray-800">০ টি</p></div>
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">লো-স্টক প্রোডাক্ট</p><p id="dash-low-stock" class="text-base font-bold text-red-500">০ টি</p></div>
@@ -101,7 +101,7 @@
         </section>
 
         <section id="page-sales" class="page-section hidden space-y-6">
-            <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-cart-shopping text-blue-600 mr-2"></i>বিক্রয় অর্ডার এন্ট্রি (Sales Screen)</h2>
+            <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-cart-shopping text-blue-600 mr-2"></i>বিক্রয় অর্ডার এন্ট্রি</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -141,7 +141,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button onclick="addSalesItem()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded font-bold text-sm mt-2"><i class="fa-solid fa-plus mr-1"></i> কার্টে যোগ করুন (Add Item)</button>
+                        <button onclick="addSalesItem()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded font-bold text-sm mt-2">কার্টে যোগ করুন</button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
@@ -154,33 +154,32 @@
                                     <th class="p-2 text-center">অ্যাকশন</th>
                                 </tr>
                             </thead>
-                            <tbody id="sales-cart-tbody">
-                                </tbody>
+                            <tbody id="sales-cart-tbody"></tbody>
                         </table>
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm h-fit space-y-4 border-t-4 border-blue-600">
                     <h3 class="text-lg font-bold text-gray-700 border-b pb-2">ইনভয়েস সামারি</h3>
                     <div class="space-y-2 text-sm">
-                        <div class="flex justify-between"><span>সর্বমোট (Total):</span><span id="sales-total" class="font-bold">৳ ০.০০</span></div>
+                        <div class="flex justify-between"><span>সর্বমোট:</span><span id="sales-total" class="font-bold">৳ ০.০০</span></div>
                         <div class="flex justify-between items-center">
                             <span>ডিসকাউন্ট:</span>
                             <input type="number" id="sales-discount" value="0" oninput="calculateSalesSummary()" class="w-24 p-1 border rounded text-right">
                         </div>
                         <div class="flex justify-between border-t pt-2 text-base font-bold text-blue-700"><span>নেট টোটাল:</span><span id="sales-net">৳ ০.০০</span></div>
                         <div class="flex justify-between items-center border-b pb-2">
-                            <span>পেইড (নগদ গ্রহণ):</span>
+                            <span>পেইড:</span>
                             <input type="number" id="sales-paid" value="0" oninput="calculateSalesSummary()" class="w-24 p-1 border rounded text-right text-green-600 font-bold">
                         </div>
                         <div class="flex justify-between text-base font-bold text-red-600"><span>বাকি (Due):</span><span id="sales-due">৳ ০.০০</span></div>
                     </div>
-                    <button onclick="saveSalesInvoice()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-bold shadow-md"><i class="fa-solid fa-floppy-disk mr-2"></i> ইনভয়েস সেভ করুন</button>
+                    <button onclick="saveSalesInvoice()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-bold shadow-md">ইনভয়েস সেভ করুন</button>
                 </div>
             </div>
         </section>
 
         <section id="page-purchase" class="page-section hidden space-y-6">
-            <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-bag-shopping text-green-600 mr-2"></i>ক্রয় এন্ট্রি (Purchase Screen)</h2>
+            <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-bag-shopping text-green-600 mr-2"></i>ক্রয় এন্ট্রি (Purchase)</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -199,7 +198,7 @@
                     </div>
                     <hr class="border-gray-200">
                     <div class="bg-green-50/50 p-4 rounded-lg space-y-3">
-                        <p class="text-sm font-bold text-green-800"><i class="fa-solid fa-plus-circle mr-1"></i> নতুন স্টক বা এক্সিসটিং আইটেম ইনপুট</p>
+                        <p class="text-sm font-bold text-green-800"><i class="fa-solid fa-plus-circle mr-1"></i> প্রোডাক্ট ইনপুট</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="text-xs font-semibold text-gray-600">প্রোডাক্ট নির্বাচন</label>
@@ -213,14 +212,14 @@
                                     <input type="text" id="pur-new-name" placeholder="যেমন: Super Star LED" class="w-full p-2 border rounded">
                                 </div>
                                 <div>
-                                    <label class="text-xs font-semibold text-gray-600">কোড (Auto/Manual)</label>
-                                    <input type="text" id="pur-new-code" placeholder="SS20W" class="w-full p-2 border rounded">
+                                    <label class="text-xs font-semibold text-gray-600">কোড (Auto)</label>
+                                    <input type="text" id="pur-new-code" class="w-full p-2 border rounded">
                                 </div>
                             </div>
                         </div>
                         <div class="grid grid-cols-3 gap-2">
                             <div>
-                                <label class="text-xs font-semibold text-gray-600">পরিমাণ (Qty)</label>
+                                <label class="text-xs font-semibold text-gray-600">পরিমাণ</label>
                                 <input type="number" id="pur-qty" value="1" min="1" class="w-full p-2 border rounded">
                             </div>
                             <div>
@@ -233,11 +232,11 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="text-xs font-semibold text-gray-600">ক্রয় মূল্য দর (Rate)</label>
+                                <label class="text-xs font-semibold text-gray-600">ক্রয় মূল্য দর</label>
                                 <input type="number" id="pur-rate" value="0" class="w-full p-2 border rounded">
                             </div>
                         </div>
-                        <button onclick="addPurItem()" class="w-full bg-green-600 hover:bg-green-700 text-white p-2 rounded font-bold text-sm mt-2"><i class="fa-solid fa-check-double mr-1"></i> ক্রমিকে যোগ করুন</button>
+                        <button onclick="addPurItem()" class="w-full bg-green-600 hover:bg-green-700 text-white p-2 rounded font-bold text-sm mt-2">ক্রমিকে যোগ করুন</button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
@@ -264,14 +263,14 @@
                         </div>
                         <div class="flex justify-between text-base font-bold text-red-600"><span>সাপ্লায়ার বাকি:</span><span id="pur-due">৳ ০.০০</span></div>
                     </div>
-                    <button onclick="savePurchaseInvoice()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-lg font-bold shadow-md"><i class="fa-solid fa-cart-arrow-down mr-2"></i> পারচেজ ভাউচার সেভ</button>
+                    <button onclick="savePurchaseInvoice()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-lg font-bold shadow-md">পারচেজ ভাউচার সেভ</button>
                 </div>
             </div>
         </section>
 
         <section id="page-stock" class="page-section hidden space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-boxes-stacked text-amber-500 mr-2"></i>ইনভেন্টরি স্টক (Current Stock)</h2>
+                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-boxes-stacked text-amber-500 mr-2"></i>ইনভেন্টরি স্টক ও পণ্য তালিকা</h2>
                 <button onclick="openDamageModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded shadow text-sm font-semibold w-full sm:w-auto"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ড্যামেজ এন্ট্রি করুন</button>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto">
@@ -281,8 +280,9 @@
                             <th class="p-3">কোড</th>
                             <th class="p-3">প্রোডাক্টের নাম</th>
                             <th class="p-3 text-center">বর্তমান স্টক</th>
-                            <th class="p-3 text-right">গড় ক্রয়মূল্য (Avg Cost)</th>
+                            <th class="p-3 text-right">গড় ক্রয়মূল্য</th>
                             <th class="p-3 text-right">মোট স্টক মূল্য</th>
+                            <th class="p-3 text-center">অ্যাকশন</th>
                         </tr>
                     </thead>
                     <tbody id="stock-tbody" class="divide-y divide-gray-100"></tbody>
@@ -320,7 +320,8 @@
                             <th class="p-3">ক্যাটাগরি</th>
                             <th class="p-3 text-right">মোট ক্রয়</th>
                             <th class="p-3 text-right">মোট পেইড</th>
-                            <th class="p-3 text-right text-red-600">চলতি বাকি (Due)</th>
+                            <th class="p-3 text-right text-red-600">চলতি বাকি</th>
+                            <th class="p-3 text-center">অ্যাকশন</th>
                         </tr>
                     </thead>
                     <tbody id="customers-tbody" class="divide-y"></tbody>
@@ -349,7 +350,8 @@
                             <th class="p-3">মোবাইল</th>
                             <th class="p-3 text-right">মোট মালামাল ক্রয়</th>
                             <th class="p-3 text-right">মোট পরিশোধ</th>
-                            <th class="p-3 text-right text-amber-600">কোম্পানি পাবে (Due)</th>
+                            <th class="p-3 text-right text-amber-600">কোম্পানি পাবে</th>
+                            <th class="p-3 text-center">অ্যাকশন</th>
                         </tr>
                     </thead>
                     <tbody id="suppliers-tbody" class="divide-y"></tbody>
@@ -365,7 +367,7 @@
                     <select id="coll-customer" class="w-full p-2 border rounded bg-white"></select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-1">টাকার পরিমাণ (Amount)</label>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">টাকার পরিমাণ</label>
                     <input type="number" id="coll-amount" class="w-full p-2 border rounded">
                 </div>
                 <div>
@@ -374,7 +376,6 @@
                         <option value="Cash">Cash (নগদ)</option>
                         <option value="Bkash">bKash (বিকাশ)</option>
                         <option value="Nagad">Nagad (নগদ অ্যাপ)</option>
-                        <option value="DBBL">DBBL Bank</option>
                     </select>
                 </div>
                 <button onclick="saveCollectionAction()" class="w-full bg-amber-500 text-white p-3 rounded-lg font-bold shadow hover:bg-amber-600">কালেকশন ভাউচার সেভ করুন</button>
@@ -382,17 +383,15 @@
         </section>
 
         <section id="page-expense" class="page-section hidden space-y-6">
-            <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-wallet text-red-500 mr-2"></i>খরচ ব্যবস্থাপনা (Expense Entry)</h2>
+            <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-wallet text-red-500 mr-2"></i>খরচ ব্যবস্থাপনা</h2>
             <div class="max-w-md bg-white p-6 rounded-xl shadow-sm space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-600 mb-1">খরচের খাত (Category)</label>
                     <select id="exp-category" class="w-full p-2 border rounded bg-white">
                         <option value="Tea">Tea (চা আপ্যায়ন)</option>
                         <option value="Transport">Transport (যাতায়াত ভাড়া)</option>
-                        <option value="Packaging">Packaging (প্যাকেজিং)</option>
-                        <option value="Rent">Rent (দোকান/গোডাউন ভাড়া)</option>
-                        <option value="Salary">Staff Salary (স্টাফ বেতন)</option>
-                        <option value="Bulbul Salary">Bulbul Salary (মালিকের বেতন - আলাদা হিসাব)</option>
+                        <option value="Rent">Rent (দোকান ভাড়া)</option>
+                        <option value="Salary">Staff Salary (স্টাফ वेतन)</option>
                         <option value="Others">Others</option>
                     </select>
                 </div>
@@ -402,7 +401,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-600 mb-1">রিমার্কস / নোট</label>
-                    <input type="text" id="exp-remarks" placeholder="যেমন: মালামাল খালাস কুলি খরচ" class="w-full p-2 border rounded">
+                    <input type="text" id="exp-remarks" class="w-full p-2 border rounded">
                 </div>
                 <button onclick="saveExpenseAction()" class="w-full bg-red-500 text-white p-3 rounded-lg font-bold shadow hover:bg-red-600">খরচ এন্ট্রি সম্পূর্ণ করুন</button>
             </div>
@@ -412,513 +411,5 @@
             <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-file-invoice-dollar text-indigo-600 mr-2"></i>রিপোর্ট প্যানেল</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm space-y-4 border-t-4 border-indigo-600">
-                    <h3 class="font-bold text-gray-700"><i class="fa-solid fa-chart-line text-green-600 mr-2"></i>লাভ-ক্ষতি এনালাইসিস</h3>
-                    <div class="divide-y text-sm">
-                        <div class="py-2 flex justify-between"><span>মোট রেভিনিউ (Sales):</span><span id="rep-total-sales" class="font-bold">৳ ০.০০</span></div>
-                        <div class="py-2 flex justify-between"><span>বিক্রিত মালের খরচ (COGS):</span><span id="rep-total-cogs" class="font-bold text-amber-700">৳ ০.০০</span></div>
-                        <div class="py-2 flex justify-between"><span>গ্রস প্রফিট (Gross Profit):</span><span id="rep-gross-profit" class="font-bold text-green-600">৳ ০.০০</span></div>
-                        <div class="py-2 flex justify-between"><span>মোট পরিচালনা খরচ:</span><span id="rep-total-exp" class="font-bold text-red-500">৳ ০.০০</span></div>
-                        <div class="py-2 flex justify-between font-bold text-base bg-indigo-50 p-2 rounded mt-1"><span>নীট লাভ (Net Profit):</span><span id="rep-net-profit" class="text-indigo-700">৳ ০.০০</span></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <div id="damage-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4 relative">
-            <h3 class="text-lg font-bold text-purple-800"><i class="fa-solid fa-circle-exclamation mr-1"></i> ড্যামেজ স্টক ও স্ক্র্যাপ সেল এন্ট্রি</h3>
-            <div>
-                <label class="block text-sm font-semibold text-gray-600">প্রোডাক্ট সিলেক্ট করুন</label>
-                <select id="dmg-product" class="w-full p-2 border rounded bg-white"></select>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600">পরিমাণ (Qty)</label>
-                    <input type="number" id="dmg-qty" value="1" min="1" class="w-full p-2 border rounded">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600">স্ট্যাটাস</label>
-                    <select id="dmg-status" class="w-full p-2 border rounded bg-white">
-                        <option value="Damage">Damage (নষ্ট স্টক)</option>
-                        <option value="Scrap Sold">Scrap Sold (ভাঙারি বিক্রি)</option>
-                        <option value="Write Off">Write Off (বাদ দেওয়া)</option>
-                    </select>
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-600">স্ক্র্যাপ রিকভারি ভ্যালু (টাকা)</label>
-                <input type="number" id="dmg-recovery" value="0" placeholder="ভাঙারি বিক্রির টাকা যদি থাকে" class="w-full p-2 border rounded">
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeDamageModal()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded font-semibold text-sm">বাতিল</button>
-                <button onclick="saveDamageAction()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-semibold text-sm">কনফার্ম সেভ</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // CORE STATE DATA
-        let state = {
-            products: [
-                { id: "PROD1", name: "Super Star 20 Watt LED Bulb", code: "SS20W", currentStock: 100, avgCost: 120, unit: "PCS" },
-                { id: "PROD2", name: "Click 18 Watt Energy Bulb", code: "CE18W", currentStock: 50, avgCost: 150, unit: "PCS" }
-            ],
-            customers: [
-                { id: "CUST1", name: "Rahim Electric", phone: "01711000000", category: "Wholesale", totalPurchase: 0, totalPaid: 0, due: 0 },
-                { id: "CUST2", name: "Karim Stores", phone: "01811000000", category: "Retail", totalPurchase: 0, totalPaid: 0, due: 0 }
-            ],
-            suppliers: [
-                { id: "SUPP1", name: "Super Star Group HQ", phone: "01999999999", totalPurchase: 0, totalPaid: 0, due: 0 },
-                { id: "SUPP2", name: "Click BD Distribution", phone: "01555555555", totalPurchase: 0, totalPaid: 0, due: 0 }
-            ],
-            sales: [],
-            purchases: [],
-            collections: [],
-            expenses: [],
-            damages: [],
-            accounts: { cash: 10000, bank: 50000 }
-        };
-
-        // CURRENT WORKING CARTS
-        let salesCart = [];
-        let purchaseCart = [];
-
-        // INITIALIZE APP
-        window.onload = function() {
-            generateNextInvoiceNumbers();
-            populateDropdowns();
-            renderAllData();
-            switchPage('dashboard');
-            
-            // Set current date on date fields
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('sales-date').value = today;
-            document.getElementById('pur-date').value = today;
-        };
-
-        // ROUTING SYSTEM (Page Switches)
-        function switchPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(section => section.classList.add('hidden'));
-            document.getElementById(`page-${pageId}`).classList.remove('hidden');
-
-            // Handle Desktop Sidebar Highlight
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-slate-700', 'border-l-4', 'border-blue-500'));
-            const activeBtn = document.querySelector(`.nav-btn[data-page="${pageId}"]`);
-            if(activeBtn) activeBtn.classList.add('bg-slate-700', 'border-l-4', 'border-blue-500');
-
-            // Handle Mobile Bottom Nav Highlight
-            document.querySelectorAll('.mobile-nav-btn').forEach(btn => btn.classList.remove('text-blue-400'));
-            const activeMobBtn = document.querySelector(`.mobile-nav-btn[data-page="${pageId}"]`);
-            if(activeMobBtn) activeMobBtn.classList.add('text-blue-400');
-
-            // Update mobile header text
-            const navBtnText = activeBtn ? activeBtn.innerText : "ড্যাশবোর্ড";
-            document.getElementById('mobile-page-title').innerText = navBtnText;
-        }
-
-        function generateNextInvoiceNumbers() {
-            document.getElementById('sales-invoice-no').value = "INV-" + (state.sales.length + 1001);
-            document.getElementById('pur-invoice-no').value = "PUR-" + (state.purchases.length + 5001);
-        }
-
-        function populateDropdowns() {
-            // Sales Customers
-            const salesCust = document.getElementById('sales-customer');
-            const collCust = document.getElementById('coll-customer');
-            let custOptions = state.customers.map(c => `<option value="${c.id}">${c.name} (${c.category})</option>`).join('');
-            salesCust.innerHTML = custOptions;
-            collCust.innerHTML = custOptions;
-
-            // Sales Products
-            const salesProd = document.getElementById('sales-product-select');
-            salesProd.innerHTML = state.products.map(p => `<option value="${p.id}">${p.name} [${p.code}] - Stock: ${p.currentStock}</option>`).join('');
-            onSalesProductChange();
-
-            // Purchase Suppliers
-            document.getElementById('pur-supplier').innerHTML = state.suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-
-            // Purchase Products
-            const purProd = document.getElementById('pur-product-select');
-            let purOptions = `<option value="NEW">-- নতুন প্রোডাক্ট তৈরি করুন --</option>`;
-            purOptions += state.products.map(p => `<option value="${p.id}">${p.name} [${p.code}]</option>`).join('');
-            purProd.innerHTML = purOptions;
-            onPurProductChange();
-
-            // Damage Screen Dropdown
-            document.getElementById('dmg-product').innerHTML = state.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-        }
-
-        // AUTO PRODUCT CODE GENERATOR (Logic matching Rule 6 & 7)
-        function generateProductCode(name) {
-            return name.split(' ')
-                       .filter(word => word.length > 0)
-                       .map(word => word[0].toUpperCase())
-                       .join('') + Math.floor(10 + Math.random() * 90);
-        }
-
-        // DROPDOWN CHANGE EVENTS
-        function onSalesProductChange() {
-            const pId = document.getElementById('sales-product-select').value;
-            const prod = state.products.find(p => p.id === pId);
-            if(prod) {
-                document.getElementById('sales-unit').value = prod.unit;
-                document.getElementById('sales-rate').value = Math.round(prod.avgCost * 1.25); // 25% Auto Markup margin estimate
-            }
-        }
-
-        function onPurProductChange() {
-            const val = document.getElementById('pur-product-select').value;
-            const fields = document.getElementById('pur-new-product-fields');
-            if(val === "NEW") {
-                fields.classList.remove('hidden');
-                document.getElementById('pur-new-name').addEventListener('input', function() {
-                    document.getElementById('pur-new-code').value = generateProductCode(this.value);
-                });
-            } else {
-                fields.classList.add('hidden');
-            }
-        }
-
-        // SALES CART CORE LOGIC
-        function addSalesItem() {
-            const pId = document.getElementById('sales-product-select').value;
-            const qty = parseInt(document.getElementById('sales-qty').value);
-            const rate = parseFloat(document.getElementById('sales-rate').value);
-            const prod = state.products.find(p => p.id === pId);
-
-            if(qty > prod.currentStock) {
-                alert("দুঃখিত! আপনার স্টকে পর্যাপ্ত মাল নেই।");
-                return;
-            }
-
-            salesCart.push({ productId: pId, name: prod.name, qty, rate, unit: prod.unit, total: qty * rate });
-            renderSalesCart();
-        }
-
-        function removeSalesCartItem(index) {
-            salesCart.splice(index, 1);
-            renderSalesCart();
-        }
-
-        function renderSalesCart() {
-            const tbody = document.getElementById('sales-cart-tbody');
-            tbody.innerHTML = salesCart.map((item, idx) => `
-                <tr class="border-b">
-                    <td class="p-2">${item.name}</td>
-                    <td class="p-2 text-center">${item.qty} ${item.unit}</td>
-                    <td class="p-2 text-right">৳${item.rate}</td>
-                    <td class="p-2 text-right">৳${item.total}</td>
-                    <td class="p-2 text-center"><button onclick="removeSalesCartItem(${idx})" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-            calculateSalesSummary();
-        }
-
-        function calculateSalesSummary() {
-            let total = salesCart.reduce((sum, item) => sum + item.total, 0);
-            let discount = parseFloat(document.getElementById('sales-discount').value) || 0;
-            let net = total - discount;
-            let paid = parseFloat(document.getElementById('sales-paid').value) || 0;
-            let due = net - paid;
-
-            document.getElementById('sales-total').innerText = "৳ " + total;
-            document.getElementById('sales-net').innerText = "৳ " + net;
-            document.getElementById('sales-due').innerText = "৳ " + due;
-        }
-
-        function saveSalesInvoice() {
-            if(salesCart.length === 0) return alert("কার্ট খালি!");
-            const customerId = document.getElementById('sales-customer').value;
-            const netAmount = parseFloat(document.getElementById('sales-net').innerText.replace('৳ ', ''));
-            const paidAmount = parseFloat(document.getElementById('sales-paid').value) || 0;
-            const dueAmount = netAmount - paidAmount;
-
-            // Update Stock & Calculate Profit via Weighted Average Cost Method (Rule 5 & 8)
-            let totalCOGS = 0;
-            salesCart.forEach(item => {
-                const prod = state.products.find(p => p.id === item.productId);
-                prod.currentStock -= item.qty;
-                totalCOGS += (prod.avgCost * item.qty);
-            });
-
-            // Update Customer Due Data
-            const cust = state.customers.find(c => c.id === customerId);
-            cust.totalPurchase += netAmount;
-            cust.totalPaid += paidAmount;
-            cust.due += dueAmount;
-
-            // Finance Accounts Update
-            state.accounts.cash += paidAmount;
-
-            // Log Transaction
-            state.sales.push({
-                invoiceNo: document.getElementById('sales-invoice-no').value,
-                date: document.getElementById('sales-date').value,
-                customerId, netAmount, paidAmount, dueAmount,
-                profit: netAmount - totalCOGS - (parseFloat(document.getElementById('sales-discount').value) || 0),
-                cogs: totalCOGS
-            });
-
-            alert("বিক্রয় ইনভয়েস সফলভাবে সংরক্ষিত হয়েছে!");
-            salesCart = [];
-            document.getElementById('sales-discount').value = 0;
-            document.getElementById('sales-paid').value = 0;
-            generateNextInvoiceNumbers();
-            populateDropdowns();
-            renderAllData();
-            switchPage('dashboard');
-        }
-
-        // PURCHASE CART LOGIC (With Weighted Average Cost Calculation Engine)
-        function addPurItem() {
-            const selectVal = document.getElementById('pur-product-select').value;
-            const qty = parseInt(document.getElementById('pur-qty').value);
-            const rate = parseFloat(document.getElementById('pur-rate').value);
-
-            let pId, name, code, unit;
-            if(selectVal === "NEW") {
-                name = document.getElementById('pur-new-name').value;
-                code = document.getElementById('pur-new-code').value || generateProductCode(name);
-                unit = document.getElementById('pur-unit').value;
-                if(!name) return alert("প্রোডাক্টের নাম লিখুন!");
-                pId = "PROD" + (state.products.length + 1);
-                
-                // Add dynamically to global catalog
-                state.products.push({ id: pId, name, code, currentStock: 0, avgCost: 0, unit });
-            } else {
-                const existing = state.products.find(p => p.id === selectVal);
-                pId = existing.id;
-                name = existing.name;
-                unit = existing.unit;
-            }
-
-            purchaseCart.push({ productId: pId, name, qty, rate, unit, total: qty * rate });
-            renderPurCart();
-        }
-
-        function renderPurCart() {
-            const tbody = document.getElementById('pur-cart-tbody');
-            tbody.innerHTML = purchaseCart.map((item, idx) => `
-                <tr class="border-b">
-                    <td class="p-2">${item.name}</td>
-                    <td class="p-2 text-center">${item.qty} ${item.unit}</td>
-                    <td class="p-2 text-right">৳${item.rate}</td>
-                    <td class="p-2 text-right">৳${item.total}</td>
-                    <td class="p-2 text-center"><button onclick="purchaseCart.splice(${idx},1); renderPurCart();" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-            calculatePurSummary();
-        }
-
-        function calculatePurSummary() {
-            let total = purchaseCart.reduce((sum, item) => sum + item.total, 0);
-            let paid = parseFloat(document.getElementById('pur-paid').value) || 0;
-            let due = total - paid;
-            document.getElementById('pur-total').innerText = "৳ " + total;
-            document.getElementById('pur-due').innerText = "৳ " + due;
-        }
-
-        function savePurchaseInvoice() {
-            if(purchaseCart.length === 0) return alert("ক্রয় তালিকা খালি!");
-            const supplierId = document.getElementById('pur-supplier').value;
-            const total = purchaseCart.reduce((sum, item) => sum + item.total, 0);
-            const paid = parseFloat(document.getElementById('pur-paid').value) || 0;
-            const due = total - paid;
-
-            // WEIGHTED AVERAGE COST LOGIC ENGINE (Rule 4 & 5)
-            purchaseCart.forEach(item => {
-                const prod = state.products.find(p => p.id === item.productId);
-                
-                let oldStock = prod.currentStock;
-                let oldCost = prod.avgCost;
-                let newStock = item.qty;
-                let newCost = item.rate;
-
-                if (oldStock + newStock > 0) {
-                    // Formula: ((Old Stock * Old Avg Cost) + (New Purchased Qty * New Cost)) / (Old Stock + New Qty)
-                    prod.avgCost = ((oldStock * oldCost) + (newStock * newCost)) / (oldStock + newStock);
-                } else {
-                    prod.avgCost = newCost;
-                }
-                prod.currentStock += newStock; // Increase Stock
-            });
-
-            // Update Supplier Profile
-            const supp = state.suppliers.find(s => s.id === supplierId);
-            supp.totalPurchase += total;
-            supp.totalPaid += paid;
-            supp.due += due;
-
-            state.accounts.cash -= paid; // Paid via cash asset
-
-            state.purchases.push({ invoiceNo: document.getElementById('pur-invoice-no').value, date: document.getElementById('pur-date').value, supplierId, total, paid, due });
-
-            alert("ক্রয় ভাউচার সফলভাবে সিস্টেমে স্টক-ইন করা হয়েছে!");
-            purchaseCart = [];
-            document.getElementById('pur-paid').value = 0;
-            generateNextInvoiceNumbers();
-            populateDropdowns();
-            renderAllData();
-            switchPage('dashboard');
-        }
-
-        // CASH COLLECTION & EXPENSE PROCESSES
-        function saveCollectionAction() {
-            const custId = document.getElementById('coll-customer').value;
-            const amount = parseFloat(document.getElementById('coll-amount').value) || 0;
-            if(amount <= 0) return alert("সঠিক এমাউন্ট দিন");
-
-            const cust = state.customers.find(c => c.id === custId);
-            cust.totalPaid += amount;
-            cust.due -= amount; // Reduce due (Rule 8)
-            state.accounts.cash += amount;
-
-            state.collections.push({ date: new Date().toISOString().split('T')[0], custId, amount });
-            alert("কালেকশন সম্পন্ন!");
-            document.getElementById('coll-amount').value = '';
-            renderAllData();
-            switchPage('dashboard');
-        }
-
-        function saveExpenseAction() {
-            const cat = document.getElementById('exp-category').value;
-            const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
-            const remarks = document.getElementById('exp-remarks').value;
-            if(amount <= 0) return alert("সঠিক খরচের অংক লিখুন");
-
-            state.accounts.cash -= amount; // Expense rule (Rule 9)
-            state.expenses.push({ date: new Date().toISOString().split('T')[0], category: cat, amount, remarks });
-
-            alert("খরচ লিপিবদ্ধ করা হয়েছে!");
-            document.getElementById('exp-amount').value = '';
-            document.getElementById('exp-remarks').value = '';
-            renderAllData();
-            switchPage('dashboard');
-        }
-
-        // DAMAGE MODAL & RULES MANAGEMENT
-        function openDamageModal() { document.getElementById('damage-modal').classList.remove('hidden'); }
-        function closeDamageModal() { document.getElementById('damage-modal').classList.add('hidden'); }
-        
-        function saveDamageAction() {
-            const pId = document.getElementById('dmg-product').value;
-            const qty = parseInt(document.getElementById('dmg-qty').value);
-            const status = document.getElementById('dmg-status').value;
-            const recovery = parseFloat(document.getElementById('dmg-recovery').value) || 0;
-
-            const prod = state.products.find(p => p.id === pId);
-            if(qty > prod.currentStock) return alert("স্টকের চেয়ে ড্যামেজ বেশি হতে পারে না");
-
-            prod.currentStock -= qty; // Deduct Main Stock
-            let costOfDamage = prod.avgCost * qty;
-            let loss = costOfDamage - recovery; // Scrap logic calculation (Rule 10)
-
-            state.damages.push({ pId, qty, status, recovery, loss, costOfDamage });
-            if(recovery > 0) state.accounts.cash += recovery;
-
-            alert("ড্যামেজ এন্ট্রি হিসাবভুক্ত করা হয়েছে। লস আইসোলেটেড করা হয়েছে।");
-            closeDamageModal();
-            renderAllData();
-        }
-
-        // DATA ADDERS FOR MASTER MODULES
-        function addNewCustomerAction() {
-            const name = document.getElementById('cust-add-name').value;
-            const phone = document.getElementById('cust-add-phone').value;
-            const category = document.getElementById('cust-add-cat').value;
-            if(!name) return;
-            state.customers.push({ id: "CUST"+(state.customers.length+1), name, phone, category, totalPurchase: 0, totalPaid: 0, due: 0 });
-            document.getElementById('cust-add-name').value = '';
-            populateDropdowns();
-            renderAllData();
-        }
-
-        function addNewSupplierAction() {
-            const name = document.getElementById('supp-add-name').value;
-            const phone = document.getElementById('supp-add-phone').value;
-            if(!name) return;
-            state.suppliers.push({ id: "SUPP"+(state.suppliers.length+1), name, phone, totalPurchase: 0, totalPaid: 0, due: 0 });
-            document.getElementById('supp-add-name').value = '';
-            populateDropdowns();
-            renderAllData();
-        }
-
-        // GLOBAL RENDERING ENGINE
-        function renderAllData() {
-            // Calculate Global Aggregates
-            let todaySalesSum = state.sales.reduce((sum, s) => sum + s.netAmount, 0);
-            let todayPurSum = state.purchases.reduce((sum, p) => sum + p.total, 0);
-            let todayCollSum = state.collections.reduce((sum, c) => sum + c.amount, 0) + state.sales.reduce((sum, s) => sum + s.paidAmount, 0);
-            let todayExpSum = state.expenses.reduce((sum, e) => sum + e.amount, 0);
-            let todayProfitSum = state.sales.reduce((sum, s) => sum + s.profit, 0) - todayExpSum - state.damages.reduce((sum, d) => sum + d.loss, 0);
-
-            let totalCustDue = state.customers.reduce((sum, c) => sum + c.due, 0);
-            let totalSuppDue = state.suppliers.reduce((sum, s) => sum + s.due, 0);
-            let totalStockVal = state.products.reduce((sum, p) => sum + (p.currentStock * p.avgCost), 0);
-            let totalDmgVal = state.damages.reduce((sum, d) => sum + (d.status === "Damage" ? d.costOfDamage : 0), 0);
-            let lowStockItems = state.products.filter(p => p.currentStock < 10).length;
-
-            // Inject into Dashboard DOM
-            document.getElementById('dash-today-sales').innerText = "৳ " + todaySalesSum.toFixed(2);
-            document.getElementById('dash-today-purchase').innerText = "৳ " + todayPurSum.toFixed(2);
-            document.getElementById('dash-today-collection').innerText = "৳ " + todayCollSum.toFixed(2);
-            document.getElementById('dash-today-expense').innerText = "৳ " + todayExpSum.toFixed(2);
-            document.getElementById('dash-today-profit').innerText = "৳ " + todayProfitSum.toFixed(2);
-
-            document.getElementById('dash-cust-due').innerText = "৳ " + totalCustDue.toFixed(2);
-            document.getElementById('dash-supp-due').innerText = "৳ " + totalSuppDue.toFixed(2);
-            document.getElementById('dash-cash-bal').innerText = "৳ " + state.accounts.cash.toFixed(2);
-            document.getElementById('dash-bank-bal').innerText = "৳ " + state.accounts.bank.toFixed(2);
-
-            document.getElementById('dash-total-prod').innerText = state.products.length + " টি";
-            document.getElementById('dash-low-stock').innerText = lowStockItems + " টি";
-            document.getElementById('dash-stock-val').innerText = "৳ " + totalStockVal.toFixed(2);
-            document.getElementById('dash-damage-val').innerText = "৳ " + totalDmgVal.toFixed(2);
-
-            // Render Stock Screen Table
-            document.getElementById('stock-tbody').innerHTML = state.products.map(p => `
-                <tr class="hover:bg-gray-50 border-b">
-                    <td class="p-3 font-mono font-bold text-slate-600">${p.code}</td>
-                    <td class="p-3 font-semibold text-gray-800">${p.name}</td>
-                    <td class="p-3 text-center font-bold ${p.currentStock < 10 ? 'text-red-500 bg-red-50 rounded' : 'text-gray-700'}">${p.currentStock} ${p.unit}</td>
-                    <td class="p-3 text-right">৳${p.avgCost.toFixed(2)}</td>
-                    <td class="p-3 text-right font-bold text-emerald-600">৳${(p.currentStock * p.avgCost).toFixed(2)}</td>
-                </tr>
-            `).join('');
-
-            // Render Customers List
-            document.getElementById('customers-tbody').innerHTML = state.customers.map(c => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3"><strong>${c.name}</strong><br><span class="text-xs text-gray-500">${c.phone}</span></td>
-                    <td class="p-3"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold">${c.category}</span></td>
-                    <td class="p-3 text-right">৳${c.totalPurchase.toFixed(2)}</td>
-                    <td class="p-3 text-right text-green-600">৳${c.totalPaid.toFixed(2)}</td>
-                    <td class="p-3 text-right font-bold text-red-600">৳${c.due.toFixed(2)}</td>
-                </tr>
-            `).join('');
-
-            // Render Suppliers List
-            document.getElementById('suppliers-tbody').innerHTML = state.suppliers.map(s => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3 font-bold text-gray-700">${s.name}</td>
-                    <td class="p-3 text-xs font-mono text-gray-500">${s.phone}</td>
-                    <td class="p-3 text-right">৳${s.totalPurchase.toFixed(2)}</td>
-                    <td class="p-3 text-right text-green-600">৳${s.totalPaid.toFixed(2)}</td>
-                    <td class="p-3 text-right font-bold text-amber-600">৳${s.due.toFixed(2)}</td>
-                </tr>
-            `).join('');
-
-            // Render Report Screen Metrics
-            let totalCogsSum = state.sales.reduce((sum, s) => sum + s.cogs, 0);
-            document.getElementById('rep-total-sales').innerText = "৳ " + todaySalesSum.toFixed(2);
-            document.getElementById('rep-total-cogs').innerText = "৳ " + totalCogsSum.toFixed(2);
-            document.getElementById('rep-gross-profit').innerText = "৳ " + (todaySalesSum - totalCogsSum).toFixed(2);
-            document.getElementById('rep-total-exp').innerText = "৳ " + todayExpSum.toFixed(2);
-            document.getElementById('rep-net-profit').innerText = "৳ " + todayProfitSum.toFixed(2);
-        }
-    </script>
-</body>
-</html>
+                    <h3 class="font-bold text-gray-
 
