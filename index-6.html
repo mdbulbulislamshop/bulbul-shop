@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulbul Enterprise ERP</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght=400;600;700&display=swap');
@@ -84,7 +84,7 @@
                     <h3 class="text-lg font-bold text-gray-700 border-b pb-2"><i class="fa-solid fa-gavel text-slate-500 mr-2"></i>আর্থিক অবস্থা</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">কাস্টমার বাকি</p><p id="dash-cust-due" class="text-base font-bold text-red-600">৳ ০.০০</p></div>
-                        <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">সাপ্লায়ার বাকি</p><p id="dash-supp-due" class="text-base font-bold text-amber-600">৳ ০.০০</p></div>
+                        <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">سাপ্লায়ার বাকি</p><p id="dash-supp-due" class="text-base font-bold text-amber-600">৳ ০.০০</p></div>
                         <div class="bg-slate-50 p-3 rounded-lg"><p class="text-xs text-gray-500">ক্যাশ ব্যালেন্স</p><p id="dash-cash-bal" class="text-base font-bold text-green-600">৳ ১০,০০০.০০</p></div>
                     </div>
                 </div>
@@ -434,13 +434,16 @@
         window.addEventListener('DOMContentLoaded', () => {
             generateNextInvoiceNumbers();
             populateDropdowns();
+            
+            // Initial call to set fields safely without creating a infinite loop
+            onSalesProductChange(); 
+
             renderAllData();
             
             const today = new Date().toISOString().split('T')[0];
             if(document.getElementById('sales-date')) document.getElementById('sales-date').value = today;
             if(document.getElementById('pur-date')) document.getElementById('pur-date').value = today;
             
-            // Auto generate code feature listener securely added
             const purNameInput = document.getElementById('pur-new-name');
             if(purNameInput) {
                 purNameInput.addEventListener('input', function() {
@@ -479,7 +482,6 @@
             const salesProd = document.getElementById('sales-product-select');
             if(salesProd) {
                 salesProd.innerHTML = state.products.map(p => `<option value="${p.id}">${p.name} (স্টক: ${p.currentStock})</option>`).join('');
-                onSalesProductChange();
             }
 
             const purProd = document.getElementById('pur-product-select');
@@ -499,7 +501,9 @@
         }
 
         function onSalesProductChange() {
-            const pId = document.getElementById('sales-product-select').value;
+            const selectEl = document.getElementById('sales-product-select');
+            if(!selectEl || !selectEl.value) return;
+            const pId = selectEl.value;
             const prod = state.products.find(p => p.id === pId);
             if(prod) {
                 if(document.getElementById('sales-unit')) document.getElementById('sales-unit').value = prod.unit;
@@ -508,7 +512,9 @@
         }
 
         function onPurProductChange() {
-            const val = document.getElementById('pur-product-select').value;
+            const selectEl = document.getElementById('pur-product-select');
+            if(!selectEl) return;
+            const val = selectEl.value;
             const fields = document.getElementById('pur-new-product-fields');
             if(fields) {
                 if(val === "NEW") fields.classList.remove('hidden');
@@ -520,7 +526,7 @@
         function deleteProduct(id) {
             if(confirm("আপনি কি এটি বাদ দিতে চান?")) {
                 state.products = state.products.filter(p => p.id !== id);
-                populateDropdowns(); renderAllData();
+                populateDropdowns(); onSalesProductChange(); renderAllData();
             }
         }
         function deleteCustomer(id) {
@@ -598,7 +604,7 @@
             salesCart = [];
             document.getElementById('sales-discount').value = 0;
             document.getElementById('sales-paid').value = 0;
-            generateNextInvoiceNumbers(); populateDropdowns(); renderAllData(); switchPage('dashboard');
+            generateNextInvoiceNumbers(); populateDropdowns(); onSalesProductChange(); renderAllData(); switchPage('dashboard');
         }
 
         // Add Purchase Cart
@@ -607,5 +613,205 @@
             const qty = parseInt(document.getElementById('pur-qty').value) || 0;
             const rate = parseFloat(document.getElementById('pur-rate').value) || 0;
 
-            if(qty <= 0)
+            if(qty <= 0) return alert("সঠিক পরিমাণ দিন");
+
+            let pId, name;
+            if(selectVal === "NEW") {
+                name = document.getElementById('pur-new-name').value;
+                let code = document.getElementById('pur-new-code').value;
+                let unit = document.getElementById('pur-unit').value;
+                if(!name) return alert("নাম লিখুন");
+                pId = "PROD" + (state.products.length + 1);
+                state.products.push({ id: pId, name, code, currentStock: 0, avgCost: 0, unit });
+            } else {
+                const existing = state.products.find(p => p.id === selectVal);
+                pId = existing.id; name = existing.name;
+            }
+
+            purchaseCart.push({ productId: pId, name, qty, rate, total: qty * rate });
+            renderPurCart();
+        }
+
+        function renderPurCart() {
+            const tbody = document.getElementById('pur-cart-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = purchaseCart.map((item, idx) => `
+                <tr class="border-b">
+                    <td class="p-2">${item.name}</td>
+                    <td class="p-2 text-center">${item.qty}</td>
+                    <td class="p-2 text-right">৳${item.rate}</td>
+                    <td class="p-2 text-right">৳${item.total}</td>
+                    <td class="p-2 text-center"><button onclick="purchaseCart.splice(${idx},1); renderPurCart();" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+            calculatePurSummary();
+        }
+
+        function calculatePurSummary() {
+            let total = purchaseCart.reduce((sum, item) => sum + item.total, 0);
+            let paid = parseFloat(document.getElementById('pur-paid').value) || 0;
+            if(document.getElementById('pur-total')) document.getElementById('pur-total').innerText = "৳ " + total;
+            if(document.getElementById('pur-due')) document.getElementById('pur-due').innerText = "৳ " + (total - paid);
+        }
+
+        function savePurchaseInvoice() {
+            if(purchaseCart.length === 0) return alert("তালিকা খালি!");
+            const supplierId = document.getElementById('pur-supplier').value;
+            const total = purchaseCart.reduce((sum, item) => sum + item.total, 0);
+            const paid = parseFloat(document.getElementById('pur-paid').value) || 0;
+
+            purchaseCart.forEach(item => {
+                const prod = state.products.find(p => p.id === item.productId);
+                if(prod) {
+                    let oldStock = prod.currentStock;
+                    let oldCost = prod.avgCost;
+                    if(oldStock + item.qty > 0) prod.avgCost = ((oldStock * oldCost) + (item.qty * item.rate)) / (oldStock + item.qty);
+                    else prod.avgCost = item.rate;
+                    prod.currentStock += item.qty;
+                }
+            });
+
+            const supp = state.suppliers.find(s => s.id === supplierId);
+            if(supp) { supp.totalPurchase += total; supp.due += (total - paid); }
+            state.accounts.cash -= paid;
+            state.purchases.push({ total });
+
+            alert("ক্রয় সফল ও স্টক ইন হয়েছে!");
+            purchaseCart = [];
+            document.getElementById('pur-paid').value = 0;
+            generateNextInvoiceNumbers(); populateDropdowns(); onSalesProductChange(); renderAllData(); switchPage('dashboard');
+        }
+
+        function saveCollectionAction() {
+            const custId = document.getElementById('coll-customer').value;
+            if(!custId) return alert("কোনো কাস্টমার সিলেক্ট করা নেই");
+            const amount = parseFloat(document.getElementById('coll-amount').value) || 0;
+            if(amount <= 0) return alert("সঠিক অংক দিন");
+            const cust = state.customers.find(c => c.id === custId);
+            if(cust) cust.due -= amount;
+            state.accounts.cash += amount;
+            state.collections.push({ amount });
+            alert("কালেকশন সফল!");
+            document.getElementById('coll-amount').value = '';
+            renderAllData(); switchPage('dashboard');
+        }
+
+        function saveExpenseAction() {
+            const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
+            if(amount <= 0) return alert("সঠিক অংক দিন");
+            state.accounts.cash -= amount;
+            state.expenses.push({ amount });
+            alert("খরচ এন্ট্রি সম্পূর্ণ!");
+            document.getElementById('exp-amount').value = '';
+            renderAllData(); switchPage('dashboard');
+        }
+
+        function addNewCustomerAction() {
+            const nameField = document.getElementById('cust-add-name');
+            const phoneField = document.getElementById('cust-add-phone');
+            const catField = document.getElementById('cust-add-cat');
+            if(!nameField || !nameField.value) return alert("নাম লিখুন");
+            
+            state.customers.push({ 
+                id: "CUST"+(state.customers.length+1), 
+                name: nameField.value, 
+                phone: phoneField ? phoneField.value : "", 
+                category: catField ? catField.value : "Retail", 
+                totalPurchase: 0, 
+                totalPaid: 0, 
+                due: 0 
+            });
+            if(nameField) nameField.value = '';
+            if(phoneField) phoneField.value = '';
+            populateDropdowns(); renderAllData();
+        }
+
+        function addNewSupplierAction() {
+            const nameField = document.getElementById('supp-add-name');
+            const phoneField = document.getElementById('supp-add-phone');
+            if(!nameField || !nameField.value) return alert("নাম লিখুন");
+            
+            state.suppliers.push({ 
+                id: "SUPP"+(state.suppliers.length+1), 
+                name: nameField.value, 
+                phone: phoneField ? phoneField.value : "", 
+                totalPurchase: 0, 
+                totalPaid: 0, 
+                due: 0 
+            });
+            if(nameField) nameField.value = '';
+            if(phoneField) phoneField.value = '';
+            populateDropdowns(); renderAllData();
+        }
+
+        // RENDER MASTER ENGINE
+        function renderAllData() {
+            let salesSum = state.sales.reduce((sum, s) => sum + s.netAmount, 0);
+            let purSum = state.purchases.reduce((sum, p) => sum + p.total, 0);
+            let collSum = state.collections.reduce((sum, c) => sum + c.amount, 0) + state.sales.reduce((sum, s) => sum + s.paidAmount, 0);
+            let expSum = state.expenses.reduce((sum, e) => sum + e.amount, 0);
+            let profitSum = state.sales.reduce((sum, s) => sum + s.profit, 0) - expSum;
+
+            if(document.getElementById('dash-today-sales')) document.getElementById('dash-today-sales').innerText = "৳ " + salesSum.toFixed(2);
+            if(document.getElementById('dash-today-purchase')) document.getElementById('dash-today-purchase').innerText = "৳ " + purSum.toFixed(2);
+            if(document.getElementById('dash-today-collection')) document.getElementById('dash-today-collection').innerText = "৳ " + collSum.toFixed(2);
+            if(document.getElementById('dash-today-expense')) document.getElementById('dash-today-expense').innerText = "৳ " + expSum.toFixed(2);
+            if(document.getElementById('dash-today-profit')) document.getElementById('dash-today-profit').innerText = "৳ " + profitSum.toFixed(2);
+            
+            if(document.getElementById('dash-cust-due')) document.getElementById('dash-cust-due').innerText = "৳ " + state.customers.reduce((sum, c) => sum + c.due, 0).toFixed(2);
+            if(document.getElementById('dash-supp-due')) document.getElementById('dash-supp-due').innerText = "৳ " + state.suppliers.reduce((sum, s) => sum + s.due, 0).toFixed(2);
+            if(document.getElementById('dash-cash-bal')) document.getElementById('dash-cash-bal').innerText = "৳ " + state.accounts.cash.toFixed(2);
+            if(document.getElementById('dash-total-prod')) document.getElementById('dash-total-prod').innerText = state.products.length + " টি";
+            if(document.getElementById('dash-stock-val')) document.getElementById('dash-stock-val').innerText = "৳ " + state.products.reduce((sum, p) => sum + (p.currentStock * p.avgCost), 0).toFixed(2);
+
+            // Stock Table Load
+            const stockTbody = document.getElementById('stock-tbody');
+            if(stockTbody) {
+                stockTbody.innerHTML = state.products.map(p => `
+                    <tr class="border-b">
+                        <td class="p-3 font-mono font-bold">${p.code}</td>
+                        <td class="p-3">${p.name}</td>
+                        <td class="p-3 text-center font-bold">${p.currentStock} ${p.unit}</td>
+                        <td class="p-3 text-right">৳${p.avgCost.toFixed(2)}</td>
+                        <td class="p-3 text-right font-bold text-emerald-600">৳${(p.currentStock * p.avgCost).toFixed(2)}</td>
+                        <td class="p-3 text-center"><button onclick="deleteProduct('${p.id}')" class="text-red-500"><i class="fa-solid fa-trash-can"></i></button></td>
+                    </tr>
+                `).join('');
+            }
+
+            // Customer Table Load
+            const custTbody = document.getElementById('customers-tbody');
+            if(custTbody) {
+                custTbody.innerHTML = state.customers.map(c => `
+                    <tr class="border-b">
+                        <td class="p-3"><strong>${c.name}</strong><br><span class="text-xs">${c.phone}</span></td>
+                        <td class="p-3">${c.category}</td>
+                        <td class="p-3 text-right">৳${c.totalPurchase.toFixed(2)}</td>
+                        <td class="p-3 text-right font-bold text-red-600">৳${c.due.toFixed(2)}</td>
+                        <td class="p-3 text-center"><button onclick="deleteCustomer('${c.id}')" class="text-red-500"><i class="fa-solid fa-trash-can"></i></button></td>
+                    </tr>
+                `).join('');
+            }
+
+            // Supplier Table Load
+            const suppTbody = document.getElementById('suppliers-tbody');
+            if(suppTbody) {
+                suppTbody.innerHTML = state.suppliers.map(s => `
+                    <tr class="border-b">
+                        <td class="p-3 font-bold">${s.name}</td>
+                        <td class="p-3">${s.phone}</td>
+                        <td class="p-3 text-right">৳${s.totalPurchase.toFixed(2)}</td>
+                        <td class="p-3 text-right font-bold text-amber-600">৳${s.due.toFixed(2)}</td>
+                        <td class="p-3 text-center"><button onclick="deleteSupplier('${s.id}')" class="text-red-500"><i class="fa-solid fa-trash-can"></i></button></td>
+                    </tr>
+                `).join('');
+            }
+
+            if(document.getElementById('rep-total-sales')) document.getElementById('rep-total-sales').innerText = "৳ " + salesSum.toFixed(2);
+            if(document.getElementById('rep-total-exp')) document.getElementById('rep-total-exp').innerText = "৳ " + expSum.toFixed(2);
+            if(document.getElementById('rep-net-profit')) document.getElementById('rep-net-profit').innerText = "৳ " + profitSum.toFixed(2);
+        }
+    </script>
+</body>
+</html>
 
