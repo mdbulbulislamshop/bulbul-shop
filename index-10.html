@@ -625,7 +625,7 @@ input[readonly] { background: #f8fafc; color: var(--muted); }
       <div class="form-group"><label>মেমো নং</label><input type="text" id="pMemo" placeholder="নম্বর"></div>
     </div>
     <div class="form-full form-group"><label>Supplier নাম *</label>
-      <input type="text" id="pSupplier" placeholder="Supplier এর নাম" list="supList">
+      <input type="text" id="pSupplier" placeholder="Supplier এর নাম" list="supList" oninput="filterSupList()">
       <datalist id="supList"></datalist>
     </div>
 
@@ -676,7 +676,7 @@ input[readonly] { background: #f8fafc; color: var(--muted); }
       <div class="form-group"><label>বিল নং</label><input type="text" id="sBill" placeholder="নম্বর"></div>
     </div>
     <div class="form-full form-group"><label>Customer নাম *</label>
-      <input type="text" id="sCustomer" placeholder="Customer এর নাম" list="cusList">
+      <input type="text" id="sCustomer" placeholder="Customer এর নাম" list="cusList" oninput="filterCusList()">
       <datalist id="cusList"></datalist>
     </div>
     <div class="form-row">
@@ -1520,26 +1520,42 @@ let purLineCount = 0;
 function addPurLine(focusNew = false) {
   purLineCount++;
   const id = purLineCount;
+  // স্টক থেকে পণ্যের তালিকা
+  const prodOpts = DB.stock.map(s => `<option value="${s.name}">`).join('');
   const div = document.createElement('div');
   div.id = `purLine_${id}`;
-  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:8px;align-items:center;';
+  div.style.cssText = 'margin-bottom:10px;';
   div.innerHTML = `
-    <input type="text" placeholder="পণ্যের নাম *" list="prodList"
-      id="pProd_${id}" style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
-      onkeydown="purLineKeyDown(event,${id})"
-      onchange="autoPurPrice(${id})">
-    <input type="number" placeholder="পরিমাণ" id="pQty_${id}" min="0"
-      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
-      oninput="calcPurLine(${id})">
-    <input type="number" placeholder="দাম" id="pPrc_${id}" min="0"
-      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
-      oninput="calcPurLine(${id})">
-    <input type="number" placeholder="মোট" id="pTot_${id}" readonly
-      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:#f8fafc;font-weight:700;">
-    <button onclick="delPurLine(${id})" style="width:36px;height:36px;border:none;border-radius:10px;background:var(--red-bg);color:var(--red);font-size:16px;cursor:pointer;flex-shrink:0;">✕</button>
+    <datalist id="purProdDL_${id}">${prodOpts}</datalist>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 36px;gap:6px;align-items:center;">
+      <input type="text" placeholder="পণ্যের নাম *"
+        list="purProdDL_${id}"
+        id="pProd_${id}"
+        style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;width:100%;"
+        onkeydown="purLineKeyDown(event,${id})"
+        oninput="purProdInput(${id})"
+        onchange="autoPurPrice(${id})">
+      <input type="number" placeholder="পরিমাণ" id="pQty_${id}" min="0"
+        style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;width:100%;"
+        oninput="calcPurLine(${id})">
+      <input type="number" placeholder="দাম" id="pPrc_${id}" min="0"
+        style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;width:100%;"
+        oninput="calcPurLine(${id})">
+      <input type="number" placeholder="মোট" id="pTot_${id}" readonly
+        style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:#f8fafc;font-weight:700;width:100%;">
+      <button onclick="delPurLine(${id})" style="width:36px;height:36px;border:none;border-radius:10px;background:var(--red-bg);color:var(--red);font-size:16px;cursor:pointer;flex-shrink:0;">✕</button>
+    </div>
   `;
   document.getElementById('purLines').appendChild(div);
-  if (focusNew) setTimeout(() => document.getElementById(`pProd_${id}`)?.focus(), 50);
+  if (focusNew) setTimeout(() => document.getElementById(`pProd_${id}`)?.focus(), 80);
+}
+
+// পণ্য টাইপ করার সময় datalist আপডেট
+function purProdInput(id) {
+  const val = document.getElementById(`pProd_${id}`)?.value.toLowerCase() || '';
+  const filtered = DB.stock.filter(s => s.name.toLowerCase().includes(val));
+  const dl = document.getElementById(`purProdDL_${id}`);
+  if(dl) dl.innerHTML = filtered.map(s => `<option value="${s.name}">`).join('');
 }
 
 function purLineKeyDown(e, id) {
@@ -1630,26 +1646,42 @@ let salLineCount = 0;
 function addSalLine(focusNew = false) {
   salLineCount++;
   const id = salLineCount;
+  // স্টক থেকে পণ্যের তালিকা
+  const prodOpts = DB.stock.map(s => `<option value="${s.name}">`).join('');
   const div = document.createElement('div');
   div.id = `salLine_${id}`;
-  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:8px;align-items:center;';
+  div.style.cssText = 'margin-bottom:10px;';
   div.innerHTML = `
-    <input type="text" placeholder="পণ্যের নাম *" list="prodList2"
-      id="sProd_${id}" style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
-      onkeydown="salLineKeyDown(event,${id})"
-      onchange="autoSalPrice(${id})">
-    <input type="number" placeholder="পরিমাণ" id="sQty_${id}" min="0"
-      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
-      oninput="calcSalLine(${id})">
-    <input type="number" placeholder="দাম" id="sPrc_${id}" min="0"
-      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
-      oninput="calcSalLine(${id})">
-    <input type="number" placeholder="মোট" id="sTot_${id}" readonly
-      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:#f8fafc;font-weight:700;">
-    <button onclick="delSalLine(${id})" style="width:36px;height:36px;border:none;border-radius:10px;background:var(--red-bg);color:var(--red);font-size:16px;cursor:pointer;">✕</button>
+    <datalist id="salProdDL_${id}">${prodOpts}</datalist>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 36px;gap:6px;align-items:center;">
+      <input type="text" placeholder="পণ্যের নাম *"
+        list="salProdDL_${id}"
+        id="sProd_${id}"
+        style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;width:100%;"
+        onkeydown="salLineKeyDown(event,${id})"
+        oninput="salProdInput(${id})"
+        onchange="autoSalPrice(${id})">
+      <input type="number" placeholder="পরিমাণ" id="sQty_${id}" min="0"
+        style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;width:100%;"
+        oninput="calcSalLine(${id})">
+      <input type="number" placeholder="দাম" id="sPrc_${id}" min="0"
+        style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;width:100%;"
+        oninput="calcSalLine(${id})">
+      <input type="number" placeholder="মোট" id="sTot_${id}" readonly
+        style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:#f8fafc;font-weight:700;width:100%;">
+      <button onclick="delSalLine(${id})" style="width:36px;height:36px;border:none;border-radius:10px;background:var(--red-bg);color:var(--red);font-size:16px;cursor:pointer;flex-shrink:0;">✕</button>
+    </div>
   `;
   document.getElementById('salLines').appendChild(div);
-  if (focusNew) setTimeout(() => document.getElementById(`sProd_${id}`)?.focus(), 50);
+  if (focusNew) setTimeout(() => document.getElementById(`sProd_${id}`)?.focus(), 80);
+}
+
+// পণ্য টাইপ করার সময় datalist আপডেট
+function salProdInput(id) {
+  const val = document.getElementById(`sProd_${id}`)?.value.toLowerCase() || '';
+  const filtered = DB.stock.filter(s => s.name.toLowerCase().includes(val));
+  const dl = document.getElementById(`salProdDL_${id}`);
+  if(dl) dl.innerHTML = filtered.map(s => `<option value="${s.name}">`).join('');
 }
 
 function salLineKeyDown(e, id) {
@@ -1758,6 +1790,25 @@ function autoSalPrice(id) {
     priceEl.value = item.sellPrice;
     calcSalLine(id);
   }
+}
+
+
+// Supplier ফিল্টার
+function filterSupList() {
+  const val = document.getElementById('pSupplier')?.value.toLowerCase() || '';
+  const sups = [...new Set([...DB.supplierDue.map(s=>s.name),...DB.purchases.map(p=>p.supplier)])].filter(Boolean).sort();
+  const filtered = val ? sups.filter(s => s.toLowerCase().includes(val)) : sups;
+  const dl = document.getElementById('supList');
+  if(dl) dl.innerHTML = filtered.map(n => `<option value="${n}">`).join('');
+}
+
+// Customer ফিল্টার
+function filterCusList() {
+  const val = document.getElementById('sCustomer')?.value.toLowerCase() || '';
+  const cuss = [...new Set([...DB.customerDue.map(c=>c.name),...DB.sales.map(s=>s.customer)])].filter(Boolean).sort();
+  const filtered = val ? cuss.filter(c => c.toLowerCase().includes(val)) : cuss;
+  const dl = document.getElementById('cusList');
+  if(dl) dl.innerHTML = filtered.map(n => `<option value="${n}">`).join('');
 }
 
 // ===== SAVE/LOAD =====
