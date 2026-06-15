@@ -531,6 +531,7 @@ input[readonly] { background: #f8fafc; color: var(--muted); }
   <div class="header-actions">
     <button class="icon-btn" onclick="exportData()" title="ডেটা সেভ">💾</button>
     <button class="icon-btn" onclick="document.getElementById('importFile').click()" title="ডেটা লোড">📂</button>
+    <button class="icon-btn" onclick="loadExcelData()" title="Excel ডেটা লোড">📊</button>
     <input type="file" id="importFile" style="display:none" accept=".json" onchange="loadData(event)">
   </div>
 </header>
@@ -617,6 +618,8 @@ input[readonly] { background: #f8fafc; color: var(--muted); }
 <div class="page" id="page-purchase">
   <div class="form-card">
     <div class="form-title">🛒 ক্রয় এন্ট্রি</div>
+
+    <!-- হেডার: তারিখ, মেমো, Supplier — একবারই দিতে হবে -->
     <div class="form-row">
       <div class="form-group"><label>তারিখ *</label><input type="date" id="pDate"></div>
       <div class="form-group"><label>মেমো নং</label><input type="text" id="pMemo" placeholder="নম্বর"></div>
@@ -625,23 +628,28 @@ input[readonly] { background: #f8fafc; color: var(--muted); }
       <input type="text" id="pSupplier" placeholder="Supplier এর নাম" list="supList">
       <datalist id="supList"></datalist>
     </div>
-    <div class="form-full form-group"><label>পণ্যের নাম *</label>
-      <input type="text" id="pProduct" placeholder="পণ্যের নাম" list="prodList">
-      <datalist id="prodList"></datalist>
-    </div>
+
+    <!-- পরিশোধ — একবার দিলেই হয় -->
     <div class="form-row">
-      <div class="form-group"><label>পরিমাণ *</label><input type="number" id="pQty" placeholder="০" min="0" oninput="calcPur()"></div>
-      <div class="form-group"><label>একক দাম *</label><input type="number" id="pPrice" placeholder="০" min="0" oninput="calcPur()"></div>
+      <div class="form-group"><label>পরিশোধ (মোট বিলের)</label><input type="number" id="pPaid" placeholder="০" min="0" value="0"></div>
+      <div class="form-group"><label>মন্তব্য</label><input type="text" id="pNote" placeholder="ঐচ্ছিক"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label>ছাড়</label><input type="number" id="pDiscount" placeholder="০" min="0" value="0" oninput="calcPur()"></div>
-      <div class="form-group"><label>গ্র্যান্ড টোটাল</label><input type="number" id="pGrand" readonly></div>
+
+    <!-- পণ্যের লাইন -->
+    <div style="font-size:12px;font-weight:700;color:var(--primary);margin:12px 0 8px;border-top:1px solid var(--border);padding-top:12px;">
+      📦 পণ্যের তালিকা <span style="color:var(--muted);font-weight:400">(পণ্য লেখার পর Enter চাপুন — নতুন লাইন হবে)</span>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label>পরিশোধ</label><input type="number" id="pPaid" placeholder="০" min="0" value="0" oninput="calcPur()"></div>
-      <div class="form-group"><label>বাকি</label><input type="number" id="pDue" readonly></div>
+    <div id="purLines">
+      <!-- JS দিয়ে লাইন তৈরি হবে -->
     </div>
-    <button class="btn btn-primary" onclick="addPurchase()">✅ ক্রয় যোগ করুন</button>
+
+    <!-- মোট দেখাবে -->
+    <div style="background:var(--blue-bg);border-radius:10px;padding:10px 14px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:12px;font-weight:600;color:var(--primary)">মোট গ্র্যান্ড টোটাল</span>
+      <span style="font-size:16px;font-weight:700;color:var(--primary)" id="pGrandTotal">৳ ০</span>
+    </div>
+
+    <button class="btn btn-primary" onclick="savePurchaseBill()">✅ সম্পূর্ণ বিল সেভ করুন</button>
   </div>
 
   <div class="table-card">
@@ -661,6 +669,8 @@ input[readonly] { background: #f8fafc; color: var(--muted); }
 <div class="page" id="page-sales">
   <div class="form-card">
     <div class="form-title">💰 বিক্রয় এন্ট্রি</div>
+
+    <!-- হেডার: তারিখ, বিল, Customer — একবারই দিতে হবে -->
     <div class="form-row">
       <div class="form-group"><label>তারিখ *</label><input type="date" id="sDate"></div>
       <div class="form-group"><label>বিল নং</label><input type="text" id="sBill" placeholder="নম্বর"></div>
@@ -669,26 +679,28 @@ input[readonly] { background: #f8fafc; color: var(--muted); }
       <input type="text" id="sCustomer" placeholder="Customer এর নাম" list="cusList">
       <datalist id="cusList"></datalist>
     </div>
-    <div class="form-full form-group"><label>পণ্যের নাম *</label>
-      <input type="text" id="sProduct" placeholder="পণ্যের নাম" list="prodList2">
-      <datalist id="prodList2"></datalist>
-    </div>
     <div class="form-row">
-      <div class="form-group"><label>পরিমাণ *</label><input type="number" id="sQty" placeholder="০" min="0" oninput="calcSale()"></div>
-      <div class="form-group"><label>বিক্রয় দাম *</label><input type="number" id="sPrice" placeholder="০" min="0" oninput="calcSale()"></div>
+      <div class="form-group"><label>পরিশোধ (মোট বিলের)</label><input type="number" id="sPaid" placeholder="০" min="0" value="0"></div>
+      <div class="form-group"><label>মোবাইল/ব্যাংক</label>
+        <select id="sBank"><option value="">নগদ</option><option>Bkash</option><option>Nagad</option><option>DBBL</option><option>ব্র্যাক ব্যাংক</option><option>IBBL</option></select>
+      </div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label>ছাড়</label><input type="number" id="sDiscount" placeholder="০" min="0" value="0" oninput="calcSale()"></div>
-      <div class="form-group"><label>নিট বিক্রয়</label><input type="number" id="sNet" readonly></div>
+
+    <!-- পণ্যের লাইন -->
+    <div style="font-size:12px;font-weight:700;color:var(--primary);margin:12px 0 8px;border-top:1px solid var(--border);padding-top:12px;">
+      📦 পণ্যের তালিকা <span style="color:var(--muted);font-weight:400">(পণ্য লেখার পর Enter চাপুন — নতুন লাইন হবে)</span>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label>পরিশোধ</label><input type="number" id="sPaid" placeholder="০" min="0" value="0" oninput="calcSale()"></div>
-      <div class="form-group"><label>বাকি</label><input type="number" id="sDue" readonly></div>
+    <div id="salLines">
+      <!-- JS দিয়ে লাইন তৈরি হবে -->
     </div>
-    <div class="form-full form-group"><label>মোবাইল/ব্যাংক</label>
-      <select id="sBank"><option value="">নগদ</option><option>Bkash</option><option>Nagad</option><option>DBBL</option><option>ব্র্যাক ব্যাংক</option><option>IBBL</option></select>
+
+    <!-- মোট দেখাবে -->
+    <div style="background:var(--green-bg);border-radius:10px;padding:10px 14px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:12px;font-weight:600;color:var(--green)">মোট নিট বিক্রয়</span>
+      <span style="font-size:16px;font-weight:700;color:var(--green)" id="sNetTotal">৳ ০</span>
     </div>
-    <button class="btn btn-green" onclick="addSale()">✅ বিক্রয় যোগ করুন</button>
+
+    <button class="btn btn-green" onclick="saveSaleBill()">✅ সম্পূর্ণ বিল সেভ করুন</button>
   </div>
 
   <div class="table-card">
@@ -981,6 +993,46 @@ input[readonly] { background: #f8fafc; color: var(--muted); }
 
 <script>
 // ===== DATA =====
+
+// ===== PRE-LOADED DATA FROM EXCEL =====
+const EXCEL_SUPPLIERS = ["1+", "A.H CORPORATION", "AKAS HADWAR", "ALOISTER K2", "AMENA SCREW", "ARAF TRADING", "AZAD LED", "BEST LINE HITEK CO", "BETAR EL", "BONDHU LIGHTING", "CASH  PURCHASE", "CLEAN ELE", "DELOWAR MITAR", "DOEL EL", "DOKAN", "EASIN EL", "EITTADI EL", "ELECTRIC PALACE", "ELECTRIC point", "EMDAD ENTERPRISE K2", "EURO ENTERPRISE", "FANY SOLAR AND LIGHTING", "FARDIN EL MS MARKET", "FLOORA CO K2 F2", "G STAR", "GFC", "GRAMIN", "HARUNA EN", "HUMAIRA EN K2 F2", "IMAM POWER", "INTEX", "IR ELECTRICK", "ISKIN", "ISLAM SCREW", "JASHRA ELECTRIC HOUSE", "JIHAD PIPE", "JISHAN EL", "KHAN ABONIGHT", "KING BIDDUT BITAN", "LG", "LIGHTING BOOS", "LUMINOUS TR K2 F1", "M/S MAHBUB ELECTRIC", "MAABABAR DOA", "MADINA EL", "MAERDOA EL", "MAHADI ENTERPRIS", "MAMA ENTERPRISE", "MAX LINE", "MC PLACK", "MOHIMA TRADING", "MOON SUPER", "MS ELECTRICK MARUF", "NABIL ENTERPRISE", "NATIONAL LIGHTING", "NEW AMENA EL", "NEW FORIDPUR EL", "NEW ISLAM EI K2", "NEW MAA CORPORATION", "NK", "NOBABGONG TR", "NS EL", "OSAKA MOYN", "OSAN", "PROSPAR EL", "RAFIA  SCREW SENTER", "RAFIQ EL", "RAJEN AND BROTHERS", "RASHED CORPORATION", "RITOM EL", "RM LED LIGHTING", "RN ELECTRICK", "RONGDHONU EL", "RUPSA BEARING", "S.F ELECTRIC", "SA ELECTRICKN K2", "SAFWAN ELETRICK K2", "SALMAN TR", "SAMIA  ENTERPRISE", "SF EL", "SHARIF ELECTRICK", "SHARMIN TRADE IN", "SHORNA ELECTRICK & SCREW", "SODORPUR EL", "SP ELECTRIC CO", "SUN+", "SUPER KING EL", "SWICH PAC ENG K2", "TARAFUL AND CO", "TISA EL", "TRAST EL K2", "VEE", "WELL TECH K2"];
+const EXCEL_CUSTOMERS = ["1517089712", "ABDUL KARIM", "ABDURRAHAMAN", "AISA TRA HAJIGONG", "ALHUQ EL  LALBAG", "ALLARDAN  EL", "AMIN EL  LALBAG", "ARFAN EL  LALBAG", "ASRAF EL", "AZIZ EL NOAKHALI", "BONDHU", "BULBUL", "BULBUL JOMIDAR", "CASH CASTOMAR", "DILRUBA EL  LALBAG", "DINAZPUR EL LALBAG", "DR El LALBAG", "EMONISTOR  LALBAG", "FARUK EL BIRGONG", "FATEMA EL LALBAG", "FYSAL EL  LALBAG", "HASEM EL", "HK POWER", "IMRAN BONGSAL", "ISLAM AND BROTHER", "JAFOR SURITOLA", "JAJIRA EL  LALBAG", "KHAN EL  LALBAG", "KHOLIL EL  LALBAG", "LOKONATH KALIGONG", "LOON", "MAERDOA EL  LALBAG", "MAERDOA NOBABPUR", "MASUD DOAGONG", "MASUM EL  LALBAG", "MINTU EL MANIQGONG", "MISTAK", "MOHAMMAD PUR EL", "MOHAMMADPUR", "MOKSIBUR LOHAGORA", "MONIR EL LALBAG", "MORIOM EL  LALBAG", "MUNSI EL  LALBAG", "NIRMOL KOTIA", "NOAKHALI EL LALBAG", "NOWAKHALI EL", "OMORFARUK", "RAJAN", "RAJIA EL GORADOR", "RAJIB HADWARE GORAN", "RITOM", "RM EL", "RN", "ROFIQ EL KHALISPUR", "ROFIQUL ISLAM", "RUBAL EL RAJSAHI", "SADDAM K2", "SAHABUDDIN", "SHAON EL RAJSAHI", "SIAM EL  LALBAG", "SOBHAN EL  LALBAG", "SOHAG EL", "SOHEL TATIBAZAR", "SORHAB EL", "SORIOTPUR EL  LALBAG", "SOTOTA EL RIKABIBAJAR", "SUKKUR EL  LALBAG", "SUMIYA EL RIKABIBAJAR", "TANJIL EL LALBAG", "THE SUN EL KALKINI", "TISA EL", "TORIKUL", "k01846841108", "khokon"];
+const EXCEL_STOCK = [{"name": "INTEX 34M2", "qty": 83.0, "buyPrice": 27.0, "sellPrice": 27.0}, {"name": "INTEX 34M5", "qty": 122.0, "buyPrice": 20.0, "sellPrice": 20.0}, {"name": "INTEX 33M2", "qty": 91.0, "buyPrice": 36.0, "sellPrice": 36.0}, {"name": "INTEX 33M5", "qty": 132.0, "buyPrice": 21.0, "sellPrice": 21.0}, {"name": "INTEX 32M2", "qty": 101.0, "buyPrice": 25.0, "sellPrice": 25.0}, {"name": "INTEX 32M5", "qty": 142.0, "buyPrice": 7.0, "sellPrice": 7.0}, {"name": "INTEX 0455M2", "qty": 167.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "INTEX 0455M5", "qty": 200.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "INTEX 813M2", "qty": 118.0, "buyPrice": 27.0, "sellPrice": 27.0}, {"name": "INTEX 813M5", "qty": 152.0, "buyPrice": 25.0, "sellPrice": 25.0}, {"name": "INTEX 814M2", "qty": 138.0, "buyPrice": 53.0, "sellPrice": 53.0}, {"name": "INTEX 814M5", "qty": 172.0, "buyPrice": 16.0, "sellPrice": 16.0}, {"name": "INTEX 815M2", "qty": 158.0, "buyPrice": 7.0, "sellPrice": 7.0}, {"name": "INTEX 815M5", "qty": 192.0, "buyPrice": 17.0, "sellPrice": 17.0}, {"name": "INTEX 44M5", "qty": 105.0, "buyPrice": 13.0, "sellPrice": 13.0}, {"name": "INTEX 43M5", "qty": 116.0, "buyPrice": 44.0, "sellPrice": 44.0}, {"name": "INTEX 42M5", "qty": 126.0, "buyPrice": 30.0, "sellPrice": 30.0}, {"name": "INTEX 303", "qty": 290.0, "buyPrice": 19.0, "sellPrice": 19.0}, {"name": "INTEX 304", "qty": 320.0, "buyPrice": 24.0, "sellPrice": 24.0}, {"name": "INTEX 305", "qty": 350.0, "buyPrice": 19.0, "sellPrice": 19.0}, {"name": "INTEX 23M2", "qty": 72.0, "buyPrice": 47.0, "sellPrice": 47.0}, {"name": "INTEX 23M5", "qty": 105.0, "buyPrice": 59.0, "sellPrice": 59.0}, {"name": "INTEX 24M2", "qty": 82.0, "buyPrice": 41.0, "sellPrice": 41.0}, {"name": "INTEX 24M5", "qty": 115.0, "buyPrice": 58.0, "sellPrice": 58.0}, {"name": "INTEX 25M2", "qty": 92.0, "buyPrice": 37.0, "sellPrice": 37.0}, {"name": "INTEX 25M5", "qty": 125.0, "buyPrice": 66.0, "sellPrice": 66.0}, {"name": "INTEX  T STAR MALTY", "qty": 24.0, "buyPrice": 34.0, "sellPrice": 34.0}, {"name": "BEST CTOP 2m", "qty": 53.0, "buyPrice": 57.0, "sellPrice": 57.0}, {"name": "BEST CTOP 5m", "qty": 75.0, "buyPrice": 62.0, "sellPrice": 62.0}, {"name": "MAX017 10F", "qty": 65.0, "buyPrice": 21.0, "sellPrice": 21.0}, {"name": "MAX017 20F", "qty": 105.0, "buyPrice": 13.0, "sellPrice": 13.0}, {"name": "BD2049", "qty": 27.0, "buyPrice": 24.0, "sellPrice": 24.0}, {"name": "BEST LINE 315", "qty": 158.0, "buyPrice": 26.0, "sellPrice": 26.0}, {"name": "BEST LINE 415", "qty": 168.0, "buyPrice": 20.0, "sellPrice": 20.0}, {"name": "BEST LINE 515", "qty": 185.0, "buyPrice": 29.0, "sellPrice": 29.0}, {"name": "G STAR PENDEL HOLDAR SAPTY", "qty": 180.0, "buyPrice": 54.92, "sellPrice": 54.92}, {"name": "G STAR PENDEL HOLDAR SUPER", "qty": 153.0, "buyPrice": 45.0, "sellPrice": 45.0}, {"name": "G STAR  BATAM HOLDAR JARA", "qty": 410.0, "buyPrice": 9.0, "sellPrice": 9.0}, {"name": "G STAR  DIM HOLDAR", "qty": 270.0, "buyPrice": 7.67, "sellPrice": 7.67}, {"name": "G STAR WINAR SWISS", "qty": 166.0, "buyPrice": 62.83, "sellPrice": 62.83}, {"name": "G STAR  WINAR KATAUT", "qty": 190.0, "buyPrice": 10.0, "sellPrice": 10.0}, {"name": "G STAR  PRITY SWISS", "qty": 156.0, "buyPrice": 52.0, "sellPrice": 52.0}, {"name": "G STAR  PRITY KATAUT", "qty": 180.0, "buyPrice": 10.0, "sellPrice": 10.0}, {"name": "G STAR MALTY", "qty": 160.0, "buyPrice": 36.0, "sellPrice": 36.0}, {"name": "MC RAJA PLACK", "qty": 180.0, "buyPrice": 15.92, "sellPrice": 15.92}, {"name": "MC DILAX PLACK", "qty": 120.0, "buyPrice": 42.0, "sellPrice": 42.0}, {"name": "MC ROKET PLACK", "qty": 105.0, "buyPrice": 63.0, "sellPrice": 63.0}, {"name": "MC MINA POKA", "qty": 135.0, "buyPrice": 31.0, "sellPrice": 31.0}, {"name": "MC RABAR PLACK", "qty": 110.0, "buyPrice": 22.0, "sellPrice": 22.0}, {"name": "PC SUPER BADSWISE", "qty": 115.0, "buyPrice": 18.0, "sellPrice": 18.0}, {"name": "PC SUPER DIMAR MK", "qty": 90.0, "buyPrice": 22.0, "sellPrice": 22.0}, {"name": "PC SUPER COMBIND", "qty": 85.0, "buyPrice": 9.0, "sellPrice": 9.0}, {"name": "PC SUPER 6PIN", "qty": 45.0, "buyPrice": 31.0, "sellPrice": 31.0}, {"name": "BATY PLACK", "qty": 70.0, "buyPrice": 47.0, "sellPrice": 47.0}, {"name": "IPS DIMAR", "qty": 33.0, "buyPrice": 78.0, "sellPrice": 78.0}, {"name": "CONVATAR", "qty": 98.0, "buyPrice": 66.0, "sellPrice": 66.0}, {"name": "NOKIA", "qty": 100.0, "buyPrice": 26.0, "sellPrice": 26.0}, {"name": "DR BIG PANDAL", "qty": 120.0, "buyPrice": 31.0, "sellPrice": 31.0}, {"name": "NOGOD BLACK", "qty": 140.0, "buyPrice": 5.0, "sellPrice": 5.0}, {"name": "NOGOD  WHIT  PANDAL", "qty": 110.0, "buyPrice": 21.0, "sellPrice": 21.0}, {"name": "SUPERSTAR MODEL", "qty": 150.0, "buyPrice": 8.0, "sellPrice": 8.0}, {"name": "COLING BAL MAHABUB", "qty": 138.0, "buyPrice": 89.0, "sellPrice": 89.0}, {"name": "CHINA DIM LICHU", "qty": 11.0, "buyPrice": 222.0, "sellPrice": 222.0}, {"name": "CHINA DIM TOMATO", "qty": 16.0, "buyPrice": 47.0, "sellPrice": 47.0}, {"name": "CHINA 9W COLOUR", "qty": 34.0, "buyPrice": 25.0, "sellPrice": 25.0}, {"name": "OSAKA 20W", "qty": 175.0, "buyPrice": 26.0, "sellPrice": 26.0}, {"name": "OSAKA 18W", "qty": 155.0, "buyPrice": 44.0, "sellPrice": 44.0}, {"name": "OSAKA 15W", "qty": 105.0, "buyPrice": 12.0, "sellPrice": 12.0}, {"name": "OSAKA 40W", "qty": 420.0, "buyPrice": 4.0, "sellPrice": 4.0}, {"name": "OSAKA 50W", "qty": 520.0, "buyPrice": 3.0, "sellPrice": 3.0}, {"name": "OSAKA 30W", "qty": 275.0, "buyPrice": 5.0, "sellPrice": 5.0}, {"name": "OSAKA CATA 60W", "qty": 695.0, "buyPrice": 6.0, "sellPrice": 6.0}, {"name": "OSAKA CATA 40W", "qty": 433.0, "buyPrice": 5.0, "sellPrice": 5.0}, {"name": "OSAKA CATA 20W", "qty": 295.0, "buyPrice": 3.0, "sellPrice": 3.0}, {"name": "OSAKA CATA 10W", "qty": 0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "OSAKA ACDC 12W", "qty": 455.0, "buyPrice": 3.0, "sellPrice": 3.0}, {"name": "OSAKA ACDC 18.5W", "qty": 630.0, "buyPrice": 3.0, "sellPrice": 3.0}, {"name": "CHINA 60W", "qty": 180.0, "buyPrice": 7.0, "sellPrice": 7.0}, {"name": "BANGLA 50W", "qty": 100.0, "buyPrice": 7.0, "sellPrice": 7.0}, {"name": "BANGLA 30W", "qty": 50.0, "buyPrice": 9.0, "sellPrice": 9.0}, {"name": "TAPLON TAP A1", "qty": 12.5, "buyPrice": 90.0, "sellPrice": 90.0}, {"name": "OSAKA TAP", "qty": 162.0, "buyPrice": 17.33, "sellPrice": 17.33}, {"name": "OSAKA TAP 4G", "qty": 122.0, "buyPrice": 16.0, "sellPrice": 16.0}, {"name": "DEER TAP", "qty": 148.0, "buyPrice": 9.0, "sellPrice": 9.0}, {"name": "MAX 1GANG", "qty": 9.5, "buyPrice": 69.0, "sellPrice": 69.0}, {"name": "CABOL CLIB 5MM", "qty": 22.0, "buyPrice": 81.0, "sellPrice": 81.0}, {"name": "CABOL CLIB 6MM", "qty": 27.0, "buyPrice": 43.0, "sellPrice": 43.0}, {"name": "CABOL CLIB 7MM", "qty": 28.0, "buyPrice": 19.0, "sellPrice": 19.0}, {"name": "CABOL CLIB 8MM", "qty": 36.0, "buyPrice": 22.0, "sellPrice": 22.0}, {"name": "CABOL CLIB 10MM", "qty": 48.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "CABOL CLIB 14MM", "qty": 70.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "CABOL CLIB 16MM", "qty": 96.0, "buyPrice": 6.0, "sellPrice": 6.0}, {"name": "CABOL CLIB 20MM", "qty": 145.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "CABOL CLIB 25MM", "qty": 190.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "CABOL TAI 4IN 100M", "qty": 8.0, "buyPrice": 59.0, "sellPrice": 59.0}, {"name": "CABOL TAI 6IN 150M", "qty": 17.0, "buyPrice": 45.0, "sellPrice": 45.0}, {"name": "CABOL TAI 8IN 200M", "qty": 27.0, "buyPrice": 36.0, "sellPrice": 36.0}, {"name": "CABOL TAI 10IN 250M", "qty": 47.0, "buyPrice": 11.0, "sellPrice": 11.0}, {"name": "CABOL TAI 12IN 300M", "qty": 63.0, "buyPrice": 7.0, "sellPrice": 7.0}, {"name": "SS 20W", "qty": 68.0, "buyPrice": 40.0, "sellPrice": 40.0}, {"name": "SS 20W SAD", "qty": 62.0, "buyPrice": 30.0, "sellPrice": 30.0}, {"name": "SS 15W", "qty": 60.0, "buyPrice": 40.0, "sellPrice": 40.0}, {"name": "SS 12W", "qty": 53.5, "buyPrice": 48.0, "sellPrice": 48.0}, {"name": "SS 9W", "qty": 48.5, "buyPrice": 31.0, "sellPrice": 31.0}, {"name": "SS 7W", "qty": 44.0, "buyPrice": 8.0, "sellPrice": 8.0}, {"name": "SS 30W", "qty": 110.0, "buyPrice": 26.0, "sellPrice": 26.0}, {"name": "SS ACDC", "qty": 5.0, "buyPrice": 0, "sellPrice": 0}, {"name": "SSD 20W", "qty": 55.0, "buyPrice": 42.0, "sellPrice": 42.0}, {"name": "SSD15W", "qty": 4.0, "buyPrice": 0, "sellPrice": 0}, {"name": "PS 20W", "qty": 52.0, "buyPrice": 306.0, "sellPrice": 306.0}, {"name": "PS 15W", "qty": 4.0, "buyPrice": 0, "sellPrice": 0}, {"name": "PS 12W", "qty": 37.5, "buyPrice": 214.0, "sellPrice": 214.0}, {"name": "PSD20W", "qty": 36.0, "buyPrice": 70.0, "sellPrice": 70.0}, {"name": "SEIKO 20W", "qty": 48.5, "buyPrice": 17.0, "sellPrice": 17.0}, {"name": "SEIKO 5W", "qty": 35.0, "buyPrice": 26.0, "sellPrice": 26.0}, {"name": "ROCK STAR 20W", "qty": 55.0, "buyPrice": 167.0, "sellPrice": 167.0}, {"name": "IC 20W", "qty": 18.7, "buyPrice": 146.0, "sellPrice": 146.0}, {"name": "IC 5W A", "qty": 20.9, "buyPrice": 128.0, "sellPrice": 128.0}, {"name": "IC 5W D", "qty": 11.7, "buyPrice": 74.0, "sellPrice": 74.0}, {"name": "7COLOUR", "qty": 44.0, "buyPrice": 12.0, "sellPrice": 12.0}, {"name": "BANGLA DIMLIGHT LICHU", "qty": 7.5, "buyPrice": 875.0, "sellPrice": 875.0}, {"name": "BANGLA DIMLIGHT MICK", "qty": 7.5, "buyPrice": 1400.0, "sellPrice": 1400.0}, {"name": "VEE ACDC", "qty": 420.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "VEE 705", "qty": 0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "VEE 703", "qty": 0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "VEE 403", "qty": 0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "VEE 404", "qty": 0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "VEE 6PIN", "qty": 78.0, "buyPrice": 47.0, "sellPrice": 47.0}, {"name": "VEE 503M2", "qty": 0, "buyPrice": 4.0, "sellPrice": 4.0}, {"name": "DJ LIGHT SMALL", "qty": 85.0, "buyPrice": 22.0, "sellPrice": 22.0}, {"name": "DJ LIGHT BIG", "qty": 0, "buyPrice": 6.0, "sellPrice": 6.0}, {"name": "PHLIPS TESTER CH", "qty": 17.5, "buyPrice": 79.0, "sellPrice": 79.0}, {"name": "PHLIPS TESTER BANGLA", "qty": 9.5, "buyPrice": 60.0, "sellPrice": 60.0}, {"name": "2IN1 TESTER SMALL", "qty": 12.0, "buyPrice": 60.0, "sellPrice": 60.0}, {"name": "2IN1 TESTER BIG", "qty": 16.0, "buyPrice": 40.0, "sellPrice": 40.0}, {"name": "TNG13A", "qty": 165.0, "buyPrice": 7.0, "sellPrice": 7.0}, {"name": "TNG15A", "qty": 190.0, "buyPrice": 5.0, "sellPrice": 5.0}, {"name": "TNG 13A BANGLA", "qty": 90.0, "buyPrice": 11.0, "sellPrice": 11.0}, {"name": "SUN+MALTY", "qty": 155.0, "buyPrice": 16.0, "sellPrice": 16.0}, {"name": "SUN+BRAKAR SP", "qty": 120.0, "buyPrice": 14.0, "sellPrice": 14.0}, {"name": "SUN+BRAKAR DP", "qty": 240.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "SUN+40W CATA", "qty": 450.0, "buyPrice": 4.0, "sellPrice": 4.0}, {"name": "CANDAL 12W", "qty": 52.0, "buyPrice": 31.0, "sellPrice": 31.0}, {"name": "CANDAL 16W", "qty": 70.0, "buyPrice": 31.0, "sellPrice": 31.0}, {"name": "LG CAPSUL 12W", "qty": 145.0, "buyPrice": 649.0, "sellPrice": 649.0}, {"name": "LG CAPSUL 18W", "qty": 245.0, "buyPrice": 695.0, "sellPrice": 695.0}, {"name": "LG CATA 40W", "qty": 240.0, "buyPrice": 7.0, "sellPrice": 7.0}, {"name": "LG SARFACE 12W", "qty": 165.0, "buyPrice": 4.0, "sellPrice": 4.0}, {"name": "LG SARFACE 18W", "qty": 220.0, "buyPrice": 6.0, "sellPrice": 6.0}, {"name": "SENSOR HOLDAR", "qty": 170.0, "buyPrice": 6.0, "sellPrice": 6.0}, {"name": "CAPACITOR 3.5", "qty": 35.0, "buyPrice": 17.0, "sellPrice": 17.0}, {"name": "SARFACE RGB 12+4", "qty": 350.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "3W PANEL", "qty": 90.0, "buyPrice": 16.0, "sellPrice": 16.0}, {"name": "NORDAN MITAR", "qty": 650.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "DP BRAKAR LG", "qty": 150.0, "buyPrice": 5.0, "sellPrice": 5.0}, {"name": "SP BRAKAR LG", "qty": 80.0, "buyPrice": 11.0, "sellPrice": 11.0}, {"name": "KOHINUR 15A", "qty": 130.0, "buyPrice": 4.0, "sellPrice": 4.0}, {"name": "KOHINUR 30A", "qty": 140.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "HP MK DIMAR", "qty": 150.0, "buyPrice": -1.0, "sellPrice": -1.0}, {"name": "matal cob 100w", "qty": 850.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "matal cob 50w", "qty": 680.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "NK FT 40/76 AL", "qty": 500.0, "buyPrice": 3.0, "sellPrice": 3.0}, {"name": "NK FT 70/76 AL", "qty": 600.0, "buyPrice": 3.0, "sellPrice": 3.0}, {"name": "NK 1.3RM AL", "qty": 320.0, "buyPrice": 4.0, "sellPrice": 4.0}, {"name": "NK 2.0RM AL", "qty": 350.0, "buyPrice": 3.0, "sellPrice": 3.0}, {"name": "NK 40/76 LOTA AL", "qty": 180.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "NK 40/76 LOTA TA H", "qty": 650.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "NK 23/76 LOTA TA H", "qty": 550.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "NK 40/76 FT TA H", "qty": 1300.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "NK 40/76 FT TA N", "qty": 900.0, "buyPrice": 2.95, "sellPrice": 2.95}, {"name": "NK 23/76 TA H", "qty": 900.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "NK 2.0RM TA", "qty": 1900.0, "buyPrice": 5.0, "sellPrice": 5.0}, {"name": "NK 1.3RM TA  N", "qty": 1300.0, "buyPrice": 6.0, "sellPrice": 6.0}, {"name": "NK 1.3RM TA H", "qty": 1800.0, "buyPrice": 4.0, "sellPrice": 4.0}, {"name": "NK 1.5RM TA", "qty": 1800.0, "buyPrice": 4.0, "sellPrice": 4.0}, {"name": "NK 2.5RM TA", "qty": 2300.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "NK 3.0RM TA", "qty": 2900.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "NK 1.0RM TA", "qty": 850.0, "buyPrice": 3.0, "sellPrice": 3.0}, {"name": "HITAR 500W", "qty": 60.0, "buyPrice": 11.0, "sellPrice": 11.0}, {"name": "HITAR 750W", "qty": 150.0, "buyPrice": 5.0, "sellPrice": 5.0}, {"name": "HITAR 1500W", "qty": 180.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "HITAR JOG", "qty": 80.0, "buyPrice": 2.0, "sellPrice": 2.0}, {"name": "RICE STAR", "qty": 0, "buyPrice": 10.0, "sellPrice": 10.0}, {"name": "CAPACITOR 2.5 ORGINIAL", "qty": 98.0, "buyPrice": 4.0, "sellPrice": 4.0}, {"name": "OSAKA DIMAR MK", "qty": 95.0, "buyPrice": 100.0, "sellPrice": 100.0}, {"name": "PAMP OTO SWICH", "qty": 230.0, "buyPrice": 1.0, "sellPrice": 1.0}, {"name": "30W A", "qty": 100.0, "buyPrice": 10.0, "sellPrice": 10.0}];
+
+function loadExcelData() {
+  // Supplier due list - শুধু যাদের এখনো নেই
+  EXCEL_SUPPLIERS.forEach(name => {
+    if(!DB.supplierDue.find(s => s.name === name)) {
+      DB.supplierDue.push({id: Date.now() + Math.random(), name, prevDue: 0, note: 'Excel থেকে লোড'});
+    }
+  });
+
+  // Customer due list - শুধু যাদের এখনো নেই
+  EXCEL_CUSTOMERS.forEach(name => {
+    if(!DB.customerDue.find(c => c.name === name)) {
+      DB.customerDue.push({id: Date.now() + Math.random(), name, prevDue: 0, note: 'Excel থেকে লোড'});
+    }
+  });
+
+  // Stock - শুধু যাদের এখনো নেই এবং qty > 0
+  EXCEL_STOCK.forEach(item => {
+    if(item.qty > 0 && !DB.stock.find(s => s.name === item.name)) {
+      DB.stock.push({
+        id: Date.now() + Math.random(),
+        name: item.name,
+        qty: item.qty,
+        buyPrice: item.buyPrice,
+        sellPrice: item.sellPrice || item.buyPrice,
+        minQty: 0
+      });
+    }
+  });
+
+  save();
+  renderAll();
+}
+
+
 const DB = {
   purchases:[], sales:[], dailyExp:[], monthlyExp:[],
   stock:[], damaged:[], supplierDue:[], customerDue:[],
@@ -1025,109 +1077,12 @@ function switchTab(btn, tabId) {
   document.getElementById(tabId).classList.add('active');
 }
 
-// ===== CALC =====
-function calcPur() {
-  const q=+document.getElementById('pQty').value||0;
-  const p=+document.getElementById('pPrice').value||0;
-  const d=+document.getElementById('pDiscount').value||0;
-  const paid=+document.getElementById('pPaid').value||0;
-  const grand=q*p-d;
-  document.getElementById('pGrand').value=grand;
-  document.getElementById('pDue').value=grand-paid;
-}
 
-function calcSale() {
-  const q=+document.getElementById('sQty').value||0;
-  const p=+document.getElementById('sPrice').value||0;
-  const d=+document.getElementById('sDiscount').value||0;
-  const paid=+document.getElementById('sPaid').value||0;
-  const net=q*p-d;
-  document.getElementById('sNet').value=net;
-  document.getElementById('sDue').value=net-paid;
-}
 
 // ===== PURCHASE =====
-function addPurchase() {
-  const date=document.getElementById('pDate').value;
-  const sup=document.getElementById('pSupplier').value.trim();
-  const prod=document.getElementById('pProduct').value.trim();
-  const qty=+document.getElementById('pQty').value;
-  const price=+document.getElementById('pPrice').value;
-  if(!date||!sup||!prod||!qty||!price) return toast('সব তারকাচিহ্নিত ঘর পূরণ করুন','error');
-  const discount=+document.getElementById('pDiscount').value||0;
-  const grand=qty*price-discount;
-  const paid=+document.getElementById('pPaid').value||0;
-  DB.purchases.push({id:Date.now(),date,memo:document.getElementById('pMemo').value,supplier:sup,product:prod,qty,price,grand,paid,due:grand-paid});
-  save(); renderAll();
-  ['pMemo','pSupplier','pProduct','pQty','pPrice','pGrand','pDue'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('pDiscount').value=0; document.getElementById('pPaid').value=0;
-  toast('ক্রয় যোগ হয়েছে!');
-}
-
-function renderPurchase(q='') {
-  const rows=DB.purchases.filter(r=>!q||r.supplier.toLowerCase().includes(q.toLowerCase())||r.product.toLowerCase().includes(q.toLowerCase()));
-  const el=document.getElementById('purList'); if(!el) return;
-  el.innerHTML=rows.length?rows.map(r=>`
-    <div class="list-item">
-      <div class="li-icon" style="background:var(--blue-bg)">🛒</div>
-      <div class="li-body">
-        <div class="li-title">${r.product}</div>
-        <div class="li-sub">${r.supplier} | ${r.qty}টি × ${fmtN(r.price)}</div>
-        <div class="li-sub">${r.date}${r.memo?' | মেমো: '+r.memo:''}</div>
-      </div>
-      <div class="li-right">
-        <div class="li-amount">${fmt(r.grand)}</div>
-        <div><span class="badge ${r.due>0?'badge-red':'badge-green'}">${r.due>0?'বাকি: '+fmtN(r.due):'পরিশোধ'}</span></div>
-      </div>
-      ${delBtn(`delPurchase(${r.id})`)}
-    </div>`).join('')
-    :'<div class="empty"><div class="e-icon">🛒</div><p>কোনো ক্রয় নেই</p></div>';
-  const tot=rows.reduce((s,r)=>s+r.grand,0);
-  const el2=document.getElementById('purTot'); if(el2) el2.textContent=fmt(tot);
-}
-
 function delPurchase(id) {DB.purchases=DB.purchases.filter(r=>r.id!==id);save();renderAll();toast('মুছে ফেলা হয়েছে');}
 
 // ===== SALES =====
-function addSale() {
-  const date=document.getElementById('sDate').value;
-  const cus=document.getElementById('sCustomer').value.trim();
-  const prod=document.getElementById('sProduct').value.trim();
-  const qty=+document.getElementById('sQty').value;
-  const price=+document.getElementById('sPrice').value;
-  if(!date||!cus||!prod||!qty||!price) return toast('সব তারকাচিহ্নিত ঘর পূরণ করুন','error');
-  const discount=+document.getElementById('sDiscount').value||0;
-  const net=qty*price-discount;
-  const paid=+document.getElementById('sPaid').value||0;
-  DB.sales.push({id:Date.now(),date,bill:document.getElementById('sBill').value,customer:cus,product:prod,qty,price,net,paid,due:net-paid,bank:document.getElementById('sBank').value});
-  save(); renderAll();
-  ['sBill','sCustomer','sProduct','sQty','sPrice','sNet','sDue'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('sDiscount').value=0; document.getElementById('sPaid').value=0;
-  toast('বিক্রয় যোগ হয়েছে!');
-}
-
-function renderSales(q='') {
-  const rows=DB.sales.filter(r=>!q||r.customer.toLowerCase().includes(q.toLowerCase())||r.product.toLowerCase().includes(q.toLowerCase()));
-  const el=document.getElementById('salList'); if(!el) return;
-  el.innerHTML=rows.length?rows.map(r=>`
-    <div class="list-item">
-      <div class="li-icon" style="background:var(--green-bg)">💰</div>
-      <div class="li-body">
-        <div class="li-title">${r.product}</div>
-        <div class="li-sub">${r.customer} | ${r.qty}টি × ${fmtN(r.price)}</div>
-        <div class="li-sub">${r.date}${r.bank?' | '+r.bank:''}</div>
-      </div>
-      <div class="li-right">
-        <div class="li-amount profit">${fmt(r.net)}</div>
-        <div><span class="badge ${r.due>0?'badge-red':'badge-green'}">${r.due>0?'বাকি: '+fmtN(r.due):'পরিশোধ'}</span></div>
-      </div>
-      ${delBtn(`delSale(${r.id})`)}
-    </div>`).join('')
-    :'<div class="empty"><div class="e-icon">💰</div><p>কোনো বিক্রয় নেই</p></div>';
-  const tot=rows.reduce((s,r)=>s+r.net,0);
-  const el2=document.getElementById('salTot'); if(el2) el2.textContent=fmt(tot);
-}
-
 function delSale(id){DB.sales=DB.sales.filter(r=>r.id!==id);save();renderAll();}
 
 // ===== DAILY EXP =====
@@ -1493,12 +1448,61 @@ function renderDashboard() {
 
 // ===== DATALISTS =====
 function updateLists() {
-  const sups=[...new Set(DB.purchases.map(p=>p.supplier))];
-  const cuss=[...new Set(DB.sales.map(s=>s.customer))];
-  const prods=[...new Set([...DB.purchases.map(p=>p.product),...DB.sales.map(s=>s.product),...DB.stock.map(s=>s.name)])];
-  ['supList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=sups.map(n=>`<option value="${n}">`).join('');});
-  ['cusList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=cuss.map(n=>`<option value="${n}">`).join('');});
-  ['prodList','prodList2'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=prods.map(n=>`<option value="${n}">`).join('');});
+  // Supplier: DB.supplierDue থেকে (Excel লোড করা সহ)
+  const sups = [...new Set([
+    ...DB.supplierDue.map(s => s.name),
+    ...DB.purchases.map(p => p.supplier)
+  ])].filter(Boolean).sort();
+
+  // Customer: DB.customerDue থেকে (Excel লোড করা সহ)
+  const cuss = [...new Set([
+    ...DB.customerDue.map(c => c.name),
+    ...DB.sales.map(s => s.customer)
+  ])].filter(Boolean).sort();
+
+  // Product: DB.stock থেকে (Excel লোড করা সহ) + আগের ক্রয়/বিক্রয়
+  const prods = [...new Set([
+    ...DB.stock.map(s => s.name),
+    ...DB.purchases.map(p => p.product),
+    ...DB.sales.map(s => s.product)
+  ])].filter(Boolean).sort();
+
+  // Supplier datalist
+  ['supList'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = sups.map(n => `<option value="${n}">`).join('');
+  });
+
+  // Customer datalist
+  ['cusList'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = cuss.map(n => `<option value="${n}">`).join('');
+  });
+
+  // Product datalist — সব জায়গায় (ক্রয়+বিক্রয় multi-line ও)
+  const prodHtml = prods.map(n => `<option value="${n}">`).join('');
+  ['prodList','prodList2'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = prodHtml;
+  });
+
+  // Multi-line form এর datalist গুলো আপডেট করো
+  document.querySelectorAll('input[list="prodList"], input[list="prodList2"]').forEach(inp => {
+    // datalist already updated above
+  });
+}
+
+// পণ্যের নাম সিলেক্ট হলে স্টক থেকে দাম অটো আনো
+function autoFillPrice(inputId, priceId, type) {
+  const name = document.getElementById(inputId)?.value.trim();
+  if(!name) return;
+  const item = DB.stock.find(s => s.name === name);
+  if(!item) return;
+  const priceEl = document.getElementById(priceId);
+  if(priceEl && !priceEl.value) {
+    priceEl.value = type === 'buy' ? item.buyPrice : item.sellPrice;
+    priceEl.dispatchEvent(new Event('input'));
+  }
 }
 
 // ===== RENDER ALL =====
@@ -1507,6 +1511,253 @@ function renderAll() {
   renderDailyExp(); renderMonthlyExp(); renderStock();
   renderDamaged(); renderSupDue(); renderCusDue();
   renderBank(); renderLoan(); renderPL(); updateLists();
+}
+
+
+// ===== MULTI-LINE PURCHASE =====
+let purLineCount = 0;
+
+function addPurLine(focusNew = false) {
+  purLineCount++;
+  const id = purLineCount;
+  const div = document.createElement('div');
+  div.id = `purLine_${id}`;
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:8px;align-items:center;';
+  div.innerHTML = `
+    <input type="text" placeholder="পণ্যের নাম *" list="prodList"
+      id="pProd_${id}" style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
+      onkeydown="purLineKeyDown(event,${id})"
+      onchange="autoPurPrice(${id})">
+    <input type="number" placeholder="পরিমাণ" id="pQty_${id}" min="0"
+      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
+      oninput="calcPurLine(${id})">
+    <input type="number" placeholder="দাম" id="pPrc_${id}" min="0"
+      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
+      oninput="calcPurLine(${id})">
+    <input type="number" placeholder="মোট" id="pTot_${id}" readonly
+      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:#f8fafc;font-weight:700;">
+    <button onclick="delPurLine(${id})" style="width:36px;height:36px;border:none;border-radius:10px;background:var(--red-bg);color:var(--red);font-size:16px;cursor:pointer;flex-shrink:0;">✕</button>
+  `;
+  document.getElementById('purLines').appendChild(div);
+  if (focusNew) setTimeout(() => document.getElementById(`pProd_${id}`)?.focus(), 50);
+}
+
+function purLineKeyDown(e, id) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const prod = document.getElementById(`pProd_${id}`).value.trim();
+    if (prod) addPurLine(true);
+  }
+}
+
+function calcPurLine(id) {
+  const q = +document.getElementById(`pQty_${id}`)?.value || 0;
+  const p = +document.getElementById(`pPrc_${id}`)?.value || 0;
+  const tot = q * p;
+  document.getElementById(`pTot_${id}`).value = tot || '';
+  updatePurGrandTotal();
+}
+
+function updatePurGrandTotal() {
+  let total = 0;
+  for (let i = 1; i <= purLineCount; i++) {
+    total += +document.getElementById(`pTot_${i}`)?.value || 0;
+  }
+  document.getElementById('pGrandTotal').textContent = fmt(total);
+}
+
+function delPurLine(id) {
+  document.getElementById(`purLine_${id}`)?.remove();
+  updatePurGrandTotal();
+}
+
+function savePurchaseBill() {
+  const date = document.getElementById('pDate').value;
+  const supplier = document.getElementById('pSupplier').value.trim();
+  if (!date || !supplier) return toast('তারিখ ও Supplier নাম দিন', 'error');
+
+  const memo = document.getElementById('pMemo').value;
+  const paid = +document.getElementById('pPaid').value || 0;
+  const note = document.getElementById('pNote')?.value || '';
+
+  let lines = [];
+  for (let i = 1; i <= purLineCount; i++) {
+    const el = document.getElementById(`purLine_${i}`);
+    if (!el) continue;
+    const prod = document.getElementById(`pProd_${i}`)?.value.trim();
+    const qty = +document.getElementById(`pQty_${i}`)?.value || 0;
+    const price = +document.getElementById(`pPrc_${i}`)?.value || 0;
+    const grand = qty * price;
+    if (prod && grand > 0) lines.push({ prod, qty, price, grand });
+  }
+
+  if (lines.length === 0) return toast('অন্তত একটি পণ্য যোগ করুন', 'error');
+
+  const totalGrand = lines.reduce((s, l) => s + l.grand, 0);
+  const due = totalGrand - paid;
+  const billId = Date.now();
+
+  lines.forEach((line, idx) => {
+    DB.purchases.push({
+      id: billId + idx,
+      date, memo, supplier,
+      product: line.prod,
+      qty: line.qty,
+      price: line.price,
+      grand: line.grand,
+      paid: idx === 0 ? paid : 0,
+      due: idx === 0 ? due : 0,
+      note
+    });
+  });
+
+  save(); renderAll();
+
+  // Reset form
+  document.getElementById('pMemo').value = '';
+  document.getElementById('pPaid').value = 0;
+  if(document.getElementById('pNote')) document.getElementById('pNote').value = '';
+  document.getElementById('purLines').innerHTML = '';
+  purLineCount = 0;
+  document.getElementById('pGrandTotal').textContent = '৳ ০';
+  addPurLine(); // নতুন খালি লাইন
+  toast(`✅ ${lines.length}টি পণ্য সেভ হয়েছে!`);
+}
+
+// ===== MULTI-LINE SALES =====
+let salLineCount = 0;
+
+function addSalLine(focusNew = false) {
+  salLineCount++;
+  const id = salLineCount;
+  const div = document.createElement('div');
+  div.id = `salLine_${id}`;
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:8px;align-items:center;';
+  div.innerHTML = `
+    <input type="text" placeholder="পণ্যের নাম *" list="prodList2"
+      id="sProd_${id}" style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
+      onkeydown="salLineKeyDown(event,${id})"
+      onchange="autoSalPrice(${id})">
+    <input type="number" placeholder="পরিমাণ" id="sQty_${id}" min="0"
+      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
+      oninput="calcSalLine(${id})">
+    <input type="number" placeholder="দাম" id="sPrc_${id}" min="0"
+      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;"
+      oninput="calcSalLine(${id})">
+    <input type="number" placeholder="মোট" id="sTot_${id}" readonly
+      style="padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:#f8fafc;font-weight:700;">
+    <button onclick="delSalLine(${id})" style="width:36px;height:36px;border:none;border-radius:10px;background:var(--red-bg);color:var(--red);font-size:16px;cursor:pointer;">✕</button>
+  `;
+  document.getElementById('salLines').appendChild(div);
+  if (focusNew) setTimeout(() => document.getElementById(`sProd_${id}`)?.focus(), 50);
+}
+
+function salLineKeyDown(e, id) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const prod = document.getElementById(`sProd_${id}`).value.trim();
+    if (prod) addSalLine(true);
+  }
+}
+
+function calcSalLine(id) {
+  const q = +document.getElementById(`sQty_${id}`)?.value || 0;
+  const p = +document.getElementById(`sPrc_${id}`)?.value || 0;
+  document.getElementById(`sTot_${id}`).value = q * p || '';
+  updateSalNetTotal();
+}
+
+function updateSalNetTotal() {
+  let total = 0;
+  for (let i = 1; i <= salLineCount; i++) {
+    total += +document.getElementById(`sTot_${i}`)?.value || 0;
+  }
+  document.getElementById('sNetTotal').textContent = fmt(total);
+}
+
+function delSalLine(id) {
+  document.getElementById(`salLine_${id}`)?.remove();
+  updateSalNetTotal();
+}
+
+function saveSaleBill() {
+  const date = document.getElementById('sDate').value;
+  const customer = document.getElementById('sCustomer').value.trim();
+  if (!date || !customer) return toast('তারিখ ও Customer নাম দিন', 'error');
+
+  const bill = document.getElementById('sBill').value;
+  const paid = +document.getElementById('sPaid').value || 0;
+  const bank = document.getElementById('sBank').value;
+
+  let lines = [];
+  for (let i = 1; i <= salLineCount; i++) {
+    const el = document.getElementById(`salLine_${i}`);
+    if (!el) continue;
+    const prod = document.getElementById(`sProd_${i}`)?.value.trim();
+    const qty = +document.getElementById(`sQty_${i}`)?.value || 0;
+    const price = +document.getElementById(`sPrc_${i}`)?.value || 0;
+    const net = qty * price;
+    if (prod && net > 0) lines.push({ prod, qty, price, net });
+  }
+
+  if (lines.length === 0) return toast('অন্তত একটি পণ্য যোগ করুন', 'error');
+
+  const totalNet = lines.reduce((s, l) => s + l.net, 0);
+  const due = totalNet - paid;
+  const billId = Date.now();
+
+  lines.forEach((line, idx) => {
+    DB.sales.push({
+      id: billId + idx,
+      date, bill, customer,
+      product: line.prod,
+      qty: line.qty,
+      price: line.price,
+      net: line.net,
+      paid: idx === 0 ? paid : 0,
+      due: idx === 0 ? due : 0,
+      bank
+    });
+  });
+
+  save(); renderAll();
+
+  // Reset form
+  document.getElementById('sBill').value = '';
+  document.getElementById('sPaid').value = 0;
+  document.getElementById('salLines').innerHTML = '';
+  salLineCount = 0;
+  document.getElementById('sNetTotal').textContent = '৳ ০';
+  addSalLine(); // নতুন খালি লাইন
+  toast(`✅ ${lines.length}টি পণ্য সেভ হয়েছে!`);
+}
+
+
+// ক্রয়ে পণ্য সিলেক্ট হলে ক্রয় দাম অটো
+function autoPurPrice(id) {
+  const name = document.getElementById(`pProd_${id}`)?.value.trim();
+  if(!name) return;
+  const item = DB.stock.find(s => s.name === name);
+  if(!item) return;
+  const priceEl = document.getElementById(`pPrc_${id}`);
+  if(priceEl && !priceEl.value && item.buyPrice > 0) {
+    priceEl.value = item.buyPrice;
+    // qty থাকলে মোট হিসাব করো
+    calcPurLine(id);
+  }
+}
+
+// বিক্রয়ে পণ্য সিলেক্ট হলে বিক্রয় দাম অটো
+function autoSalPrice(id) {
+  const name = document.getElementById(`sProd_${id}`)?.value.trim();
+  if(!name) return;
+  const item = DB.stock.find(s => s.name === name);
+  if(!item) return;
+  const priceEl = document.getElementById(`sPrc_${id}`);
+  if(priceEl && !priceEl.value && item.sellPrice > 0) {
+    priceEl.value = item.sellPrice;
+    calcSalLine(id);
+  }
 }
 
 // ===== SAVE/LOAD =====
@@ -1537,9 +1788,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const t=today();
   ['pDate','sDate','deDate','dmDate','bnDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=t;});
+  addPurLine(); addSalLine(); // প্রথম লাইন তৈরি
   const mel=document.getElementById('meMonth'); if(mel) mel.value=t.substring(0,7);
 
-  loadSaved(); renderAll();
+  loadSaved();
+  if(DB.supplierDue.length === 0 && DB.customerDue.length === 0 && DB.stock.length === 0) { loadExcelData(); } else { renderAll(); }
 });
 </script>
 </body>
