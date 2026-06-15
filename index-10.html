@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚡ ইলেকট্রিক ব্যবসা</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #1a3a5c;
+  --primary-light: #2563a8;
+  --accent: #f59e0b;
+  --green: #059669;
+  --green-bg: #d1fae5;
+  --red: #dc2626;
+  --red-bg: #fee2e2;
+  --orange: #ea580c;
+  --orange-bg: #ffedd5;
+  --blue-bg: #dbeafe;
+  --purple: #7c3aed;
+  --purple-bg: #ede9fe;
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --nav-h: 64px;
+  --header-h: 56px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: 'Hind Siliguri', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  padding-bottom: var(--nav-h);
+  padding-top: var(--header-h);
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-title .icon { font-size: 22px; }
+.header-title h1 { color: white; font-size: 15px; font-weight: 700; line-height: 1.2; }
+.header-title p { color: rgba(255,255,255,0.6); font-size: 10px; }
+
+.header-actions { display: flex; gap: 8px; }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: white;
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+}
+
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 8px 4px;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.nav-tab .nav-icon { font-size: 20px; line-height: 1; }
+.nav-tab.active { color: var(--primary-light); }
+.nav-tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 3px;
+  background: var(--primary-light);
+  border-radius: 0 0 4px 4px;
+}
+
+/* More menu */
+.more-menu {
+  display: none;
+  position: fixed;
+  bottom: var(--nav-h);
+  left: 0; right: 0;
+  background: white;
+  border-top: 1px solid var(--border);
+  border-radius: 20px 20px 0 0;
+  z-index: 99;
+  padding: 16px;
+  box-shadow: 0 -8px 24px rgba(0,0,0,0.12);
+}
+
+.more-menu.open { display: block; }
+
+.more-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.more-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  background: var(--bg);
+  border: none;
+  font-family: inherit;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.more-item .m-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+
+.more-item.active { background: var(--blue-bg); color: var(--primary-light); }
+
+.more-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 98;
+}
+.more-overlay.open { display: block; }
+
+/* ===== PAGES ===== */
+.page { display: none; padding: 12px; }
+.page.active { display: block; }
+
+/* ===== CARDS ===== */
+.cards-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+}
+.cards-scroll::-webkit-scrollbar { display: none; }
+
+.mini-card {
+  min-width: 130px;
+  background: white;
+  border-radius: 14px;
+  padding: 14px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.mini-card .mc-icon { font-size: 20px; margin-bottom: 6px; }
+.mini-card .mc-label { font-size: 10px; color: var(--muted); font-weight: 500; margin-bottom: 2px; }
+.mini-card .mc-value { font-size: 15px; font-weight: 700; color: var(--text); }
+
+/* ===== TODAY SECTION ===== */
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.today-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.today-card {
+  background: white;
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.today-card .tc-label { font-size: 10px; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+.today-card .tc-icon { font-size: 18px; margin-bottom: 6px; }
+.today-card .tc-value { font-size: 16px; font-weight: 700; }
+
+/* ===== FORM CARD ===== */
+.form-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.form-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.form-full { margin-bottom: 10px; }
+
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 11px; font-weight: 600; color: var(--muted); }
+
+input, select, textarea {
+  padding: 11px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: white;
+  width: 100%;
+  -webkit-appearance: none;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(37,99,168,0.1);
+}
+
+input[readonly] { background: #f8fafc; color: var(--muted); }
+
+/* ===== BUTTONS ===== */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn-primary { background: var(--primary-light); color: white; }
+.btn-green { background: var(--green); color: white; }
+.btn-accent { background: var(--accent); color: white; }
+
+/* ===== TABLE CARD ===== */
+.table-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.table-card-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.table-card-head h3 { font-size: 14px; font-weight: 700; color: var(--primary); }
+
+.search-input {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  width: 140px;
+}
+
+/* ===== LIST ITEMS (mobile-friendly rows) ===== */
+.list-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.list-item:last-child { border-bottom: none; }
+
+.li-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.li-body { flex: 1; min-width: 0; }
+.li-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.li-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.li-right { text-align: right; flex-shrink: 0; }
+.li-amount { font-size: 14px; font-weight: 700; }
+.li-date { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+.del-btn {
+  background: var(--red-bg);
+  border: none;
+  border-radius: 8px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* ===== BADGE ===== */
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-orange { background: var(--orange-bg); color: var(--orange); }
+.badge-blue { background: var(--blue-bg); color: var(--primary-light); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
+
+/* ===== TOTAL ROW ===== */
+.total-row {
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-top: 2px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.total-row .tl { font-size: 12px; font-weight: 600; color: var(--muted); }
+.total-row .tr-val { font-size: 15px; font-weight: 700; color: var(--primary); }
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: var(--primary-light);
+  color: white;
+}
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ===== BANK ROW ===== */
+.bank-row {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bank-row:last-child { border-bottom: none; }
+.bank-name { font-size: 13px; font-weight: 600; }
+.bank-bal { font-size: 14px; font-weight: 700; color: var(--primary); }
+.bank-sub { font-size: 10px; color: var(--muted); }
+
+/* ===== PL TABLE ===== */
+.pl-row {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.pl-row:last-child { border-bottom: none; }
+.pl-row .pl-date { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.pl-row .pl-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.pl-stat { text-align: center; }
+.pl-stat .ps-label { font-size: 9px; color: var(--muted); }
+.pl-stat .ps-val { font-size: 12px; font-weight: 700; }
+.pl-profit { font-size: 14px; font-weight: 700; margin-top: 6px; text-align: right; }
+
+/* ===== EMPTY ===== */
+.empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+.empty .e-icon { font-size: 40px; margin-bottom: 8px; }
+.empty p { font-size: 13px; }
+
+/* ===== TOAST ===== */
+.toast-wrap {
+  position: fixed;
+  top: 70px; left: 12px; right: 12px;
+  z-index: 999;
+}
+.toast {
+  background: #1e293b;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.toast.success { border-left: 4px solid var(--green); }
+.toast.error { border-left: 4px solid var(--red); }
+
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(-10px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* ===== PROFIT/LOSS colors ===== */
+.profit { color: var(--green); }
+.loss { color: var(--red); }
+
+/* ===== DIVIDER ===== */
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+/* segment info */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.info-box {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.info-box .ib-label { font-size: 10px; color: var(--muted); }
+.info-box .ib-val { font-size: 14px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="header-title">
+    <span class="icon">⚡</span>
+    <div>
+      <h1>ইলেকট্রিক ব্যবসা</h1>
+      <p id="headerDate">লোড হচ্ছে...</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="exportData()" title="ডেটা সেভ">💾</button>
+    <button class="icon-btn" onclick="document.getElementById('importFile').click()" title="ডেটা লোড">📂</button>
+    <input type="file" id="importFile" style="display:none" accept=".json" onchange="loadData(event)">
+  </div>
+</header>
+
+<!-- PAGES -->
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-home">
+  <!-- Scrollable summary cards -->
+  <div class="cards-scroll">
+    <div class="mini-card" style="border-top:3px solid var(--green)">
+      <div class="mc-icon">💰</div>
+      <div class="mc-label">মোট বিক্রয়</div>
+      <div class="mc-value" id="c-sales">৳ ০</div>
+    </div>
+    <div class="mini-card" style="border-top:3px solid var(--primary-light)">
+      <div class="mc-icon">🛒</div>
+      <div class="mc-label">মোট ক্রয়</div>
+      <div class="mc-value" id="c-purchase">৳ ০</div>
+    </div>
+    <div class="mini-card" style="border-top:3px solid var(--accent)">
+      <div class="mc-icon">✅</div>
+      <div class="mc-label">মোট লাভ</div>
+      <div class="mc-value" id="c-profit">৳ ০</div>
+    </div>
+    <div class="mini-card" style="border-top:3px solid var(--orange)">
+      <div class="mc-icon">💸</div>
+      <div class="mc-label">মোট খরচ</div>
+      <div class="mc-value" id="c-expense">৳ ০</div>
+    </div>
+    <div class="mini-card" style="border-top:3px solid var(--purple)">
+      <div class="mc-icon">📦</div>
+      <div class="mc-label">স্টক মূল্য</div>
+      <div class="mc-value" id="c-stock">৳ ০</div>
+    </div>
+    <div class="mini-card" style="border-top:3px solid var(--red)">
+      <div class="mc-icon">⚠️</div>
+      <div class="mc-label">নষ্ট মাল</div>
+      <div class="mc-value" id="c-damage">৳ ০</div>
+    </div>
+    <div class="mini-card" style="border-top:3px solid var(--green)">
+      <div class="mc-icon">👥</div>
+      <div class="mc-label">Customer বাকি</div>
+      <div class="mc-value" id="c-cusdue">৳ ০</div>
+    </div>
+    <div class="mini-card" style="border-top:3px solid var(--orange)">
+      <div class="mc-icon">🏪</div>
+      <div class="mc-label">Supplier বাকি</div>
+      <div class="mc-value" id="c-supdue">৳ ০</div>
+    </div>
+  </div>
+
+  <!-- Today -->
+  <div class="section-title">📅 আজকের হিসাব</div>
+  <div class="today-cards">
+    <div class="today-card">
+      <div class="tc-icon">💰</div>
+      <div class="tc-label">আজকের বিক্রয়</div>
+      <div class="tc-value profit" id="t-sales">৳ ০</div>
+    </div>
+    <div class="today-card">
+      <div class="tc-icon">🛒</div>
+      <div class="tc-label">আজকের ক্রয়</div>
+      <div class="tc-value" id="t-purchase" style="color:var(--primary-light)">৳ ০</div>
+    </div>
+    <div class="today-card">
+      <div class="tc-icon">💸</div>
+      <div class="tc-label">আজকের খরচ</div>
+      <div class="tc-value" id="t-expense" style="color:var(--orange)">৳ ০</div>
+    </div>
+    <div class="today-card">
+      <div class="tc-icon">📈</div>
+      <div class="tc-label">আজকের লাভ/লস</div>
+      <div class="tc-value" id="t-profit">৳ ০</div>
+    </div>
+  </div>
+
+  <!-- Bank -->
+  <div class="section-title">🏦 ব্যাংক ও নগদ</div>
+  <div class="table-card" id="dash-bank"></div>
+</div>
+
+<!-- PURCHASE -->
+<div class="page" id="page-purchase">
+  <div class="form-card">
+    <div class="form-title">🛒 ক্রয় এন্ট্রি</div>
+    <div class="form-row">
+      <div class="form-group"><label>তারিখ *</label><input type="date" id="pDate"></div>
+      <div class="form-group"><label>মেমো নং</label><input type="text" id="pMemo" placeholder="নম্বর"></div>
+    </div>
+    <div class="form-full form-group"><label>Supplier নাম *</label>
+      <input type="text" id="pSupplier" placeholder="Supplier এর নাম" list="supList">
+      <datalist id="supList"></datalist>
+    </div>
+    <div class="form-full form-group"><label>পণ্যের নাম *</label>
+      <input type="text" id="pProduct" placeholder="পণ্যের নাম" list="prodList">
+      <datalist id="prodList"></datalist>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>পরিমাণ *</label><input type="number" id="pQty" placeholder="০" min="0" oninput="calcPur()"></div>
+      <div class="form-group"><label>একক দাম *</label><input type="number" id="pPrice" placeholder="০" min="0" oninput="calcPur()"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>ছাড়</label><input type="number" id="pDiscount" placeholder="০" min="0" value="0" oninput="calcPur()"></div>
+      <div class="form-group"><label>গ্র্যান্ড টোটাল</label><input type="number" id="pGrand" readonly></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>পরিশোধ</label><input type="number" id="pPaid" placeholder="০" min="0" value="0" oninput="calcPur()"></div>
+      <div class="form-group"><label>বাকি</label><input type="number" id="pDue" readonly></div>
+    </div>
+    <button class="btn btn-primary" onclick="addPurchase()">✅ ক্রয় যোগ করুন</button>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head">
+      <h3>ক্রয়ের তালিকা</h3>
+      <input class="search-input" placeholder="🔍 খুঁজুন" oninput="renderPurchase(this.value)">
+    </div>
+    <div id="purList"></div>
+    <div class="total-row">
+      <span class="tl">মোট গ্র্যান্ড টোটাল</span>
+      <span class="tr-val" id="purTot">৳ ০</span>
+    </div>
+  </div>
+</div>
+
+<!-- SALES -->
+<div class="page" id="page-sales">
+  <div class="form-card">
+    <div class="form-title">💰 বিক্রয় এন্ট্রি</div>
+    <div class="form-row">
+      <div class="form-group"><label>তারিখ *</label><input type="date" id="sDate"></div>
+      <div class="form-group"><label>বিল নং</label><input type="text" id="sBill" placeholder="নম্বর"></div>
+    </div>
+    <div class="form-full form-group"><label>Customer নাম *</label>
+      <input type="text" id="sCustomer" placeholder="Customer এর নাম" list="cusList">
+      <datalist id="cusList"></datalist>
+    </div>
+    <div class="form-full form-group"><label>পণ্যের নাম *</label>
+      <input type="text" id="sProduct" placeholder="পণ্যের নাম" list="prodList2">
+      <datalist id="prodList2"></datalist>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>পরিমাণ *</label><input type="number" id="sQty" placeholder="০" min="0" oninput="calcSale()"></div>
+      <div class="form-group"><label>বিক্রয় দাম *</label><input type="number" id="sPrice" placeholder="০" min="0" oninput="calcSale()"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>ছাড়</label><input type="number" id="sDiscount" placeholder="০" min="0" value="0" oninput="calcSale()"></div>
+      <div class="form-group"><label>নিট বিক্রয়</label><input type="number" id="sNet" readonly></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>পরিশোধ</label><input type="number" id="sPaid" placeholder="০" min="0" value="0" oninput="calcSale()"></div>
+      <div class="form-group"><label>বাকি</label><input type="number" id="sDue" readonly></div>
+    </div>
+    <div class="form-full form-group"><label>মোবাইল/ব্যাংক</label>
+      <select id="sBank"><option value="">নগদ</option><option>Bkash</option><option>Nagad</option><option>DBBL</option><option>ব্র্যাক ব্যাংক</option><option>IBBL</option></select>
+    </div>
+    <button class="btn btn-green" onclick="addSale()">✅ বিক্রয় যোগ করুন</button>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head">
+      <h3>বিক্রয়ের তালিকা</h3>
+      <input class="search-input" placeholder="🔍 খুঁজুন" oninput="renderSales(this.value)">
+    </div>
+    <div id="salList"></div>
+    <div class="total-row">
+      <span class="tl">মোট নিট বিক্রয়</span>
+      <span class="tr-val" id="salTot">৳ ০</span>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE -->
+<div class="page" id="page-expense">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(this,'tab-dexp')">দৈনিক খরচ</button>
+    <button class="tab-btn" onclick="switchTab(this,'tab-mexp')">মাসিক খরচ</button>
+  </div>
+
+  <div class="tab-pane active" id="tab-dexp">
+    <div class="form-card">
+      <div class="form-title">💸 দৈনিক খরচ</div>
+      <div class="form-row">
+        <div class="form-group"><label>তারিখ *</label><input type="date" id="deDate"></div>
+        <div class="form-group"><label>পরিমাণ *</label><input type="number" id="deAmt" placeholder="টাকা" min="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>ধরন *</label>
+          <select id="deType">
+            <option>চা/নাস্তা</option><option>যাতায়াত</option><option>প্যাকেজিং</option>
+            <option>রিকশা</option><option>লোডিং</option><option>বিবিধ</option><option>অন্যান্য</option>
+          </select>
+        </div>
+        <div class="form-group"><label>মাধ্যম</label>
+          <select id="deSource"><option>নগদ</option><option>Bkash</option><option>DBBL</option></select>
+        </div>
+      </div>
+      <div class="form-full form-group"><label>বিস্তারিত</label><input type="text" id="deDetail" placeholder="বিস্তারিত"></div>
+      <button class="btn btn-primary" onclick="addDailyExp()">✅ খরচ যোগ করুন</button>
+    </div>
+    <div class="table-card">
+      <div class="table-card-head"><h3>দৈনিক খরচ তালিকা</h3></div>
+      <div id="dexpList"></div>
+      <div class="total-row"><span class="tl">মোট</span><span class="tr-val" id="dexpTot">৳ ০</span></div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="tab-mexp">
+    <div class="form-card">
+      <div class="form-title">🏢 মাসিক খরচ</div>
+      <div class="form-row">
+        <div class="form-group"><label>ধরন *</label>
+          <select id="meType">
+            <option>দোকান ভাড়া</option><option>গোডাউন ভাড়া</option>
+            <option>বেতন - বুলবুল</option><option>বেতন - অন্যান্য</option>
+            <option>বিদ্যুৎ (দোকান)</option><option>বিদ্যুৎ (গোডাউন)</option>
+            <option>সমিতি কিস্তি</option><option>ব্যাংক সুদ</option><option>অন্যান্য</option>
+          </select>
+        </div>
+        <div class="form-group"><label>পরিমাণ *</label><input type="number" id="meAmt" placeholder="টাকা" min="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>মাস</label><input type="month" id="meMonth"></div>
+        <div class="form-group"><label>মাধ্যম</label>
+          <select id="meSource"><option>নগদ</option><option>Bkash</option><option>DBBL</option><option>ব্র্যাক ব্যাংক</option></select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addMonthlyExp()">✅ খরচ যোগ করুন</button>
+    </div>
+    <div class="table-card">
+      <div class="table-card-head"><h3>মাসিক খরচ তালিকা</h3></div>
+      <div id="mexpList"></div>
+      <div class="total-row"><span class="tl">মোট</span><span class="tr-val" id="mexpTot">৳ ০</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MORE PAGE -->
+<div class="page" id="page-more">
+  <div class="section-title">🗂️ আরও বিভাগ</div>
+  <div class="more-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+    <button class="more-item" onclick="showPage('stock')">
+      <div class="m-icon" style="background:var(--orange-bg)">📦</div>স্টক
+    </button>
+    <button class="more-item" onclick="showPage('damaged')">
+      <div class="m-icon" style="background:var(--red-bg)">⚠️</div>নষ্ট মাল
+    </button>
+    <button class="more-item" onclick="showPage('supplier-due')">
+      <div class="m-icon" style="background:var(--blue-bg)">🏪</div>Supplier বাকি
+    </button>
+    <button class="more-item" onclick="showPage('customer-due')">
+      <div class="m-icon" style="background:var(--green-bg)">👥</div>Customer বাকি
+    </button>
+    <button class="more-item" onclick="showPage('bank')">
+      <div class="m-icon" style="background:var(--blue-bg)">🏦</div>ব্যাংক/নগদ
+    </button>
+    <button class="more-item" onclick="showPage('loan')">
+      <div class="m-icon" style="background:var(--red-bg)">💳</div>Loan/ধার
+    </button>
+    <button class="more-item" onclick="showPage('daily-pl')">
+      <div class="m-icon" style="background:var(--green-bg)">📈</div>লাভ-লস
+    </button>
+  </div>
+</div>
+
+<!-- STOCK -->
+<div class="page" id="page-stock">
+  <div class="form-card">
+    <div class="form-title">📦 স্টক এন্ট্রি</div>
+    <div class="form-full form-group"><label>পণ্যের নাম *</label><input type="text" id="stName" placeholder="পণ্যের নাম"></div>
+    <div class="form-row">
+      <div class="form-group"><label>বর্তমান স্টক *</label><input type="number" id="stQty" placeholder="০" min="0"></div>
+      <div class="form-group"><label>ন্যূনতম স্টক</label><input type="number" id="stMin" placeholder="০" min="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>ক্রয় দাম</label><input type="number" id="stBuy" placeholder="০" min="0"></div>
+      <div class="form-group"><label>বিক্রয় দাম</label><input type="number" id="stSell" placeholder="০" min="0"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addStock()">✅ স্টকে যোগ করুন</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head">
+      <h3>স্টকের তালিকা</h3>
+      <input class="search-input" placeholder="🔍 খুঁজুন" oninput="renderStock(this.value)">
+    </div>
+    <div id="stList"></div>
+    <div class="total-row"><span class="tl">মোট স্টক মূল্য</span><span class="tr-val" id="stTot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- DAMAGED -->
+<div class="page" id="page-damaged">
+  <div class="form-card">
+    <div class="form-title">⚠️ নষ্ট মাল এন্ট্রি</div>
+    <div class="form-row">
+      <div class="form-group"><label>তারিখ *</label><input type="date" id="dmDate"></div>
+      <div class="form-group"><label>পরিমাণ *</label><input type="number" id="dmQty" placeholder="০" min="0"></div>
+    </div>
+    <div class="form-full form-group"><label>পণ্যের নাম *</label><input type="text" id="dmProduct" placeholder="পণ্যের নাম"></div>
+    <div class="form-full form-group"><label>Customer নাম</label><input type="text" id="dmCustomer" placeholder="কে ফেরত দিলো"></div>
+    <div class="form-full form-group"><label>অবস্থা *</label>
+      <select id="dmStatus">
+        <option>মেরামতযোগ্য</option><option>অকেজো</option><option>Supplier ফেরত</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>মেরামত খরচ</label><input type="number" id="dmRepair" placeholder="০" min="0" value="0"></div>
+      <div class="form-group"><label>বিক্রয় দাম</label><input type="number" id="dmSell" placeholder="০" min="0" value="0"></div>
+    </div>
+    <button class="btn btn-accent" onclick="addDamaged()">✅ নষ্ট মাল যোগ করুন</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head"><h3>নষ্ট মালের তালিকা</h3></div>
+    <div id="dmList"></div>
+    <div class="total-row"><span class="tl">মোট ক্ষতি</span><span class="tr-val loss" id="dmTot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- SUPPLIER DUE -->
+<div class="page" id="page-supplier-due">
+  <div class="form-card">
+    <div class="form-title">🏪 Supplier বাকি</div>
+    <div class="form-full form-group"><label>Supplier নাম *</label><input type="text" id="supName" placeholder="Supplier নাম"></div>
+    <div class="form-row">
+      <div class="form-group"><label>আগের বাকি</label><input type="number" id="supPrev" placeholder="০" min="0" value="0"></div>
+      <div class="form-group"><label>মন্তব্য</label><input type="text" id="supNote" placeholder="ঐচ্ছিক"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addSupDue()">✅ যোগ করুন</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head"><h3>Supplier বাকি তালিকা</h3></div>
+    <div id="supList2"></div>
+    <div class="total-row"><span class="tl">মোট Supplier বাকি</span><span class="tr-val loss" id="supTot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- CUSTOMER DUE -->
+<div class="page" id="page-customer-due">
+  <div class="form-card">
+    <div class="form-title">👥 Customer বাকি</div>
+    <div class="form-full form-group"><label>Customer নাম *</label><input type="text" id="cusName" placeholder="Customer নাম"></div>
+    <div class="form-row">
+      <div class="form-group"><label>আগের বাকি</label><input type="number" id="cusPrev" placeholder="০" min="0" value="0"></div>
+      <div class="form-group"><label>মন্তব্য</label><input type="text" id="cusNote" placeholder="ঐচ্ছিক"></div>
+    </div>
+    <button class="btn btn-green" onclick="addCusDue()">✅ যোগ করুন</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head"><h3>Customer বাকি তালিকা</h3></div>
+    <div id="cusList2"></div>
+    <div class="total-row"><span class="tl">মোট Customer বাকি</span><span class="tr-val loss" id="cusTot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- BANK -->
+<div class="page" id="page-bank">
+  <div class="form-card">
+    <div class="form-title">🏦 ব্যাংক/নগদ লেনদেন</div>
+    <div class="form-row">
+      <div class="form-group"><label>তারিখ *</label><input type="date" id="bnDate"></div>
+      <div class="form-group"><label>পরিমাণ *</label><input type="number" id="bnAmt" placeholder="টাকা" min="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>ব্যাংক/মাধ্যম *</label>
+        <select id="bnBank">
+          <option>DBBL</option><option>ব্র্যাক ব্যাংক</option><option>IBBL</option>
+          <option>সোনালী</option><option>Bkash</option><option>Nagad</option><option>নগদ হাতে</option>
+        </select>
+      </div>
+      <div class="form-group"><label>ধরন *</label>
+        <select id="bnType"><option>জমা</option><option>উত্তোলন</option></select>
+      </div>
+    </div>
+    <div class="form-full form-group"><label>কারণ</label><input type="text" id="bnReason" placeholder="কারণ/বিস্তারিত"></div>
+    <button class="btn btn-primary" onclick="addBankTx()">✅ যোগ করুন</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head"><h3>ব্যাংক সারসংক্ষেপ</h3></div>
+    <div id="bankSummary"></div>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head"><h3>লেনদেনের তালিকা</h3></div>
+    <div id="bnList"></div>
+  </div>
+</div>
+
+<!-- LOAN -->
+<div class="page" id="page-loan">
+  <div class="form-card">
+    <div class="form-title">💳 Loan/ধার এন্ট্রি</div>
+    <div class="form-full form-group"><label>নাম/প্রতিষ্ঠান *</label><input type="text" id="lnName" placeholder="নাম"></div>
+    <div class="form-row">
+      <div class="form-group"><label>ধরন *</label>
+        <select id="lnType">
+          <option>ব্যাংক লোন</option><option>ব্যক্তিগত ধার</option><option>সমিতি</option><option>অন্যান্য</option>
+        </select>
+      </div>
+      <div class="form-group"><label>মূল পরিমাণ *</label><input type="number" id="lnAmt" placeholder="টাকা" min="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>সুদ % (মাসিক)</label><input type="number" id="lnRate" placeholder="০" min="0" step="0.1" value="0"></div>
+      <div class="form-group"><label>মাসিক কিস্তি</label><input type="number" id="lnInstall" placeholder="০" min="0" value="0"></div>
+    </div>
+    <div class="form-full form-group"><label>পরিশোধিত</label><input type="number" id="lnPaid" placeholder="০" min="0" value="0"></div>
+    <button class="btn btn-primary" onclick="addLoan()">✅ যোগ করুন</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head"><h3>Loan/ধার তালিকা</h3></div>
+    <div id="lnList"></div>
+    <div class="total-row"><span class="tl">মোট বাকি</span><span class="tr-val loss" id="lnTot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- DAILY P&L -->
+<div class="page" id="page-daily-pl">
+  <div class="section-title">📈 প্রতিদিনের লাভ-লস</div>
+  <div class="table-card">
+    <div id="plList"></div>
+    <div class="total-row">
+      <span class="tl">মোট লাভ/লস</span>
+      <span class="tr-val" id="plTot">৳ ০</span>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-tab active" onclick="showPage('home',this)">
+    <span class="nav-icon">🏠</span>হোম
+  </button>
+  <button class="nav-tab" onclick="showPage('purchase',this)">
+    <span class="nav-icon">🛒</span>ক্রয়
+  </button>
+  <button class="nav-tab" onclick="showPage('sales',this)">
+    <span class="nav-icon">💰</span>বিক্রয়
+  </button>
+  <button class="nav-tab" onclick="showPage('expense',this)">
+    <span class="nav-icon">💸</span>খরচ
+  </button>
+  <button class="nav-tab" onclick="showPage('more',this)">
+    <span class="nav-icon">⋯</span>আরও
+  </button>
+</nav>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ===== DATA =====
+const DB = {
+  purchases:[], sales:[], dailyExp:[], monthlyExp:[],
+  stock:[], damaged:[], supplierDue:[], customerDue:[],
+  bankTx:[], loans:[],
+  bankOB:{'DBBL':10617.15,'ব্র্যাক ব্যাংক':1200.42,'IBBL':35903.37,'সোনালী':277.5,'Bkash':1617.99,'Nagad':3812.95,'নগদ হাতে':0}
+};
+
+// ===== UTILS =====
+const fmt = n => '৳ ' + Math.round(n||0).toLocaleString('en-IN');
+const fmtN = n => Math.round(n||0).toLocaleString('en-IN');
+const today = () => new Date().toISOString().split('T')[0];
+
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `${type==='success'?'✅':'❌'} ${msg}`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+function delBtn(fn) {
+  return `<button class="del-btn" onclick="${fn}">🗑️</button>`;
+}
+
+// ===== NAVIGATION =====
+function showPage(id, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.add('active');
+  if(navEl) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    navEl.classList.add('active');
+  }
+  renderAll();
+  window.scrollTo(0,0);
+}
+
+function switchTab(btn, tabId) {
+  const parent = btn.closest('.page');
+  parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  parent.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ===== CALC =====
+function calcPur() {
+  const q=+document.getElementById('pQty').value||0;
+  const p=+document.getElementById('pPrice').value||0;
+  const d=+document.getElementById('pDiscount').value||0;
+  const paid=+document.getElementById('pPaid').value||0;
+  const grand=q*p-d;
+  document.getElementById('pGrand').value=grand;
+  document.getElementById('pDue').value=grand-paid;
+}
+
+function calcSale() {
+  const q=+document.getElementById('sQty').value||0;
+  const p=+document.getElementById('sPrice').value||0;
+  const d=+document.getElementById('sDiscount').value||0;
+  const paid=+document.getElementById('sPaid').value||0;
+  const net=q*p-d;
+  document.getElementById('sNet').value=net;
+  document.getElementById('sDue').value=net-paid;
+}
+
+// ===== PURCHASE =====
+function addPurchase() {
+  const date=document.getElementById('pDate').value;
+  const sup=document.getElementById('pSupplier').value.trim();
+  const prod=document.getElementById('pProduct').value.trim();
+  const qty=+document.getElementById('pQty').value;
+  const price=+document.getElementById('pPrice').value;
+  if(!date||!sup||!prod||!qty||!price) return toast('সব তারকাচিহ্নিত ঘর পূরণ করুন','error');
+  const discount=+document.getElementById('pDiscount').value||0;
+  const grand=qty*price-discount;
+  const paid=+document.getElementById('pPaid').value||0;
+  DB.purchases.push({id:Date.now(),date,memo:document.getElementById('pMemo').value,supplier:sup,product:prod,qty,price,grand,paid,due:grand-paid});
+  save(); renderAll();
+  ['pMemo','pSupplier','pProduct','pQty','pPrice','pGrand','pDue'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pDiscount').value=0; document.getElementById('pPaid').value=0;
+  toast('ক্রয় যোগ হয়েছে!');
+}
+
+function renderPurchase(q='') {
+  const rows=DB.purchases.filter(r=>!q||r.supplier.toLowerCase().includes(q.toLowerCase())||r.product.toLowerCase().includes(q.toLowerCase()));
+  const el=document.getElementById('purList'); if(!el) return;
+  el.innerHTML=rows.length?rows.map(r=>`
+    <div class="list-item">
+      <div class="li-icon" style="background:var(--blue-bg)">🛒</div>
+      <div class="li-body">
+        <div class="li-title">${r.product}</div>
+        <div class="li-sub">${r.supplier} | ${r.qty}টি × ${fmtN(r.price)}</div>
+        <div class="li-sub">${r.date}${r.memo?' | মেমো: '+r.memo:''}</div>
+      </div>
+      <div class="li-right">
+        <div class="li-amount">${fmt(r.grand)}</div>
+        <div><span class="badge ${r.due>0?'badge-red':'badge-green'}">${r.due>0?'বাকি: '+fmtN(r.due):'পরিশোধ'}</span></div>
+      </div>
+      ${delBtn(`delPurchase(${r.id})`)}
+    </div>`).join('')
+    :'<div class="empty"><div class="e-icon">🛒</div><p>কোনো ক্রয় নেই</p></div>';
+  const tot=rows.reduce((s,r)=>s+r.grand,0);
+  const el2=document.getElementById('purTot'); if(el2) el2.textContent=fmt(tot);
+}
+
+function delPurchase(id) {DB.purchases=DB.purchases.filter(r=>r.id!==id);save();renderAll();toast('মুছে ফেলা হয়েছে');}
+
+// ===== SALES =====
+function addSale() {
+  const date=document.getElementById('sDate').value;
+  const cus=document.getElementById('sCustomer').value.trim();
+  const prod=document.getElementById('sProduct').value.trim();
+  const qty=+document.getElementById('sQty').value;
+  const price=+document.getElementById('sPrice').value;
+  if(!date||!cus||!prod||!qty||!price) return toast('সব তারকাচিহ্নিত ঘর পূরণ করুন','error');
+  const discount=+document.getElementById('sDiscount').value||0;
+  const net=qty*price-discount;
+  const paid=+document.getElementById('sPaid').value||0;
+  DB.sales.push({id:Date.now(),date,bill:document.getElementById('sBill').value,customer:cus,product:prod,qty,price,net,paid,due:net-paid,bank:document.getElementById('sBank').value});
+  save(); renderAll();
+  ['sBill','sCustomer','sProduct','sQty','sPrice','sNet','sDue'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sDiscount').value=0; document.getElementById('sPaid').value=0;
+  toast('বিক্রয় যোগ হয়েছে!');
+}
+
+function renderSales(q='') {
+  const rows=DB.sales.filter(r=>!q||r.customer.toLowerCase().includes(q.toLowerCase())||r.product.toLowerCase().includes(q.toLowerCase()));
+  const el=document.getElementById('salList'); if(!el) return;
+  el.innerHTML=rows.length?rows.map(r=>`
+    <div class="list-item">
+      <div class="li-icon" style="background:var(--green-bg)">💰</div>
+      <div class="li-body">
+        <div class="li-title">${r.product}</div>
+        <div class="li-sub">${r.customer} | ${r.qty}টি × ${fmtN(r.price)}</div>
+        <div class="li-sub">${r.date}${r.bank?' | '+r.bank:''}</div>
+      </div>
+      <div class="li-right">
+        <div class="li-amount profit">${fmt(r.net)}</div>
+        <div><span class="badge ${r.due>0?'badge-red':'badge-green'}">${r.due>0?'বাকি: '+fmtN(r.due):'পরিশোধ'}</span></div>
+      </div>
+      ${delBtn(`delSale(${r.id})`)}
+    </div>`).join('')
+    :'<div class="empty"><div class="e-icon">💰</div><p>কোনো বিক্রয় নেই</p></div>';
+  const tot=rows.reduce((s,r)=>s+r.net,0);
+  const el2=document.getElementById('salTot'); if(el2) el2.textContent=fmt(tot);
+}
+
+function delSale(id){DB.sales=DB.sales.filter(r=>r.id!==id);save();renderAll();}
+
+// ===== DAILY EXP =====
+function addDailyExp() {
+  const date=document.getElementById('deDate').value;
+  const amt=+document.getElementById('deAmt').value;
+  if(!date||!amt) return toast('তারিখ ও পরিমাণ দিন','error');
+  DB.dailyExp.push({id:Date.now(),date,type:document.getElementById('deType').value,detail:document.getElementById('deDetail').value,source:document.getElementById('deSource').value,amt});
+  save();renderAll();
+  document.getElementById('deAmt').value=''; document.getElementById('deDetail').value='';
+  toast('খরচ যোগ হয়েছে!');
+}
+
+function renderDailyExp() {
+  const el=document.getElementById('dexpList'); if(!el) return;
+  el.innerHTML=DB.dailyExp.length?[...DB.dailyExp].reverse().map(r=>`
+    <div class="list-item">
+      <div class="li-icon" style="background:var(--orange-bg)">💸</div>
+      <div class="li-body">
+        <div class="li-title">${r.type}</div>
+        <div class="li-sub">${r.detail||'-'} | ${r.source}</div>
+        <div class="li-sub">${r.date}</div>
+      </div>
+      <div class="li-right"><div class="li-amount" style="color:var(--orange)">${fmt(r.amt)}</div></div>
+      ${delBtn(`delDailyExp(${r.id})`)}
+    </div>`).join('')
+    :'<div class="empty"><div class="e-icon">💸</div><p>কোনো খরচ নেই</p></div>';
+  const tot=DB.dailyExp.reduce((s,r)=>s+r.amt,0);
+  const el2=document.getElementById('dexpTot'); if(el2) el2.textContent=fmt(tot);
+}
+function delDailyExp(id){DB.dailyExp=DB.dailyExp.filter(r=>r.id!==id);save();renderAll();}
+
+// ===== MONTHLY EXP =====
+function addMonthlyExp() {
+  const amt=+document.getElementById('meAmt').value;
+  if(!amt) return toast('পরিমাণ দিন','error');
+  DB.monthlyExp.push({id:Date.now(),type:document.getElementById('meType').value,month:document.getElementById('meMonth').value,source:document.getElementById('meSource').value,amt});
+  save();renderAll();
+  document.getElementById('meAmt').value='';
+  toast('মাসিক খরচ যোগ হয়েছে!');
+}
+
+function renderMonthlyExp() {
+  const el=document.getElementById('mexpList'); if(!el) return;
+  el.innerHTML=DB.monthlyExp.length?[...DB.monthlyExp].reverse().map(r=>`
+    <div class="list-item">
+      <div class="li-icon" style="background:var(--purple-bg)">🏢</div>
+      <div class="li-body">
+        <div class="li-title">${r.type}</div>
+        <div class="li-sub">${r.month||'-'} | ${r.source}</div>
+      </div>
+      <div class="li-right"><div class="li-amount" style="color:var(--purple)">${fmt(r.amt)}</div></div>
+      ${delBtn(`delMonthlyExp(${r.id})`)}
+    </div>`).join('')
+    :'<div class="empty"><div class="e-icon">🏢</div><p>কোনো মাসিক খরচ নেই</p></div>';
+  const tot=DB.monthlyExp.reduce((s,r)=>s+r.amt,0);
+  const el2=document.getElementById('mexpTot'); if(el2) el2.textContent=fmt(tot);
+}
+function delMonthlyExp(id){DB.monthlyExp=DB.monthlyExp.filter(r=>r.id!==id);save();renderAll();}
+
+// ===== STOCK =====
+function addStock() {
+  const name=document.getElementById('stName').value.trim();
+  const qty=+document.getElementById('stQty').value;
+  if(!name||!qty) return toast('নাম ও পরিমাণ দিন','error');
+  const ex=DB.stock.find(s=>s.name===name);
+  if(ex){ex.qty+=qty;ex.buyPrice=+document.getElementById('stBuy').value||ex.buyPrice;ex.sellPrice=+document.getElementById('stSell').value||ex.sellPrice;ex.minQty=+document.getElementById('stMin').value||ex.minQty;}
+  else DB.stock.push({id:Date.now(),name,qty,buyPrice:+document.getElementById('stBuy').value||0,sellPrice:+document.getElementById('stSell').value||0,minQty:+document.getElementById('stMin').value||0});
+  save();renderAll();
+  ['stName','stQty','stBuy','stSell','stMin'].forEach(id=>document.getElementById(id).value='');
+  toast('স্টক আপডেট হয়েছে!');
+}
+
+function renderStock(q='') {
+  const rows=DB.stock.filter(r=>!q||r.name.toLowerCase().includes(q.toLowerCase()));
+  const el=document.getElementById('stList'); if(!el) return;
+  el.innerHTML=rows.length?rows.map(r=>{
+    const val=r.qty*r.buyPrice;
+    const st=r.qty<=0?'badge-red':r.qty<=r.minQty&&r.minQty>0?'badge-orange':'badge-green';
+    const stTxt=r.qty<=0?'❌ শেষ':r.qty<=r.minQty&&r.minQty>0?'⚠️ কম':'✅ আছে';
+    return`<div class="list-item">
+      <div class="li-icon" style="background:var(--orange-bg)">📦</div>
+      <div class="li-body">
+        <div class="li-title">${r.name}</div>
+        <div class="li-sub">ক্রয়: ${fmtN(r.buyPrice)} | বিক্রয়: ${fmtN(r.sellPrice)}</div>
+        <div class="li-sub">স্টক: ${r.qty}টি | সর্বনিম্ন: ${r.minQty}টি</div>
+      </div>
+      <div class="li-right">
+        <div class="li-amount">${fmt(val)}</div>
+        <span class="badge ${st}">${stTxt}</span>
+      </div>
+      ${delBtn(`delStock(${r.id})`)}
+    </div>`;
+  }).join(''):'<div class="empty"><div class="e-icon">📦</div><p>কোনো স্টক নেই</p></div>';
+  const tot=rows.reduce((s,r)=>s+r.qty*r.buyPrice,0);
+  const el2=document.getElementById('stTot'); if(el2) el2.textContent=fmt(tot);
+}
+function delStock(id){DB.stock=DB.stock.filter(r=>r.id!==id);save();renderAll();}
+
+// ===== DAMAGED =====
+function addDamaged() {
+  const date=document.getElementById('dmDate').value;
+  const prod=document.getElementById('dmProduct').value.trim();
+  const qty=+document.getElementById('dmQty').value;
+  if(!date||!prod||!qty) return toast('তারিখ, পণ্য ও পরিমাণ দিন','error');
+  const repair=+document.getElementById('dmRepair').value||0;
+  const sellPrice=+document.getElementById('dmSell').value||0;
+  const stk=DB.stock.find(s=>s.name===prod);
+  const costPrice=stk?stk.buyPrice:0;
+  const loss=costPrice*qty+repair-sellPrice;
+  DB.damaged.push({id:Date.now(),date,product:prod,qty,customer:document.getElementById('dmCustomer').value,status:document.getElementById('dmStatus').value,repair,sellPrice,loss});
+  save();renderAll();
+  ['dmProduct','dmQty','dmCustomer'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('dmRepair').value=0; document.getElementById('dmSell').value=0;
+  toast('নষ্ট মাল যোগ হয়েছে!');
+}
+
+function renderDamaged() {
+  const el=document.getElementById('dmList'); if(!el) return;
+  el.innerHTML=DB.damaged.length?[...DB.damaged].reverse().map(r=>{
+    const sc=r.status==='মেরামতযোগ্য'?'badge-orange':r.status==='অকেজো'?'badge-red':'badge-blue';
+    return`<div class="list-item">
+      <div class="li-icon" style="background:var(--red-bg)">⚠️</div>
+      <div class="li-body">
+        <div class="li-title">${r.product} (${r.qty}টি)</div>
+        <div class="li-sub">${r.customer||'-'} | ${r.date}</div>
+        <span class="badge ${sc}">${r.status}</span>
+      </div>
+      <div class="li-right"><div class="li-amount loss">${fmt(r.loss)}</div><div class="li-date">ক্ষতি</div></div>
+      ${delBtn(`delDamaged(${r.id})`)}
+    </div>`;
+  }).join(''):'<div class="empty"><div class="e-icon">⚠️</div><p>কোনো নষ্ট মাল নেই</p></div>';
+  const tot=DB.damaged.reduce((s,r)=>s+r.loss,0);
+  const el2=document.getElementById('dmTot'); if(el2) el2.textContent=fmt(tot);
+}
+function delDamaged(id){DB.damaged=DB.damaged.filter(r=>r.id!==id);save();renderAll();}
+
+// ===== SUPPLIER DUE =====
+function addSupDue() {
+  const name=document.getElementById('supName').value.trim();
+  if(!name) return toast('Supplier নাম দিন','error');
+  if(DB.supplierDue.find(s=>s.name===name)) return toast('ইতিমধ্যে আছে','error');
+  DB.supplierDue.push({id:Date.now(),name,prevDue:+document.getElementById('supPrev').value||0,note:document.getElementById('supNote').value});
+  save();renderAll();
+  ['supName','supPrev','supNote'].forEach(id=>document.getElementById(id).value='');
+  toast('Supplier যোগ হয়েছে!');
+}
+
+function renderSupDue() {
+  const el=document.getElementById('supList2'); if(!el) return;
+  let totDue=0;
+  el.innerHTML=DB.supplierDue.length?DB.supplierDue.map(r=>{
+    const bought=DB.purchases.filter(p=>p.supplier===r.name).reduce((a,p)=>a+p.grand,0);
+    const paid=DB.purchases.filter(p=>p.supplier===r.name).reduce((a,p)=>a+p.paid,0);
+    const total=bought-paid+r.prevDue; totDue+=total;
+    return`<div class="list-item">
+      <div class="li-icon" style="background:var(--blue-bg)">🏪</div>
+      <div class="li-body">
+        <div class="li-title">${r.name}</div>
+        <div class="li-sub">মোট ক্রয়: ${fmt(bought)} | পরিশোধ: ${fmt(paid)}</div>
+        <div class="li-sub">আগের বাকি: ${fmt(r.prevDue)}</div>
+      </div>
+      <div class="li-right">
+        <div class="li-amount loss">${fmt(total)}</div>
+        <div class="li-date">মোট বাকি</div>
+      </div>
+      ${delBtn(`delSupDue(${r.id})`)}
+    </div>`;
+  }).join(''):'<div class="empty"><div class="e-icon">🏪</div><p>কোনো Supplier নেই</p></div>';
+  const el2=document.getElementById('supTot'); if(el2) el2.textContent=fmt(totDue);
+}
+function delSupDue(id){DB.supplierDue=DB.supplierDue.filter(r=>r.id!==id);save();renderAll();}
+
+// ===== CUSTOMER DUE =====
+function addCusDue() {
+  const name=document.getElementById('cusName').value.trim();
+  if(!name) return toast('Customer নাম দিন','error');
+  if(DB.customerDue.find(c=>c.name===name)) return toast('ইতিমধ্যে আছে','error');
+  DB.customerDue.push({id:Date.now(),name,prevDue:+document.getElementById('cusPrev').value||0,note:document.getElementById('cusNote').value});
+  save();renderAll();
+  ['cusName','cusPrev','cusNote'].forEach(id=>document.getElementById(id).value='');
+  toast('Customer যোগ হয়েছে!');
+}
+
+function renderCusDue() {
+  const el=document.getElementById('cusList2'); if(!el) return;
+  let totDue=0;
+  el.innerHTML=DB.customerDue.length?DB.customerDue.map(r=>{
+    const sold=DB.sales.filter(s=>s.customer===r.name).reduce((a,s)=>a+s.net,0);
+    const paid=DB.sales.filter(s=>s.customer===r.name).reduce((a,s)=>a+s.paid,0);
+    const total=sold-paid+r.prevDue; totDue+=total;
+    return`<div class="list-item">
+      <div class="li-icon" style="background:var(--green-bg)">👥</div>
+      <div class="li-body">
+        <div class="li-title">${r.name}</div>
+        <div class="li-sub">মোট বিক্রয়: ${fmt(sold)} | পরিশোধ: ${fmt(paid)}</div>
+        <div class="li-sub">আগের বাকি: ${fmt(r.prevDue)}</div>
+      </div>
+      <div class="li-right">
+        <div class="li-amount loss">${fmt(total)}</div>
+        <div class="li-date">মোট বাকি</div>
+      </div>
+      ${delBtn(`delCusDue(${r.id})`)}
+    </div>`;
+  }).join(''):'<div class="empty"><div class="e-icon">👥</div><p>কোনো Customer নেই</p></div>';
+  const el2=document.getElementById('cusTot'); if(el2) el2.textContent=fmt(totDue);
+}
+function delCusDue(id){DB.customerDue=DB.customerDue.filter(r=>r.id!==id);save();renderAll();}
+
+// ===== BANK =====
+function addBankTx() {
+  const date=document.getElementById('bnDate').value;
+  const amt=+document.getElementById('bnAmt').value;
+  if(!date||!amt) return toast('তারিখ ও পরিমাণ দিন','error');
+  DB.bankTx.push({id:Date.now(),date,bank:document.getElementById('bnBank').value,type:document.getElementById('bnType').value,amt,reason:document.getElementById('bnReason').value});
+  save();renderAll();
+  document.getElementById('bnAmt').value=''; document.getElementById('bnReason').value='';
+  toast('লেনদেন যোগ হয়েছে!');
+}
+
+function renderBank() {
+  const banks=Object.keys(DB.bankOB);
+  const el=document.getElementById('bankSummary'); if(!el) return;
+  el.innerHTML=banks.map(b=>{
+    const tin=DB.bankTx.filter(t=>t.bank===b&&t.type==='জমা').reduce((s,t)=>s+t.amt,0);
+    const tout=DB.bankTx.filter(t=>t.bank===b&&t.type==='উত্তোলন').reduce((s,t)=>s+t.amt,0);
+    const bal=DB.bankOB[b]+tin-tout;
+    return`<div class="bank-row">
+      <div><div class="bank-name">${b}</div><div class="bank-sub">জমা: ${fmtN(tin)} | উত্তোলন: ${fmtN(tout)}</div></div>
+      <div class="bank-bal">${fmt(bal)}</div>
+    </div>`;
+  }).join('');
+
+  const el2=document.getElementById('bnList'); if(!el2) return;
+  el2.innerHTML=[...DB.bankTx].reverse().length?[...DB.bankTx].reverse().map(r=>`
+    <div class="list-item">
+      <div class="li-icon" style="background:${r.type==='জমা'?'var(--green-bg)':'var(--red-bg)'}">${r.type==='জমা'?'⬆️':'⬇️'}</div>
+      <div class="li-body">
+        <div class="li-title">${r.bank}</div>
+        <div class="li-sub">${r.reason||'-'} | ${r.date}</div>
+        <span class="badge ${r.type==='জমা'?'badge-green':'badge-red'}">${r.type}</span>
+      </div>
+      <div class="li-right"><div class="li-amount ${r.type==='জমা'?'profit':'loss'}">${fmt(r.amt)}</div></div>
+      ${delBtn(`delBankTx(${r.id})`)}
+    </div>`).join('')
+    :'<div class="empty"><div class="e-icon">🏦</div><p>কোনো লেনদেন নেই</p></div>';
+}
+function delBankTx(id){DB.bankTx=DB.bankTx.filter(r=>r.id!==id);save();renderAll();}
+
+// ===== LOAN =====
+function addLoan() {
+  const name=document.getElementById('lnName').value.trim();
+  const amt=+document.getElementById('lnAmt').value;
+  if(!name||!amt) return toast('নাম ও পরিমাণ দিন','error');
+  const paid=+document.getElementById('lnPaid').value||0;
+  DB.loans.push({id:Date.now(),name,type:document.getElementById('lnType').value,amt,rate:+document.getElementById('lnRate').value||0,install:+document.getElementById('lnInstall').value||0,paid,due:amt-paid});
+  save();renderAll();
+  ['lnName','lnAmt','lnRate','lnInstall','lnPaid'].forEach(id=>document.getElementById(id).value='');
+  toast('Loan যোগ হয়েছে!');
+}
+
+function renderLoan() {
+  const el=document.getElementById('lnList'); if(!el) return;
+  el.innerHTML=DB.loans.length?DB.loans.map(r=>`
+    <div class="list-item">
+      <div class="li-icon" style="background:var(--red-bg)">💳</div>
+      <div class="li-body">
+        <div class="li-title">${r.name}</div>
+        <div class="li-sub"><span class="badge badge-purple">${r.type}</span></div>
+        <div class="li-sub">মূল: ${fmt(r.amt)} | পরিশোধ: ${fmt(r.paid)} | কিস্তি: ${fmt(r.install)}/মাস</div>
+      </div>
+      <div class="li-right">
+        <div class="li-amount loss">${fmt(r.due)}</div>
+        <div class="li-date">বাকি</div>
+      </div>
+      ${delBtn(`delLoan(${r.id})`)}
+    </div>`).join('')
+    :'<div class="empty"><div class="e-icon">💳</div><p>কোনো Loan নেই</p></div>';
+  const tot=DB.loans.reduce((s,r)=>s+r.due,0);
+  const el2=document.getElementById('lnTot'); if(el2) el2.textContent=fmt(tot);
+}
+function delLoan(id){DB.loans=DB.loans.filter(r=>r.id!==id);save();renderAll();}
+
+// ===== DAILY P&L =====
+function renderPL() {
+  const el=document.getElementById('plList'); if(!el) return;
+  const dates=[...new Set([...DB.sales.map(r=>r.date),...DB.purchases.map(r=>r.date),...DB.dailyExp.map(r=>r.date)])].sort().reverse();
+  let totPL=0;
+  el.innerHTML=dates.length?dates.map(d=>{
+    const s=DB.sales.filter(r=>r.date===d).reduce((a,r)=>a+r.net,0);
+    const p=DB.purchases.filter(r=>r.date===d).reduce((a,r)=>a+r.grand,0);
+    const e=DB.dailyExp.filter(r=>r.date===d).reduce((a,r)=>a+r.amt,0);
+    const dmg=DB.damaged.filter(r=>r.date===d).reduce((a,r)=>a+r.loss,0);
+    const pl=s-p-e-dmg; totPL+=pl;
+    const pct=s?((pl/s)*100).toFixed(1):0;
+    return`<div class="pl-row">
+      <div class="pl-date">${d}</div>
+      <div class="pl-stats">
+        <div class="pl-stat"><div class="ps-label">বিক্রয়</div><div class="ps-val profit">${fmtN(s)}</div></div>
+        <div class="pl-stat"><div class="ps-label">ক্রয়+খরচ</div><div class="ps-val" style="color:var(--orange)">${fmtN(p+e+dmg)}</div></div>
+        <div class="pl-stat"><div class="ps-label">লাভ/লস</div><div class="ps-val ${pl>=0?'profit':'loss'}">${fmtN(pl)}</div></div>
+      </div>
+      <div class="pl-profit ${pl>=0?'profit':'loss'}">${pl>=0?'▲':'▼'} ${fmt(Math.abs(pl))} (${pct}%)</div>
+    </div>`;
+  }).join(''):'<div class="empty"><div class="e-icon">📈</div><p>কোনো ডেটা নেই</p></div>';
+  const el2=document.getElementById('plTot'); if(el2) { el2.textContent=fmt(totPL); el2.className='tr-val '+(totPL>=0?'profit':'loss'); }
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const totSales=DB.sales.reduce((s,r)=>s+r.net,0);
+  const totPur=DB.purchases.reduce((s,r)=>s+r.grand,0);
+  const totDE=DB.dailyExp.reduce((s,r)=>s+r.amt,0);
+  const totME=DB.monthlyExp.reduce((s,r)=>s+r.amt,0);
+  const totExp=totDE+totME;
+  const totDmg=DB.damaged.reduce((s,r)=>s+r.loss,0);
+  const profit=totSales-totPur-totExp-totDmg;
+  const totStk=DB.stock.reduce((s,r)=>s+r.qty*r.buyPrice,0);
+  const totCusDue=DB.customerDue.reduce((s,r)=>{
+    const sold=DB.sales.filter(sa=>sa.customer===r.name).reduce((a,sa)=>a+sa.net,0);
+    const paid=DB.sales.filter(sa=>sa.customer===r.name).reduce((a,sa)=>a+sa.paid,0);
+    return s+(sold-paid)+r.prevDue;
+  },0);
+  const totSupDue=DB.supplierDue.reduce((s,r)=>{
+    const b=DB.purchases.filter(p=>p.supplier===r.name).reduce((a,p)=>a+p.grand,0);
+    const pd=DB.purchases.filter(p=>p.supplier===r.name).reduce((a,p)=>a+p.paid,0);
+    return s+(b-pd)+r.prevDue;
+  },0);
+
+  const t=today();
+  const tS=DB.sales.filter(r=>r.date===t).reduce((a,r)=>a+r.net,0);
+  const tP=DB.purchases.filter(r=>r.date===t).reduce((a,r)=>a+r.grand,0);
+  const tE=DB.dailyExp.filter(r=>r.date===t).reduce((a,r)=>a+r.amt,0);
+  const tPL=tS-tP-tE;
+
+  const s=id=>document.getElementById(id);
+  if(s('c-sales')) s('c-sales').textContent=fmt(totSales);
+  if(s('c-purchase')) s('c-purchase').textContent=fmt(totPur);
+  if(s('c-profit')) { s('c-profit').textContent=fmt(profit); s('c-profit').className='mc-value '+(profit>=0?'profit':'loss'); }
+  if(s('c-expense')) s('c-expense').textContent=fmt(totExp);
+  if(s('c-stock')) s('c-stock').textContent=fmt(totStk);
+  if(s('c-damage')) s('c-damage').textContent=fmt(totDmg);
+  if(s('c-cusdue')) s('c-cusdue').textContent=fmt(totCusDue);
+  if(s('c-supdue')) s('c-supdue').textContent=fmt(totSupDue);
+  if(s('t-sales')) s('t-sales').textContent=fmt(tS);
+  if(s('t-purchase')) s('t-purchase').textContent=fmt(tP);
+  if(s('t-expense')) s('t-expense').textContent=fmt(tE);
+  if(s('t-profit')) { s('t-profit').textContent=fmt(tPL); s('t-profit').className='tc-value '+(tPL>=0?'profit':'loss'); }
+
+  // Bank
+  const banks=Object.keys(DB.bankOB);
+  const bel=s('dash-bank'); if(!bel) return;
+  bel.innerHTML=banks.map(b=>{
+    const tin=DB.bankTx.filter(t=>t.bank===b&&t.type==='জমা').reduce((a,t)=>a+t.amt,0);
+    const tout=DB.bankTx.filter(t=>t.bank===b&&t.type==='উত্তোলন').reduce((a,t)=>a+t.amt,0);
+    const bal=DB.bankOB[b]+tin-tout;
+    return`<div class="bank-row">
+      <div><div class="bank-name">${b}</div><div class="bank-sub">আগের: ${fmtN(DB.bankOB[b])} | জমা: ${fmtN(tin)} | উত্তোলন: ${fmtN(tout)}</div></div>
+      <div class="bank-bal">${fmt(bal)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== DATALISTS =====
+function updateLists() {
+  const sups=[...new Set(DB.purchases.map(p=>p.supplier))];
+  const cuss=[...new Set(DB.sales.map(s=>s.customer))];
+  const prods=[...new Set([...DB.purchases.map(p=>p.product),...DB.sales.map(s=>s.product),...DB.stock.map(s=>s.name)])];
+  ['supList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=sups.map(n=>`<option value="${n}">`).join('');});
+  ['cusList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=cuss.map(n=>`<option value="${n}">`).join('');});
+  ['prodList','prodList2'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=prods.map(n=>`<option value="${n}">`).join('');});
+}
+
+// ===== RENDER ALL =====
+function renderAll() {
+  renderDashboard(); renderPurchase(); renderSales();
+  renderDailyExp(); renderMonthlyExp(); renderStock();
+  renderDamaged(); renderSupDue(); renderCusDue();
+  renderBank(); renderLoan(); renderPL(); updateLists();
+}
+
+// ===== SAVE/LOAD =====
+function save() { try{localStorage.setItem('biz2025',JSON.stringify(DB));}catch(e){} }
+function loadSaved() { try{const d=localStorage.getItem('biz2025');if(d)Object.assign(DB,JSON.parse(d));}catch(e){} }
+
+function exportData() {
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`ব্যবসার_ডেটা_${today()}.json`;
+  a.click(); toast('ডেটা সেভ হয়েছে!');
+}
+
+function loadData(e) {
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{ try{Object.assign(DB,JSON.parse(ev.target.result));save();renderAll();toast('ডেটা লোড হয়েছে!');}catch{toast('ফাইল সঠিক নয়','error');} };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  const now=new Date();
+  const months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  document.getElementById('headerDate').textContent=`${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+  const t=today();
+  ['pDate','sDate','deDate','dmDate','bnDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=t;});
+  const mel=document.getElementById('meMonth'); if(mel) mel.value=t.substring(0,7);
+
+  loadSaved(); renderAll();
+});
+</script>
+</body>
+</html>
+
