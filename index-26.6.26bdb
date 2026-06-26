@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚡ ইলেকট্রিক ব্যবসা</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --p:#1a3a5c;--pl:#2563a8;--g:#059669;--gb:#d1fae5;
+  --r:#dc2626;--rb:#fee2e2;--o:#ea580c;--ob:#ffedd5;
+  --a:#f59e0b;--bg:#f1f5f9;--card:#fff;--bdr:#e2e8f0;
+  --mt:#1e293b;--mu:#64748b;--nh:60px;--hh:52px
+}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--mt);font-size:14px;padding-top:var(--hh);padding-bottom:var(--nh)}
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--p);display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hdr-l{display:flex;align-items:center;gap:8px}
+.hdr-l span{font-size:22px}
+.hdr-l h1{color:#fff;font-size:14px;font-weight:700}
+.hdr-l p{color:rgba(255,255,255,.5);font-size:10px}
+.hdr-r{display:flex;gap:8px}
+.ibt{width:34px;height:34px;border-radius:8px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nh);background:#fff;border-top:1px solid var(--bdr);display:flex;z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.08)}
+.nt{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;color:var(--mu);font-family:inherit;font-size:10px;font-weight:500;cursor:pointer;position:relative;padding:6px 2px}
+.nt .ni{font-size:20px;line-height:1}
+.nt.active{color:var(--pl)}
+.nt.active::before{content:'';position:absolute;top:0;left:20%;right:20%;height:3px;background:var(--pl);border-radius:0 0 4px 4px}
+/* PAGES */
+.pg{display:none;padding:12px}
+.pg.active{display:block}
+/* CARDS SCROLL */
+.csc{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none}
+.csc::-webkit-scrollbar{display:none}
+.mc{min-width:130px;background:#fff;border-radius:12px;padding:12px;flex-shrink:0;border:1px solid var(--bdr);border-top:3px solid var(--pl)}
+.mc .ml{font-size:10px;color:var(--mu);font-weight:500;margin-bottom:2px}
+.mc .mv{font-size:15px;font-weight:700}
+/* TODAY */
+.tgd{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tc{background:#fff;border-radius:12px;padding:12px;border:1px solid var(--bdr)}
+.tc .tci{font-size:18px;margin-bottom:4px}
+.tc .tcl{font-size:10px;color:var(--mu)}
+.tc .tcv{font-size:15px;font-weight:700}
+/* SECTION TITLE */
+.st{font-size:13px;font-weight:700;color:var(--p);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+/* FORM CARD */
+.fc{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;border:1px solid var(--bdr)}
+.ft{font-size:14px;font-weight:700;color:var(--p);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bdr)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.ff{margin-bottom:10px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:11px;font-weight:600;color:var(--mu)}
+input,select{padding:10px 12px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:14px;color:var(--mt);background:#fff;width:100%;-webkit-appearance:none}
+input:focus,select:focus{outline:none;border-color:var(--pl);box-shadow:0 0 0 3px rgba(37,99,168,.1)}
+input[readonly]{background:#f8fafc;color:var(--mu)}
+/* BTN */
+.btn{width:100%;padding:13px;border-radius:12px;border:none;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+.bp{background:var(--pl);color:#fff}
+.bg{background:var(--g);color:#fff}
+.ba{background:var(--a);color:#fff}
+/* TABLE CARD */
+.tc2{background:#fff;border-radius:14px;border:1px solid var(--bdr);overflow:hidden;margin-bottom:12px}
+.th2{padding:12px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.th2 h3{font-size:13px;font-weight:700;color:var(--p)}
+.si{padding:8px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;width:140px;font-family:inherit}
+/* LIST ITEM */
+.li{padding:11px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px}
+.li:last-child{border-bottom:none}
+.lic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.lib{flex:1;min-width:0}
+.lit{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lis{font-size:11px;color:var(--mu);margin-top:1px}
+.lir{text-align:right;flex-shrink:0}
+.lia{font-size:14px;font-weight:700}
+.db{width:32px;height:32px;border:none;border-radius:8px;background:var(--rb);color:var(--r);font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+/* TOTAL ROW */
+.tr2{padding:11px 14px;background:#f8fafc;border-top:2px solid var(--bdr);display:flex;justify-content:space-between;align-items:center}
+.tr2 .trl{font-size:12px;font-weight:600;color:var(--mu)}
+.tr2 .trv{font-size:15px;font-weight:700;color:var(--p)}
+/* BADGE */
+.bd{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.bdg{background:var(--gb);color:var(--g)}
+.bdr2{background:var(--rb);color:var(--r)}
+.bdo{background:var(--ob);color:var(--o)}
+.bdb{background:#dbeafe;color:var(--pl)}
+/* TABS */
+.tabs{display:flex;background:#fff;border-radius:12px;padding:4px;margin-bottom:12px;border:1px solid var(--bdr)}
+.tab{flex:1;padding:9px;border:none;border-radius:10px;background:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--mu);cursor:pointer}
+.tab.active{background:var(--pl);color:#fff}
+.tp{display:none}
+.tp.active{display:block}
+/* BANK ROW */
+.br{padding:11px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.br:last-child{border-bottom:none}
+.brn{font-size:13px;font-weight:600}
+.brs{font-size:10px;color:var(--mu)}
+.brv{font-size:14px;font-weight:700;color:var(--p)}
+/* PL ROW */
+.plr{padding:11px 14px;border-bottom:1px solid var(--bdr)}
+.plr:last-child{border-bottom:none}
+.pld{font-size:11px;color:var(--mu);margin-bottom:6px}
+.plg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.pls .pll{font-size:9px;color:var(--mu)}
+.pls .plv{font-size:12px;font-weight:700}
+.plp{font-size:14px;font-weight:700;text-align:right;margin-top:6px}
+/* COLORS */
+.profit{color:var(--g)}
+.loss{color:var(--r)}
+/* EMPTY */
+.empty{padding:36px 20px;text-align:center;color:var(--mu)}
+.empty .ei{font-size:36px;margin-bottom:8px}
+.empty p{font-size:13px}
+/* TOAST */
+.tw{position:fixed;top:62px;left:12px;right:12px;z-index:999}
+.tst{background:#1e293b;color:#fff;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:8px;animation:fi .3s ease;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.tst.s{border-left:4px solid var(--g)}
+.tst.e{border-left:4px solid var(--r)}
+@keyframes fi{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+/* MULTI LINE */
+.pline{display:grid;grid-template-columns:2.5fr 1fr 1.2fr 1.2fr 36px;gap:6px;margin-bottom:8px;align-items:center}
+.pline input{padding:9px 10px;font-size:13px}
+.add-line-btn{width:100%;padding:10px;border:2px dashed var(--bdr);border-radius:10px;background:none;font-family:inherit;font-size:13px;color:var(--mu);cursor:pointer;margin-bottom:10px}
+.add-line-btn:hover{border-color:var(--pl);color:var(--pl)}
+.grand-box{background:var(--gb);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;justify-content:space-between;align-items:center}
+.grand-box.sale{background:#dbeafe}
+.grand-lbl{font-size:12px;font-weight:600;color:var(--g)}
+.grand-box.sale .grand-lbl{color:var(--pl)}
+.grand-val{font-size:17px;font-weight:700;color:var(--g)}
+.grand-box.sale .grand-val{color:var(--pl)}
+.line-head{display:grid;grid-template-columns:2.5fr 1fr 1.2fr 1.2fr 36px;gap:6px;margin-bottom:4px}
+.line-head span{font-size:10px;font-weight:600;color:var(--mu);text-align:center}
+.line-head span:first-child{text-align:left}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-l">
+    <span>⚡</span>
+    <div><h1>ইলেকট্রিক ব্যবসা</h1><p id="hdate">লোড হচ্ছে...</p></div>
+  </div>
+  <div class="hdr-r">
+    <button class="ibt" onclick="exportData()" title="সেভ">💾</button>
+    <button class="ibt" onclick="document.getElementById('impF').click()" title="লোড">📂</button>
+    <input type="file" id="impF" style="display:none" accept=".json" onchange="importData(event)">
+  </div>
+</header>
+
+<!-- ===== HOME ===== -->
+<div class="pg active" id="pg-home">
+  <div class="csc">
+    <div class="mc" style="border-top-color:var(--g)"><div class="ml">💰 মোট বিক্রয়</div><div class="mv profit" id="c-sal">৳ ০</div></div>
+    <div class="mc" style="border-top-color:var(--pl)"><div class="ml">🛒 মোট ক্রয়</div><div class="mv" id="c-pur">৳ ০</div></div>
+    <div class="mc" style="border-top-color:var(--a)"><div class="ml">✅ মোট লাভ</div><div class="mv" id="c-pro">৳ ০</div></div>
+    <div class="mc" style="border-top-color:var(--o)"><div class="ml">💸 মোট খরচ</div><div class="mv" id="c-exp">৳ ০</div></div>
+    <div class="mc" style="border-top-color:#7c3aed"><div class="ml">📦 স্টক মূল্য</div><div class="mv" id="c-stk">৳ ০</div></div>
+    <div class="mc" style="border-top-color:var(--r)"><div class="ml">⚠️ নষ্ট মাল</div><div class="mv loss" id="c-dmg">৳ ০</div></div>
+    <div class="mc" style="border-top-color:var(--g)"><div class="ml">👥 Customer বাকি</div><div class="mv loss" id="c-cdu">৳ ০</div></div>
+    <div class="mc" style="border-top-color:var(--o)"><div class="ml">🏪 Supplier বাকি</div><div class="mv loss" id="c-sdu">৳ ০</div></div>
+  </div>
+
+  <div class="st">📅 আজকের হিসাব</div>
+  <div class="tgd">
+    <div class="tc"><div class="tci">💰</div><div class="tcl">আজকের বিক্রয়</div><div class="tcv profit" id="t-sal">৳ ০</div></div>
+    <div class="tc"><div class="tci">🛒</div><div class="tcl">আজকের ক্রয়</div><div class="tcv" id="t-pur" style="color:var(--pl)">৳ ০</div></div>
+    <div class="tc"><div class="tci">💸</div><div class="tcl">আজকের খরচ</div><div class="tcv" id="t-exp" style="color:var(--o)">৳ ০</div></div>
+    <div class="tc"><div class="tci">📈</div><div class="tcl">আজকের লাভ/লস</div><div class="tcv" id="t-pro">৳ ০</div></div>
+  </div>
+
+  <div class="st">🏦 ব্যাংক ও নগদ</div>
+  <div class="tc2" id="dash-bank"></div>
+</div>
+
+<!-- ===== PURCHASE ===== -->
+<div class="pg" id="pg-purchase">
+  <div class="fc">
+    <div class="ft">🛒 ক্রয় এন্ট্রি</div>
+    <!-- হেডার — একবার -->
+    <div class="fr">
+      <div class="fg"><label>তারিখ *</label><input type="date" id="pd"></div>
+      <div class="fg"><label>মেমো নং</label><input type="text" id="pm" placeholder="নম্বর"></div>
+    </div>
+    <div class="ff fg">
+      <label>Supplier নাম *</label>
+      <input type="text" id="ps" placeholder="Supplier লিখুন..." autocomplete="off" oninput="showSupDrop(this.value)" onblur="hideDropAfter('sdrop')" onfocus="showSupDrop(this.value)">
+      <div id="sdrop" style="display:none;position:relative;z-index:50;background:#fff;border:1.5px solid var(--pl);border-radius:10px;max-height:180px;overflow-y:auto;margin-top:2px;box-shadow:0 4px 16px rgba(0,0,0,.1)"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>পরিশোধ</label><input type="number" id="pp" placeholder="০" value="0" min="0"></div>
+      <div class="fg"><label>মন্তব্য</label><input type="text" id="pnt" placeholder="ঐচ্ছিক"></div>
+    </div>
+
+    <!-- পণ্যের লাইন -->
+    <div style="border-top:1px solid var(--bdr);padding-top:12px;margin-top:4px">
+      <div class="line-head">
+        <span>পণ্যের নাম</span><span>পরিমাণ</span><span>দাম</span><span>মোট</span><span></span>
+      </div>
+      <div id="pur-lines"></div>
+      <button class="add-line-btn" onclick="addPurLine()">+ আরও পণ্য যোগ করুন</button>
+    </div>
+
+    <div class="grand-box">
+      <span class="grand-lbl">মোট গ্র্যান্ড টোটাল</span>
+      <span class="grand-val" id="p-grand">৳ ০</span>
+    </div>
+    <button class="btn bp" onclick="savePurBill()">✅ বিল সেভ করুন</button>
+  </div>
+
+  <div class="tc2">
+    <div class="th2">
+      <h3>ক্রয়ের তালিকা</h3>
+      <input class="si" placeholder="🔍 খুঁজুন" oninput="renderPur(this.value)">
+    </div>
+    <div id="pur-list"></div>
+    <div class="tr2"><span class="trl">মোট</span><span class="trv" id="pur-tot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- ===== SALES ===== -->
+<div class="pg" id="pg-sales">
+  <div class="fc">
+    <div class="ft">💰 বিক্রয় এন্ট্রি</div>
+    <!-- হেডার — একবার -->
+    <div class="fr">
+      <div class="fg"><label>তারিখ *</label><input type="date" id="sd"></div>
+      <div class="fg"><label>বিল নং</label><input type="text" id="sb" placeholder="নম্বর"></div>
+    </div>
+    <div class="ff fg">
+      <label>Customer নাম *</label>
+      <input type="text" id="sc" placeholder="Customer লিখুন..." autocomplete="off" oninput="showCusDrop(this.value)" onblur="hideDropAfter('cdrop')" onfocus="showCusDrop(this.value)">
+      <div id="cdrop" style="display:none;position:relative;z-index:50;background:#fff;border:1.5px solid var(--g);border-radius:10px;max-height:180px;overflow-y:auto;margin-top:2px;box-shadow:0 4px 16px rgba(0,0,0,.1)"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>পরিশোধ</label><input type="number" id="sp" placeholder="০" value="0" min="0"></div>
+      <div class="fg"><label>মোবাইল/ব্যাংক</label>
+        <select id="sbk"><option value="">নগদ</option><option>Bkash</option><option>Nagad</option><option>DBBL</option><option>ব্র্যাক ব্যাংক</option><option>IBBL</option></select>
+      </div>
+    </div>
+
+    <!-- পণ্যের লাইন -->
+    <div style="border-top:1px solid var(--bdr);padding-top:12px;margin-top:4px">
+      <div class="line-head">
+        <span>পণ্যের নাম</span><span>পরিমাণ</span><span>দাম</span><span>মোট</span><span></span>
+      </div>
+      <div id="sal-lines"></div>
+      <button class="add-line-btn" onclick="addSalLine()">+ আরও পণ্য যোগ করুন</button>
+    </div>
+
+    <div class="grand-box sale">
+      <span class="grand-lbl">মোট নিট বিক্রয়</span>
+      <span class="grand-val" id="s-grand">৳ ০</span>
+    </div>
+    <button class="btn bg" onclick="saveSalBill()">✅ বিল সেভ করুন</button>
+  </div>
+
+  <div class="tc2">
+    <div class="th2">
+      <h3>বিক্রয়ের তালিকা</h3>
+      <input class="si" placeholder="🔍 খুঁজুন" oninput="renderSal(this.value)">
+    </div>
+    <div id="sal-list"></div>
+    <div class="tr2"><span class="trl">মোট</span><span class="trv" id="sal-tot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- ===== EXPENSE ===== -->
+<div class="pg" id="pg-expense">
+  <div class="tabs">
+    <button class="tab active" onclick="stab(this,'tx-d')">দৈনিক খরচ</button>
+    <button class="tab" onclick="stab(this,'tx-m')">মাসিক খরচ</button>
+  </div>
+  <div class="tp active" id="tx-d">
+    <div class="fc">
+      <div class="ft">💸 দৈনিক খরচ</div>
+      <div class="fr"><div class="fg"><label>তারিখ *</label><input type="date" id="ded"></div><div class="fg"><label>পরিমাণ *</label><input type="number" id="dea" placeholder="টাকা" min="0"></div></div>
+      <div class="fr">
+        <div class="fg"><label>ধরন *</label><select id="det"><option>চা/নাস্তা</option><option>যাতায়াত</option><option>প্যাকেজিং</option><option>রিকশা</option><option>লোডিং</option><option>বিবিধ</option><option>অন্যান্য</option></select></div>
+        <div class="fg"><label>মাধ্যম</label><select id="des"><option>নগদ</option><option>Bkash</option><option>DBBL</option></select></div>
+      </div>
+      <div class="ff fg"><label>বিস্তারিত</label><input type="text" id="ded2" placeholder="বিস্তারিত"></div>
+      <button class="btn bp" onclick="addDE()">✅ যোগ করুন</button>
+    </div>
+    <div class="tc2">
+      <div class="th2"><h3>দৈনিক খরচ</h3></div>
+      <div id="de-list"></div>
+      <div class="tr2"><span class="trl">মোট</span><span class="trv" id="de-tot">৳ ০</span></div>
+    </div>
+  </div>
+  <div class="tp" id="tx-m">
+    <div class="fc">
+      <div class="ft">🏢 মাসিক খরচ</div>
+      <div class="fr">
+        <div class="fg"><label>ধরন *</label><select id="met"><option>দোকান ভাড়া</option><option>গোডাউন ভাড়া</option><option>বেতন - বুলবুল</option><option>বেতন - অন্যান্য</option><option>বিদ্যুৎ (দোকান)</option><option>বিদ্যুৎ (গোডাউন)</option><option>সমিতি কিস্তি</option><option>ব্যাংক সুদ</option><option>অন্যান্য</option></select></div>
+        <div class="fg"><label>পরিমাণ *</label><input type="number" id="mea" placeholder="টাকা" min="0"></div>
+      </div>
+      <div class="fr"><div class="fg"><label>মাস</label><input type="month" id="mem"></div><div class="fg"><label>মাধ্যম</label><select id="mes"><option>নগদ</option><option>Bkash</option><option>DBBL</option><option>ব্র্যাক ব্যাংক</option></select></div></div>
+      <button class="btn bp" onclick="addME()">✅ যোগ করুন</button>
+    </div>
+    <div class="tc2">
+      <div class="th2"><h3>মাসিক খরচ</h3></div>
+      <div id="me-list"></div>
+      <div class="tr2"><span class="trl">মোট</span><span class="trv" id="me-tot">৳ ০</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MORE ===== -->
+<div class="pg" id="pg-more">
+  <div class="st">🗂️ আরও বিভাগ</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+    <button onclick="goPage('stock')" style="background:#fff;border:1px solid var(--bdr);border-radius:14px;padding:16px 8px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mt)"><span style="font-size:26px">📦</span>স্টক</button>
+    <button onclick="goPage('damaged')" style="background:#fff;border:1px solid var(--bdr);border-radius:14px;padding:16px 8px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mt)"><span style="font-size:26px">⚠️</span>নষ্ট মাল</button>
+    <button onclick="goPage('sup-due')" style="background:#fff;border:1px solid var(--bdr);border-radius:14px;padding:16px 8px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mt)"><span style="font-size:26px">🏪</span>Supplier বাকি</button>
+    <button onclick="goPage('cus-due')" style="background:#fff;border:1px solid var(--bdr);border-radius:14px;padding:16px 8px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mt)"><span style="font-size:26px">👥</span>Customer বাকি</button>
+    <button onclick="goPage('bank')" style="background:#fff;border:1px solid var(--bdr);border-radius:14px;padding:16px 8px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mt)"><span style="font-size:26px">🏦</span>ব্যাংক/নগদ</button>
+    <button onclick="goPage('loan')" style="background:#fff;border:1px solid var(--bdr);border-radius:14px;padding:16px 8px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mt)"><span style="font-size:26px">💳</span>Loan/ধার</button>
+    <button onclick="goPage('pl')" style="background:#fff;border:1px solid var(--bdr);border-radius:14px;padding:16px 8px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mt)"><span style="font-size:26px">📈</span>লাভ-লস</button>
+  </div>
+</div>
+
+<!-- ===== STOCK ===== -->
+<div class="pg" id="pg-stock">
+  <div class="fc">
+    <div class="ft">📦 স্টক এন্ট্রি</div>
+    <div class="ff fg"><label>পণ্যের নাম *</label><input type="text" id="stn" placeholder="পণ্যের নাম" autocomplete="off" oninput="showStkDrop(this.value)" onblur="hideDropAfter('stk-drop')" onfocus="showStkDrop(this.value)">
+      <div id="stk-drop" style="display:none;position:relative;z-index:50;background:#fff;border:1.5px solid var(--o);border-radius:10px;max-height:180px;overflow-y:auto;margin-top:2px;box-shadow:0 4px 16px rgba(0,0,0,.1)"></div>
+    </div>
+    <div class="fr"><div class="fg"><label>স্টক *</label><input type="number" id="stq" placeholder="পরিমাণ" min="0"></div><div class="fg"><label>সর্বনিম্ন</label><input type="number" id="stmn" placeholder="সতর্কতা সীমা" min="0"></div></div>
+    <div class="fr"><div class="fg"><label>ক্রয় দাম</label><input type="number" id="stb" placeholder="০" min="0"></div><div class="fg"><label>বিক্রয় দাম</label><input type="number" id="sts" placeholder="০" min="0"></div></div>
+    <button class="btn bp" onclick="addStock()">✅ স্টকে যোগ করুন</button>
+  </div>
+  <div class="tc2">
+    <div class="th2"><h3>স্টকের তালিকা</h3><input class="si" placeholder="🔍 খুঁজুন" oninput="renderStock(this.value)"></div>
+    <div id="stk-list"></div>
+    <div class="tr2"><span class="trl">মোট স্টক মূল্য</span><span class="trv" id="stk-tot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- ===== DAMAGED ===== -->
+<div class="pg" id="pg-damaged">
+  <div class="fc">
+    <div class="ft">⚠️ নষ্ট মাল</div>
+    <div class="fr"><div class="fg"><label>তারিখ *</label><input type="date" id="dmd"></div><div class="fg"><label>পরিমাণ *</label><input type="number" id="dmq" placeholder="০" min="0"></div></div>
+    <div class="ff fg"><label>পণ্যের নাম *</label><input type="text" id="dmp" placeholder="পণ্যের নাম"></div>
+    <div class="ff fg"><label>Customer নাম</label><input type="text" id="dmc" placeholder="কে ফেরত দিলো"></div>
+    <div class="ff fg"><label>অবস্থা *</label><select id="dms"><option>মেরামতযোগ্য</option><option>অকেজো</option><option>Supplier ফেরত</option></select></div>
+    <div class="fr"><div class="fg"><label>মেরামত খরচ</label><input type="number" id="dmr" placeholder="০" value="0" min="0"></div><div class="fg"><label>বিক্রয় দাম</label><input type="number" id="dmv" placeholder="০" value="0" min="0"></div></div>
+    <button class="btn ba" onclick="addDamaged()">✅ যোগ করুন</button>
+  </div>
+  <div class="tc2">
+    <div class="th2"><h3>নষ্ট মালের তালিকা</h3></div>
+    <div id="dm-list"></div>
+    <div class="tr2"><span class="trl">মোট ক্ষতি</span><span class="trv loss" id="dm-tot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- ===== SUPPLIER DUE ===== -->
+<div class="pg" id="pg-sup-due">
+  <div class="fc">
+    <div class="ft">🏪 Supplier বাকি</div>
+    <div class="ff fg"><label>Supplier নাম *</label><input type="text" id="sudn" placeholder="নাম"></div>
+    <div class="fr"><div class="fg"><label>আগের বাকি</label><input type="number" id="sudp" placeholder="০" value="0" min="0"></div><div class="fg"><label>মন্তব্য</label><input type="text" id="sudt" placeholder="ঐচ্ছিক"></div></div>
+    <button class="btn bp" onclick="addSupDue()">✅ যোগ করুন</button>
+  </div>
+  <div class="tc2">
+    <div class="th2"><h3>Supplier বাকি তালিকা</h3></div>
+    <div id="sud-list"></div>
+    <div class="tr2"><span class="trl">মোট Supplier বাকি</span><span class="trv loss" id="sud-tot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- ===== CUSTOMER DUE ===== -->
+<div class="pg" id="pg-cus-due">
+  <div class="fc">
+    <div class="ft">👥 Customer বাকি</div>
+    <div class="ff fg"><label>Customer নাম *</label><input type="text" id="cudn" placeholder="নাম"></div>
+    <div class="fr"><div class="fg"><label>আগের বাকি</label><input type="number" id="cudp" placeholder="০" value="0" min="0"></div><div class="fg"><label>মন্তব্য</label><input type="text" id="cudt" placeholder="ঐচ্ছিক"></div></div>
+    <button class="btn bg" onclick="addCusDue()">✅ যোগ করুন</button>
+  </div>
+  <div class="tc2">
+    <div class="th2"><h3>Customer বাকি তালিকা</h3></div>
+    <div id="cud-list"></div>
+    <div class="tr2"><span class="trl">মোট Customer বাকি</span><span class="trv loss" id="cud-tot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- ===== BANK ===== -->
+<div class="pg" id="pg-bank">
+  <div class="fc">
+    <div class="ft">🏦 ব্যাংক/নগদ লেনদেন</div>
+    <div class="fr"><div class="fg"><label>তারিখ *</label><input type="date" id="bnd"></div><div class="fg"><label>পরিমাণ *</label><input type="number" id="bna" placeholder="টাকা" min="0"></div></div>
+    <div class="fr">
+      <div class="fg"><label>ব্যাংক *</label><select id="bnk"><option>DBBL</option><option>ব্র্যাক ব্যাংক</option><option>IBBL</option><option>সোনালী</option><option>Bkash</option><option>Nagad</option><option>নগদ হাতে</option></select></div>
+      <div class="fg"><label>ধরন *</label><select id="bnt"><option>জমা</option><option>উত্তোলন</option></select></div>
+    </div>
+    <div class="ff fg"><label>কারণ</label><input type="text" id="bnr" placeholder="কারণ/বিস্তারিত"></div>
+    <button class="btn bp" onclick="addBank()">✅ যোগ করুন</button>
+  </div>
+  <div class="tc2"><div class="th2"><h3>ব্যাংক সারসংক্ষেপ</h3></div><div id="bnk-sum"></div></div>
+  <div class="tc2"><div class="th2"><h3>লেনদেনের তালিকা</h3></div><div id="bnk-list"></div></div>
+</div>
+
+<!-- ===== LOAN ===== -->
+<div class="pg" id="pg-loan">
+  <div class="fc">
+    <div class="ft">💳 Loan/ধার</div>
+    <div class="ff fg"><label>নাম/প্রতিষ্ঠান *</label><input type="text" id="lnn" placeholder="নাম"></div>
+    <div class="fr"><div class="fg"><label>ধরন</label><select id="lnt"><option>ব্যাংক লোন</option><option>ব্যক্তিগত ধার</option><option>সমিতি</option><option>অন্যান্য</option></select></div><div class="fg"><label>মূল পরিমাণ *</label><input type="number" id="lna" placeholder="টাকা" min="0"></div></div>
+    <div class="fr"><div class="fg"><label>সুদ % (মাসিক)</label><input type="number" id="lnr" placeholder="০" value="0" min="0" step="0.1"></div><div class="fg"><label>মাসিক কিস্তি</label><input type="number" id="lni" placeholder="০" value="0" min="0"></div></div>
+    <div class="ff fg"><label>পরিশোধিত</label><input type="number" id="lnp" placeholder="০" value="0" min="0"></div>
+    <button class="btn bp" onclick="addLoan()">✅ যোগ করুন</button>
+  </div>
+  <div class="tc2">
+    <div class="th2"><h3>Loan তালিকা</h3></div>
+    <div id="ln-list"></div>
+    <div class="tr2"><span class="trl">মোট বাকি</span><span class="trv loss" id="ln-tot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- ===== P&L ===== -->
+<div class="pg" id="pg-pl">
+  <div class="st">📈 প্রতিদিনের লাভ-লস</div>
+  <div class="tc2">
+    <div id="pl-list"></div>
+    <div class="tr2"><span class="trl">মোট লাভ/লস</span><span class="trv" id="pl-tot">৳ ০</span></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="nt active" onclick="goPage('home',this)"><span class="ni">🏠</span>হোম</button>
+  <button class="nt" onclick="goPage('purchase',this)"><span class="ni">🛒</span>ক্রয়</button>
+  <button class="nt" onclick="goPage('sales',this)"><span class="ni">💰</span>বিক্রয়</button>
+  <button class="nt" onclick="goPage('expense',this)"><span class="ni">💸</span>খরচ</button>
+  <button class="nt" onclick="goPage('more',this)"><span class="ni">⋯</span>আরও</button>
+</nav>
+
+<div class="tw" id="tw"></div>
+
+<script>
+// ===== DATA =====
+const DB = {
+  pur:[], sal:[], de:[], me:[],
+  stk:[], dmg:[], sud:[], cud:[],
+  bnk:[], ln:[],
+  bob:{'DBBL':10617,'ব্র্যাক ব্যাংক':1200,'IBBL':35903,'সোনালী':278,'Bkash':1618,'Nagad':3813,'নগদ হাতে':0}
+};
+
+// Excel থেকে আনা ডেটা
+const EXL = {
+  sup: ["1+","A.H CORPORATION","AKAS HADWAR","ALOISTER K2","AMENA SCREW","ARAF TRADING","AZAD LED","BETAR EL","BEST LINE HITEK CO","BONDHU LIGHTING","CASH  PURCHASE","CLEAN ELE","DELOWAR MITAR","DOEL EL","EASIN EL","EITTADI EL","EMDAD ENTERPRISE K2","ELECTRIC PALACE","ELECTRIC point","EURO ENTERPRISE","FANY SOLAR AND LIGHTING","FARDIN EL MS MARKET","FLOORA CO K2 F2","G STAR","GFC","GRAMIN","HARUNA EN","HUMAIRA EN K2 F2","IMAM POWER","INTEX","IR ELECTRICK","ISKIN","ISLAM SCREW","JASHRA ELECTRIC HOUSE","JIHAD PIPE","JISHAN EL","KHAN ABONIGHT","KING BIDDUT BITAN","LG","LIGHTING BOOS","LUMINOUS TR K2 F1","MAABABAR DOA","MADINA EL","MAERDOA EL","MAHADI ENTERPRIS","MAMA ENTERPRISE","MAX LINE","MC PLACK","MOHIMA TRADING","MOON SUPER","MS ELECTRICK MARUF","M/S MAHBUB ELECTRIC","NABIL ENTERPRISE","NATIONAL LIGHTING","NEW AMENA EL","NEW FORIDPUR EL","NEW ISLAM EI K2","NEW MAA CORPORATION","NK","NOBABGONG TR","OSAN","OSAKA MOYN","PROSPAR EL","RAFIQ EL","RAFIA SCREW SENTER","RAJEN AND BROTHERS","RASHED CORPORATION","RITOM EL","RM LED LIGHTING","RN ELECTRICK","RONGDHONU EL","RUPSA BEARING","S.F ELECTRIC","SA ELECTRICKN K2","SAFWAN ELETRICK K2","SALMAN TR","SAMIA  ENTERPRISE","SF EL","SHARIF ELECTRICK","SHARMIN TRADE IN","SHORNA ELECTRICK & SCREW","SODORPUR EL","SP ELECTRIC CO","SUPER KING EL","SUN+","SWICH PAC ENG K2","TARAFUL AND CO","TISA EL","TRAST EL K2","VEE","WELL TECH K2"],
+  cus: ["ABDUL KARIM","ABDURRAHAMAN","AISA TRA HAJIGONG","ALHUQ EL  LALBAG","ALLARDAN  EL","AMIN EL  LALBAG","ARFAN EL  LALBAG","ASRAF EL","AZIZ EL NOAKHALI","BONDHU","BULBUL","BULBUL JOMIDAR","CASH CASTOMAR","DILRUBA EL  LALBAG","DINAZPUR EL LALBAG","DR El LALBAG","EMONISTOR  LALBAG","FARUK EL BIRGONG","FATEMA EL LALBAG","FYSAL EL  LALBAG","HASEM EL","HK POWER","IMRAN BONGSAL","ISLAM AND BROTHER","JAFOR SURITOLA","JAJIRA EL  LALBAG","KHAN EL  LALBAG","KHOLIL EL  LALBAG","LOKONATH KALIGONG","MAERDOA EL  LALBAG","MAERDOA NOBABPUR","MASUD DOAGONG","MASUM EL  LALBAG","MINTU EL MANIQGONG","MISTAK","MOHAMMAD PUR EL","MOHAMMADPUR","MOKSIBUR LOHAGORA","MONIR EL LALBAG","MORIOM EL  LALBAG","MUNSI EL  LALBAG","NIRMOL KOTIA","NOAKHALI EL LALBAG","NOWAKHALI EL","OMORFARUK","OPENING BALANCE","RAJAN","RAJIA EL GORADOR","RAJIB HADWARE GORAN","RITOM","RM EL","RN","ROFIQ EL KHALISPUR","ROFIQUL ISLAM","RUBAL EL RAJSAHI","SADDAM K2","SAHABUDDIN","SHAON EL RAJSAHI","SIAM EL  LALBAG","SOBHAN EL  LALBAG","SOHAG EL","SOHEL TATIBAZAR","SORHAB EL","SORIOTPUR EL  LALBAG","SOTOTA EL RIKABIBAJAR","SUKKUR EL  LALBAG","SUMIYA EL RIKABIBAJAR","TANJIL EL LALBAG","THE SUN EL KALKINI","TISA EL","TORIKUL","1517089712"],
+  stk: [{"name":"INTEX 34M2","qty":27,"buyPrice":83,"sellPrice":83},{"name":"INTEX 34M5","qty":20,"buyPrice":122,"sellPrice":122},{"name":"INTEX 33M2","qty":36,"buyPrice":91,"sellPrice":91},{"name":"INTEX 33M5","qty":21,"buyPrice":132,"sellPrice":132},{"name":"INTEX 32M2","qty":25,"buyPrice":101,"sellPrice":101},{"name":"INTEX 32M5","qty":7,"buyPrice":142,"sellPrice":142},{"name":"INTEX 0455M2","qty":2,"buyPrice":167,"sellPrice":167},{"name":"INTEX 813M2","qty":22,"buyPrice":118,"sellPrice":118},{"name":"INTEX 813M5","qty":23,"buyPrice":152,"sellPrice":152},{"name":"INTEX 814M2","qty":43,"buyPrice":138,"sellPrice":138},{"name":"INTEX 814M5","qty":14,"buyPrice":172,"sellPrice":172},{"name":"INTEX 815M2","qty":2,"buyPrice":158,"sellPrice":158},{"name":"INTEX 815M5","qty":17,"buyPrice":192,"sellPrice":192},{"name":"INTEX 44M5","qty":7,"buyPrice":105,"sellPrice":105},{"name":"INTEX 43M5","qty":30,"buyPrice":116,"sellPrice":116},{"name":"INTEX 42M5","qty":20,"buyPrice":126,"sellPrice":126},{"name":"INTEX 303","qty":11,"buyPrice":290,"sellPrice":290},{"name":"INTEX 304","qty":24,"buyPrice":320,"sellPrice":320},{"name":"INTEX 305","qty":6,"buyPrice":350,"sellPrice":350},{"name":"INTEX 23M2","qty":43,"buyPrice":72,"sellPrice":72},{"name":"INTEX 23M5","qty":58,"buyPrice":105,"sellPrice":105},{"name":"INTEX 24M2","qty":38,"buyPrice":82,"sellPrice":82},{"name":"INTEX 24M5","qty":19,"buyPrice":115,"sellPrice":115},{"name":"INTEX 25M2","qty":37,"buyPrice":92,"sellPrice":92},{"name":"INTEX 25M5","qty":55,"buyPrice":125,"sellPrice":125},{"name":"INTEX  T STAR MALTY","qty":34,"buyPrice":24,"sellPrice":24},{"name":"BEST CTOP 2m","qty":57,"buyPrice":53,"sellPrice":53},{"name":"BEST CTOP 5m","qty":62,"buyPrice":75,"sellPrice":75},{"name":"MAX017 10F","qty":21,"buyPrice":65,"sellPrice":65},{"name":"MAX017 20F","qty":13,"buyPrice":105,"sellPrice":105},{"name":"BD2049","qty":4,"buyPrice":27,"sellPrice":27},{"name":"BEST LINE 315","qty":26,"buyPrice":158,"sellPrice":158},{"name":"BEST LINE 415","qty":4,"buyPrice":168,"sellPrice":168},{"name":"BEST LINE 515","qty":29,"buyPrice":185,"sellPrice":185},{"name":"G STAR PENDEL HOLDAR SAPTY","qty":21,"buyPrice":180,"sellPrice":180},{"name":"G STAR  BATAM HOLDAR JARA","qty":9,"buyPrice":410,"sellPrice":410},{"name":"G STAR  DIM HOLDAR","qty":5,"buyPrice":270,"sellPrice":270},{"name":"G STAR WINAR SWISS","qty":51,"buyPrice":166,"sellPrice":166},{"name":"G STAR  WINAR KATAUT","qty":8,"buyPrice":190,"sellPrice":190},{"name":"G STAR  PRITY SWISS","qty":41,"buyPrice":156,"sellPrice":156},{"name":"G STAR  PRITY KATAUT","qty":10,"buyPrice":180,"sellPrice":180},{"name":"G STAR MALTY","qty":31,"buyPrice":160,"sellPrice":160},{"name":"MC RAJA PLACK","qty":16,"buyPrice":180,"sellPrice":180},{"name":"MC DILAX PLACK","qty":42,"buyPrice":120,"sellPrice":120},{"name":"MC ROKET PLACK","qty":62,"buyPrice":105,"sellPrice":105},{"name":"MC MINA POKA","qty":31,"buyPrice":135,"sellPrice":135},{"name":"MC RABAR PLACK","qty":22,"buyPrice":110,"sellPrice":110},{"name":"PC SUPER BADSWISE","qty":5,"buyPrice":115,"sellPrice":115},{"name":"PC SUPER DIMAR MK","qty":22,"buyPrice":90,"sellPrice":90},{"name":"PC SUPER COMBIND","qty":4,"buyPrice":85,"sellPrice":85},{"name":"PC SUPER 6PIN","qty":6,"buyPrice":45,"sellPrice":45},{"name":"IPS DIMAR","qty":36,"buyPrice":33,"sellPrice":33},{"name":"CONVATAR","qty":58,"buyPrice":98,"sellPrice":98},{"name":"NOKIA","qty":26,"buyPrice":100,"sellPrice":100},{"name":"NOGOD BLACK","qty":2,"buyPrice":140,"sellPrice":140},{"name":"NOGOD  WHIT  PANDAL","qty":19,"buyPrice":110,"sellPrice":110},{"name":"SUPERSTAR MODEL","qty":7,"buyPrice":150,"sellPrice":150},{"name":"COLING BAL MAHABUB","qty":49,"buyPrice":138,"sellPrice":138},{"name":"CHINA DIM LICHU","qty":21,"buyPrice":11,"sellPrice":11},{"name":"CHINA DIM TOMATO","qty":15,"buyPrice":16,"sellPrice":16},{"name":"CHINA 9W COLOUR","qty":4,"buyPrice":34,"sellPrice":34},{"name":"OSAKA 20W","qty":6,"buyPrice":175,"sellPrice":175},{"name":"OSAKA 18W","qty":20,"buyPrice":155,"sellPrice":155},{"name":"OSAKA 15W","qty":12,"buyPrice":105,"sellPrice":105},{"name":"OSAKA 40W","qty":2,"buyPrice":420,"sellPrice":420},{"name":"OSAKA 50W","qty":2,"buyPrice":520,"sellPrice":520},{"name":"OSAKA CATA 60W","qty":4,"buyPrice":695,"sellPrice":695},{"name":"OSAKA ACDC 12W","qty":3,"buyPrice":455,"sellPrice":455},{"name":"CHINA 50W","qty":5,"buyPrice":160,"sellPrice":160},{"name":"CHINA 60W","qty":7,"buyPrice":180,"sellPrice":180},{"name":"BANGLA 50W","qty":2,"buyPrice":100,"sellPrice":100},{"name":"BANGLA 30W","qty":9,"buyPrice":50,"sellPrice":50},{"name":"OSAKA TAP","qty":17,"buyPrice":162,"sellPrice":162},{"name":"OSAKA TAP 4G","qty":16,"buyPrice":122,"sellPrice":122},{"name":"MAX 1GANG","qty":69,"buyPrice":9.5,"sellPrice":9.5},{"name":"CABOL CLIB 5MM","qty":84,"buyPrice":22,"sellPrice":22},{"name":"CABOL CLIB 6MM","qty":125,"buyPrice":27,"sellPrice":27},{"name":"CABOL CLIB 8MM","qty":20,"buyPrice":36,"sellPrice":36},{"name":"CABOL CLIB 16MM","qty":9,"buyPrice":96,"sellPrice":96},{"name":"CABOL TAI 4IN 100M","qty":11,"buyPrice":8,"sellPrice":8},{"name":"CABOL TAI 6IN 150M","qty":0,"buyPrice":17,"sellPrice":17},{"name":"CABOL TAI 8IN 200M","qty":23,"buyPrice":27,"sellPrice":27},{"name":"SS 20W","qty":40,"buyPrice":63,"sellPrice":63},{"name":"SS 20W SAD","qty":30,"buyPrice":57,"sellPrice":57},{"name":"SS 15W","qty":40,"buyPrice":56,"sellPrice":56},{"name":"SS 12W","qty":48,"buyPrice":50,"sellPrice":50},{"name":"SS 9W","qty":31,"buyPrice":45,"sellPrice":45},{"name":"SS 7W","qty":8,"buyPrice":41,"sellPrice":41},{"name":"SS ACDC","qty":0,"buyPrice":160,"sellPrice":160},{"name":"SSD 20W","qty":42,"buyPrice":50,"sellPrice":50},{"name":"PS 20W","qty":306,"buyPrice":47,"sellPrice":47},{"name":"PS 12W","qty":214,"buyPrice":34,"sellPrice":34},{"name":"PSD20W","qty":70,"buyPrice":32,"sellPrice":32},{"name":"SEIKO 20W","qty":17,"buyPrice":45,"sellPrice":45},{"name":"SEIKO 5W","qty":26,"buyPrice":35,"sellPrice":35},{"name":"ROCK STAR 20W","qty":167,"buyPrice":50,"sellPrice":50},{"name":"IC 20W","qty":146,"buyPrice":17,"sellPrice":17},{"name":"IC 5W A","qty":128,"buyPrice":19,"sellPrice":19},{"name":"IC 5W D","qty":74,"buyPrice":11,"sellPrice":11},{"name":"BANGLA DIMLIGHT LICHU","qty":875,"buyPrice":7.5,"sellPrice":7.5},{"name":"BANGLA DIMLIGHT MICK","qty":1400,"buyPrice":7.5,"sellPrice":7.5},{"name":"VEE 6PIN","qty":47,"buyPrice":78,"sellPrice":78},{"name":"VEE 503M2","qty":4,"buyPrice":99,"sellPrice":99},{"name":"DJ LIGHT SMALL","qty":22,"buyPrice":85,"sellPrice":85},{"name":"PHLIPS TESTER CH","qty":79,"buyPrice":17.5,"sellPrice":17.5},{"name":"PHLIPS TESTER BANGLA","qty":60,"buyPrice":9.5,"sellPrice":9.5},{"name":"2IN1 TESTER SMALL","qty":60,"buyPrice":12,"sellPrice":12},{"name":"2IN1 TESTER BIG","qty":40,"buyPrice":16,"sellPrice":16},{"name":"TNG13A","qty":7,"buyPrice":165,"sellPrice":165},{"name":"TNG15A","qty":5,"buyPrice":190,"sellPrice":190},{"name":"TNG 13A BANGLA","qty":9,"buyPrice":90,"sellPrice":90},{"name":"SUN+MALTY","qty":16,"buyPrice":155,"sellPrice":155},{"name":"SUN+BRAKAR SP","qty":14,"buyPrice":120,"sellPrice":120},{"name":"SUN+40W CATA","qty":4,"buyPrice":450,"sellPrice":450},{"name":"CANDAL 12W","qty":26,"buyPrice":52,"sellPrice":52},{"name":"CANDAL 16W","qty":16,"buyPrice":70,"sellPrice":70},{"name":"LG CAPSUL 12W","qty":649,"buyPrice":145,"sellPrice":145},{"name":"LG CAPSUL 18W","qty":663,"buyPrice":245,"sellPrice":245},{"name":"LG CATA 40W","qty":7,"buyPrice":240,"sellPrice":240},{"name":"MALTY HILIF 6PIN","qty":0,"buyPrice":53,"sellPrice":53},{"name":"SENSOR HOLDAR","qty":4,"buyPrice":170,"sellPrice":170},{"name":"CAPACITOR 3.5","qty":17,"buyPrice":35,"sellPrice":35},{"name":"CAPACITOR GFC 3.5","qty":0,"buyPrice":34,"sellPrice":34},{"name":"TATAL","qty":0,"buyPrice":97,"sellPrice":97},{"name":"FITA  WORAM","qty":0,"buyPrice":8300,"sellPrice":8300},{"name":"3W PANEL","qty":16,"buyPrice":90,"sellPrice":90},{"name":"HOSAF MITAR BIG D","qty":0,"buyPrice":500,"sellPrice":500},{"name":"SUPER STAR MITAR","qty":0,"buyPrice":550,"sellPrice":550},{"name":"MALTY HILIF 8PIN","qty":0,"buyPrice":53,"sellPrice":53},{"name":"L1","qty":9,"buyPrice":25,"sellPrice":25},{"name":"L2","qty":4,"buyPrice":30,"sellPrice":30},{"name":"SCREW 1IN","qty":0,"buyPrice":44,"sellPrice":44},{"name":"MAX 25","qty":1,"buyPrice":456,"sellPrice":456},{"name":"1HOL BOARD","qty":1,"buyPrice":120,"sellPrice":120},{"name":"HP PIANO DIMAR","qty":0,"buyPrice":61.75,"sellPrice":61.75},{"name":"BLUE BATTEN","qty":0,"buyPrice":72,"sellPrice":72},{"name":"GLS 100W","qty":0,"buyPrice":180,"sellPrice":180},{"name":"OSAKA DIMAR MK","qty":79,"buyPrice":95,"sellPrice":95},{"name":"KOHINUR 15A","qty":4,"buyPrice":130,"sellPrice":130},{"name":"KOHINUR 30A","qty":2,"buyPrice":140,"sellPrice":140},{"name":"MA 6PIN","qty":0,"buyPrice":93,"sellPrice":93},{"name":"HP COMBIND","qty":0,"buyPrice":147.25,"sellPrice":147.25},{"name":"CAPACITOR 2.5 COPY","qty":10,"buyPrice":34.5,"sellPrice":34.5},{"name":"TEP SOKET PATHOR","qty":1,"buyPrice":245,"sellPrice":245},{"name":"MINI PAROT","qty":30,"buyPrice":85,"sellPrice":85},{"name":"FITA DRIVAR  ONE COLOUR","qty":0,"buyPrice":45,"sellPrice":45},{"name":"SS SCREW 2IN","qty":0,"buyPrice":820,"sellPrice":820},{"name":"DC 9W","qty":0,"buyPrice":50,"sellPrice":50},{"name":"FANHUK U","qty":0,"buyPrice":12.5,"sellPrice":12.5},{"name":"1+ A1 6PIN MALTY","qty":0,"buyPrice":135,"sellPrice":135},{"name":"GLS 60W","qty":0,"buyPrice":160,"sellPrice":160},{"name":"DP SWICH N","qty":10,"buyPrice":88,"sellPrice":88},{"name":"DP SWICH H","qty":10,"buyPrice":125,"sellPrice":125},{"name":"CHALTA NORMAL","qty":0,"buyPrice":300,"sellPrice":300},{"name":"CLICK MALTY PLACK 4G","qty":0,"buyPrice":620,"sellPrice":620},{"name":"30W A","qty":10,"buyPrice":100,"sellPrice":100},{"name":"1GANG 1+","qty":0,"buyPrice":12.5,"sellPrice":12.5},{"name":"3GANG 1+","qty":0,"buyPrice":41,"sellPrice":41},{"name":"L2 1+","qty":0,"buyPrice":40,"sellPrice":40},{"name":"LED TUB GLASS","qty":0,"buyPrice":115,"sellPrice":115},{"name":"16UF","qty":0,"buyPrice":68,"sellPrice":68},{"name":"30UF","qty":0,"buyPrice":110,"sellPrice":110},{"name":"35UF","qty":0,"buyPrice":115,"sellPrice":115},{"name":"HP BATAM HOLDAR SUPER MO","qty":0,"buyPrice":500,"sellPrice":500},{"name":"20W KHOLA","qty":0,"buyPrice":42,"sellPrice":42},{"name":"SUN+ACDC 20W","qty":0,"buyPrice":430,"sellPrice":430},{"name":"1+ 6PIN MALTY D1","qty":0,"buyPrice":80,"sellPrice":80},{"name":"HOSPIP 3/4IN","qty":0,"buyPrice":270,"sellPrice":270},{"name":"HOSPIP 1/2IN","qty":0,"buyPrice":170,"sellPrice":170},{"name":"HOSPIP 1IN","qty":0,"buyPrice":410,"sellPrice":410},{"name":"SHOT BAN 3/4","qty":5,"buyPrice":30,"sellPrice":30},{"name":"1+ PIANO SWISS SOKET","qty":0,"buyPrice":160,"sellPrice":160},{"name":"HP 06 2PINPLACK","qty":0,"buyPrice":218.5,"sellPrice":218.5},{"name":"5 STAR 3PIN FLAD","qty":0,"buyPrice":35,"sellPrice":35},{"name":"BIZLI CABOL 7/22","qty":0,"buyPrice":7380,"sellPrice":7380},{"name":"BIZLI CABOL 3/22","qty":0,"buyPrice":3348,"sellPrice":3348},{"name":"1+ 6PIN MALTY A3","qty":0,"buyPrice":125,"sellPrice":125},{"name":"HTP MALTY","qty":24,"buyPrice":26,"sellPrice":26},{"name":"1/2 LBO","qty":0,"buyPrice":8,"sellPrice":8},{"name":"1/2 TE","qty":0,"buyPrice":9,"sellPrice":9},{"name":"1/2 SOKET","qty":0,"buyPrice":8,"sellPrice":8},{"name":"DC T8 TUB","qty":0,"buyPrice":55,"sellPrice":55},{"name":"1/2 PIP LIRA","qty":0,"buyPrice":24,"sellPrice":24},{"name":"RANG","qty":1,"buyPrice":1400,"sellPrice":1400},{"name":"MAX 604","qty":1,"buyPrice":275.5,"sellPrice":275.5},{"name":"COB STRIP LIGHT","qty":0,"buyPrice":850,"sellPrice":850},{"name":"POTAKA 13A COMBIND","qty":0,"buyPrice":250,"sellPrice":250},{"name":"ROD KATING DISK","qty":201,"buyPrice":7.25,"sellPrice":7.25},{"name":"RGB DRIVAR RIMOT","qty":0,"buyPrice":215,"sellPrice":215},{"name":"EGOL 3.5","qty":0,"buyPrice":38,"sellPrice":38},{"name":"COLING BALL NORMAL","qty":0,"buyPrice":115,"sellPrice":115},{"name":"HOLDER ROSE GOLDEN","qty":0,"buyPrice":85,"sellPrice":85},{"name":"16 COLOUR 5 MITAR","qty":0,"buyPrice":420,"sellPrice":420},{"name":"BM CAPACITOR 3.5","qty":0,"buyPrice":70,"sellPrice":70},{"name":"06 2PIN PLACK","qty":0,"buyPrice":105,"sellPrice":105},{"name":"balpuss","qty":1,"buyPrice":450,"sellPrice":450},{"name":"INDIAN COLIG BAL","qty":1,"buyPrice":285,"sellPrice":285},{"name":"F21 5PIN","qty":7,"buyPrice":290.25,"sellPrice":290.25},{"name":"F21 20A","qty":1,"buyPrice":333,"sellPrice":333},{"name":"F21 AC","qty":1,"buyPrice":265.5,"sellPrice":265.5},{"name":"F21 3G","qty":1,"buyPrice":234,"sellPrice":234},{"name":"F21 2G","qty":3,"buyPrice":173.25,"sellPrice":173.25},{"name":"F21 1G","qty":2,"buyPrice":87.75,"sellPrice":87.75},{"name":"F21 SD","qty":3,"buyPrice":364.5,"sellPrice":364.5},{"name":"49 SILING ROSE HOLDAR","qty":0,"buyPrice":65,"sellPrice":65},{"name":"ESY COPY L2","qty":0,"buyPrice":43,"sellPrice":43},{"name":"8IN EXHAUST FAN","qty":0,"buyPrice":550,"sellPrice":550},{"name":"SEBAR TUPI MALTY H","qty":0,"buyPrice":235,"sellPrice":235},{"name":"SEBAR TUPI CHARA MALTY H","qty":0,"buyPrice":195,"sellPrice":195},{"name":"1GANG BOD MODIN","qty":150,"buyPrice":11.5,"sellPrice":11.5},{"name":"100W PLASTICK SUCH LIGHT","qty":0,"buyPrice":170,"sellPrice":170},{"name":"LIFE SUPER 2PIN PLUG","qty":0,"buyPrice":165,"sellPrice":165},{"name":"PPX JAK","qty":0,"buyPrice":9,"sellPrice":9},{"name":"E14 FRIZ BALB","qty":0,"buyPrice":15,"sellPrice":15},{"name":"KATAUT HANDEL 100A","qty":0,"buyPrice":348,"sellPrice":348},{"name":"KATAUT  100A","qty":0,"buyPrice":258,"sellPrice":258},{"name":"NK FT 40/76 AL","qty":3,"buyPrice":500,"sellPrice":500},{"name":"NK FT 70/76 AL","qty":3,"buyPrice":600,"sellPrice":600},{"name":"NK 40/76 LOTA AL","qty":2,"buyPrice":180,"sellPrice":180},{"name":"NK 40/76 FT TA H","qty":2,"buyPrice":1300,"sellPrice":1300},{"name":"NK 23/76 TA H","qty":2,"buyPrice":900,"sellPrice":900},{"name":"NK 2.0RM TA","qty":5,"buyPrice":1900,"sellPrice":1900},{"name":"NK 1.3RM TA  N","qty":6,"buyPrice":1300,"sellPrice":1300},{"name":"NK 1.3RM TA H","qty":4,"buyPrice":1800,"sellPrice":1800},{"name":"NK 1.5RM TA","qty":4,"buyPrice":1800,"sellPrice":1800},{"name":"NK 2.5RM TA","qty":2,"buyPrice":2300,"sellPrice":2300},{"name":"NK 3.0RM TA","qty":1,"buyPrice":2900,"sellPrice":2900},{"name":"NK 1.0RM TA","qty":3,"buyPrice":850,"sellPrice":850},{"name":"GRAMIN DIMAR COPY","qty":0,"buyPrice":28.5,"sellPrice":28.5},{"name":"CAPACITOR 2.5 ORGINIAL","qty":4,"buyPrice":98,"sellPrice":98},{"name":"MK DIMAR NOMAL","qty":45,"buyPrice":58,"sellPrice":58},{"name":"VEE 503M5","qty":3,"buyPrice":142.5,"sellPrice":142.5},{"name":"VEE 504M5","qty":4,"buyPrice":152,"sellPrice":152},{"name":"VEE 505M2","qty":0,"buyPrice":118.75,"sellPrice":118.75},{"name":"VEE 505M5","qty":3,"buyPrice":161.5,"sellPrice":161.5},{"name":"VEE MK DIMAR","qty":0,"buyPrice":90.25,"sellPrice":90.25},{"name":"COSCO 18W","qty":0,"buyPrice":140,"sellPrice":140},{"name":"OSAKA DIMAR MK","qty":79,"buyPrice":95,"sellPrice":95}]
+};
+
+// ===== UTILS =====
+const fmt = n => '৳ ' + Math.round(n||0).toLocaleString('en-IN');
+const fmtN = n => Math.round(n||0).toLocaleString('en-IN');
+const today = () => new Date().toISOString().split('T')[0];
+const $ = id => document.getElementById(id);
+const v = id => $((id))?.value || '';
+const nv = id => +($((id))?.value || 0);
+
+function toast(msg, type='s') {
+  const el = document.createElement('div');
+  el.className = `tst ${type}`;
+  el.innerHTML = `${type==='s'?'✅':'❌'} ${msg}`;
+  $('tw').appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+// ===== NAV =====
+function goPage(id, navEl) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+  $('pg-'+id)?.classList.add('active');
+  if(navEl) {
+    document.querySelectorAll('.nt').forEach(t => t.classList.remove('active'));
+    navEl.classList.add('active');
+  }
+  renderAll();
+  window.scrollTo(0,0);
+}
+
+function stab(btn, tabId) {
+  btn.closest('.pg').querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.closest('.pg').querySelectorAll('.tp').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  $(tabId)?.classList.add('active');
+}
+
+// ===== DROPDOWN HELPERS =====
+function makeDropItem(text, onclickFn) {
+  const d = document.createElement('div');
+  d.style.cssText = 'padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f1f5f9;';
+  d.textContent = text;
+  d.onmousedown = (e) => { e.preventDefault(); onclickFn(text); };
+  d.onmouseover = () => d.style.background = '#f1f5f9';
+  d.onmouseout = () => d.style.background = '';
+  return d;
+}
+
+function hideDropAfter(dropId) {
+  setTimeout(() => { const d = $(dropId); if(d) d.style.display='none'; }, 200);
+}
+
+// Supplier dropdown
+function showSupDrop(val) {
+  const drop = $('sdrop');
+  const list = [...new Set([...EXL.sup, ...DB.sud.map(s=>s.name)])].sort();
+  const filtered = val ? list.filter(s => s.toLowerCase().includes(val.toLowerCase())) : list;
+  drop.innerHTML = '';
+  if(!filtered.length) { drop.style.display='none'; return; }
+  filtered.slice(0,30).forEach(name => {
+    drop.appendChild(makeDropItem(name, (n) => { $('ps').value=n; drop.style.display='none'; }));
+  });
+  drop.style.display = 'block';
+}
+
+// Customer dropdown
+function showCusDrop(val) {
+  const drop = $('cdrop');
+  const list = [...new Set([...EXL.cus, ...DB.cud.map(c=>c.name)])].sort();
+  const filtered = val ? list.filter(c => c.toLowerCase().includes(val.toLowerCase())) : list;
+  drop.innerHTML = '';
+  if(!filtered.length) { drop.style.display='none'; return; }
+  filtered.slice(0,30).forEach(name => {
+    drop.appendChild(makeDropItem(name, (n) => { $('sc').value=n; drop.style.display='none'; }));
+  });
+  drop.style.display = 'block';
+}
+
+// Stock dropdown (for stock page)
+function showStkDrop(val) {
+  const drop = $('stk-drop');
+  const list = [...new Set([...EXL.stk.map(s=>s.name), ...DB.stk.map(s=>s.name)])].sort();
+  const filtered = val ? list.filter(s => s.toLowerCase().includes(val.toLowerCase())) : list;
+  drop.innerHTML = '';
+  if(!filtered.length) { drop.style.display='none'; return; }
+  filtered.slice(0,30).forEach(name => {
+    const item = EXL.stk.find(s=>s.name===name) || DB.stk.find(s=>s.name===name);
+    drop.appendChild(makeDropItem(`${name}${item?' (স্টক: '+item.qty+')':''}`, (n) => {
+      $('stn').value = name;
+      if(item) { $('stb').value=item.buyPrice; $('sts').value=item.sellPrice; }
+      drop.style.display='none';
+    }));
+  });
+  drop.style.display = 'block';
+}
+
+// Product dropdown for a line (ক্রয় বা বিক্রয়)
+function showProdDrop(inputEl, dropEl, type) {
+  const val = inputEl.value;
+  const allStk = [...EXL.stk, ...DB.stk.filter(s => !EXL.stk.find(e=>e.name===s.name))];
+  const filtered = val ? allStk.filter(s => s.name.toLowerCase().includes(val.toLowerCase())) : allStk;
+  dropEl.innerHTML = '';
+  if(!filtered.length) { dropEl.style.display='none'; return; }
+  filtered.slice(0,30).forEach(item => {
+    const price = type==='buy' ? item.buyPrice : item.sellPrice;
+    dropEl.appendChild(makeDropItem(`${item.name} — ৳${price}`, () => {
+      inputEl.value = item.name;
+      dropEl.style.display = 'none';
+      // দাম অটো সেট
+      const lineDiv = inputEl.closest('.pline');
+      if(lineDiv) {
+        const priceInput = lineDiv.querySelector('.price-inp');
+        if(priceInput && !priceInput.value) {
+          priceInput.value = price;
+          calcLine(lineDiv);
+        }
+      }
+    }));
+  });
+  dropEl.style.display = 'block';
+}
+
+// ===== MULTI-LINE PURCHASE =====
+let purLineId = 0;
+function addPurLine() {
+  purLineId++;
+  const id = purLineId;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;margin-bottom:10px';
+
+  const row = document.createElement('div');
+  row.className = 'pline';
+  row.innerHTML = `
+    <input type="text" placeholder="পণ্যের নাম *" class="prod-inp" autocomplete="off"
+      style="padding:9px 10px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:13px;width:100%">
+    <input type="number" placeholder="পরিমাণ" class="qty-inp" min="0"
+      style="padding:9px 10px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:13px;width:100%">
+    <input type="number" placeholder="দাম" class="price-inp" min="0"
+      style="padding:9px 10px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:13px;width:100%">
+    <input type="number" placeholder="মোট" class="total-inp" readonly
+      style="padding:9px 10px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:13px;width:100%;background:#f8fafc;font-weight:700">
+    <button onclick="this.closest('[style]').remove();calcAllPur()" style="width:36px;height:38px;border:none;border-radius:10px;background:var(--rb);color:var(--r);font-size:16px;cursor:pointer">✕</button>
+  `;
+
+  // Product dropdown
+  const prodDrop = document.createElement('div');
+  prodDrop.style.cssText = 'display:none;position:absolute;left:0;right:0;top:44px;z-index:100;background:#fff;border:1.5px solid var(--pl);border-radius:10px;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.12)';
+
+  wrap.appendChild(row);
+  wrap.appendChild(prodDrop);
+  $('pur-lines').appendChild(wrap);
+
+  const prodInp = row.querySelector('.prod-inp');
+  const qtyInp = row.querySelector('.qty-inp');
+  const priceInp = row.querySelector('.price-inp');
+
+  prodInp.addEventListener('input', () => showProdDrop(prodInp, prodDrop, 'buy'));
+  prodInp.addEventListener('focus', () => showProdDrop(prodInp, prodDrop, 'buy'));
+  prodInp.addEventListener('blur', () => setTimeout(() => prodDrop.style.display='none', 200));
+
+  // Enter চাপলে পরিমাণ বক্সে যাবে অথবা নতুন লাইন
+  prodInp.addEventListener('keydown', e => {
+    if(e.key==='Enter') { e.preventDefault(); qtyInp.focus(); }
+  });
+  qtyInp.addEventListener('keydown', e => {
+    if(e.key==='Enter') { e.preventDefault(); priceInp.focus(); }
+  });
+  priceInp.addEventListener('keydown', e => {
+    if(e.key==='Enter') { e.preventDefault(); addPurLine(); }
+  });
+
+  row.querySelector('.qty-inp').addEventListener('input', () => calcLine(row));
+  row.querySelector('.price-inp').addEventListener('input', () => calcLine(row));
+
+  setTimeout(() => prodInp.focus(), 80);
+}
+
+function calcLine(row) {
+  const q = +row.querySelector('.qty-inp').value || 0;
+  const p = +row.querySelector('.price-inp').value || 0;
+  row.querySelector('.total-inp').value = q*p || '';
+  calcAllPur();
+}
+
+function calcAllPur() {
+  let total = 0;
+  $('pur-lines').querySelectorAll('.total-inp').forEach(inp => total += +inp.value || 0);
+  $('p-grand').textContent = fmt(total);
+}
+
+function savePurBill() {
+  const date = v('pd'), sup = v('ps').trim();
+  if(!date||!sup) return toast('তারিখ ও Supplier নাম দিন','e');
+  const paid = nv('pp');
+  const lines = [];
+  $('pur-lines').querySelectorAll('.pline').forEach(row => {
+    const prod = row.querySelector('.prod-inp').value.trim();
+    const qty = +row.querySelector('.qty-inp').value || 0;
+    const price = +row.querySelector('.price-inp').value || 0;
+    if(prod && qty>0 && price>0) lines.push({prod, qty, price, grand: qty*price});
+  });
+  if(!lines.length) return toast('অন্তত একটি পণ্য দিন','e');
+  const total = lines.reduce((s,l)=>s+l.grand,0);
+  const due = total - paid;
+  const bid = Date.now();
+  lines.forEach((l,i) => {
+    DB.pur.push({id:bid+i, date, memo:v('pm'), supplier:sup, product:l.prod, qty:l.qty, price:l.price, grand:l.grand, paid:i===0?paid:0, due:i===0?due:0, note:v('pnt')});
+  });
+  save(); renderAll();
+  $('pm').value=''; $('ps').value=''; $('pp').value=0; $('pnt').value='';
+  $('pur-lines').innerHTML=''; purLineId=0;
+  $('p-grand').textContent='৳ ০';
+  addPurLine();
+  toast(`${lines.length}টি পণ্য সেভ হয়েছে!`);
+}
+
+function renderPur(q='') {
+  const rows = DB.pur.filter(r=>!q||r.supplier.toLowerCase().includes(q.toLowerCase())||r.product.toLowerCase().includes(q.toLowerCase()));
+  const el = $('pur-list'); if(!el) return;
+  el.innerHTML = rows.length ? [...rows].reverse().map(r=>`
+    <div class="li">
+      <div class="lic" style="background:#dbeafe">🛒</div>
+      <div class="lib">
+        <div class="lit">${r.product}</div>
+        <div class="lis">${r.supplier} | ${r.qty}টি × ${fmtN(r.price)}</div>
+        <div class="lis">${r.date}${r.memo?' | মেমো: '+r.memo:''}</div>
+      </div>
+      <div class="lir">
+        <div class="lia">${fmt(r.grand)}</div>
+        <span class="bd ${r.due>0?'bdr2':'bdg'}">${r.due>0?'বাকি: '+fmtN(r.due):'পরিশোধ'}</span>
+      </div>
+      <button class="db" onclick="DB.pur=DB.pur.filter(x=>x.id!==${r.id});save();renderAll()">🗑️</button>
+    </div>`).join('')
+    : '<div class="empty"><div class="ei">🛒</div><p>কোনো ক্রয় নেই</p></div>';
+  const tot = rows.reduce((s,r)=>s+r.grand,0);
+  const el2=$('pur-tot'); if(el2) el2.textContent=fmt(tot);
+}
+
+// ===== MULTI-LINE SALES =====
+let salLineId = 0;
+function addSalLine() {
+  salLineId++;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;margin-bottom:10px';
+
+  const row = document.createElement('div');
+  row.className = 'pline';
+  row.innerHTML = `
+    <input type="text" placeholder="পণ্যের নাম *" class="prod-inp" autocomplete="off"
+      style="padding:9px 10px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:13px;width:100%">
+    <input type="number" placeholder="পরিমাণ" class="qty-inp" min="0"
+      style="padding:9px 10px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:13px;width:100%">
+    <input type="number" placeholder="দাম" class="price-inp" min="0"
+      style="padding:9px 10px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:13px;width:100%">
+    <input type="number" placeholder="মোট" class="total-inp" readonly
+      style="padding:9px 10px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:13px;width:100%;background:#f8fafc;font-weight:700">
+    <button onclick="this.closest('[style]').remove();calcAllSal()" style="width:36px;height:38px;border:none;border-radius:10px;background:var(--rb);color:var(--r);font-size:16px;cursor:pointer">✕</button>
+  `;
+
+  const prodDrop = document.createElement('div');
+  prodDrop.style.cssText = 'display:none;position:absolute;left:0;right:0;top:44px;z-index:100;background:#fff;border:1.5px solid var(--g);border-radius:10px;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.12)';
+
+  wrap.appendChild(row);
+  wrap.appendChild(prodDrop);
+  $('sal-lines').appendChild(wrap);
+
+  const prodInp = row.querySelector('.prod-inp');
+  const qtyInp = row.querySelector('.qty-inp');
+  const priceInp = row.querySelector('.price-inp');
+
+  prodInp.addEventListener('input', () => showProdDrop(prodInp, prodDrop, 'sell'));
+  prodInp.addEventListener('focus', () => showProdDrop(prodInp, prodDrop, 'sell'));
+  prodInp.addEventListener('blur', () => setTimeout(() => prodDrop.style.display='none', 200));
+
+  prodInp.addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault();qtyInp.focus();} });
+  qtyInp.addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault();priceInp.focus();} });
+  priceInp.addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault();addSalLine();} });
+
+  row.querySelector('.qty-inp').addEventListener('input', () => calcSalLine(row));
+  row.querySelector('.price-inp').addEventListener('input', () => calcSalLine(row));
+
+  setTimeout(() => prodInp.focus(), 80);
+}
+
+function calcSalLine(row) {
+  const q = +row.querySelector('.qty-inp').value || 0;
+  const p = +row.querySelector('.price-inp').value || 0;
+  row.querySelector('.total-inp').value = q*p || '';
+  calcAllSal();
+}
+
+function calcAllSal() {
+  let total = 0;
+  $('sal-lines').querySelectorAll('.total-inp').forEach(inp => total += +inp.value || 0);
+  $('s-grand').textContent = fmt(total);
+}
+
+function saveSalBill() {
+  const date = v('sd'), cus = v('sc').trim();
+  if(!date||!cus) return toast('তারিখ ও Customer নাম দিন','e');
+  const paid = nv('sp');
+  const lines = [];
+  $('sal-lines').querySelectorAll('.pline').forEach(row => {
+    const prod = row.querySelector('.prod-inp').value.trim();
+    const qty = +row.querySelector('.qty-inp').value || 0;
+    const price = +row.querySelector('.price-inp').value || 0;
+    if(prod && qty>0 && price>0) lines.push({prod, qty, price, net: qty*price});
+  });
+  if(!lines.length) return toast('অন্তত একটি পণ্য দিন','e');
+  const total = lines.reduce((s,l)=>s+l.net,0);
+  const due = total - paid;
+  const bid = Date.now();
+  lines.forEach((l,i) => {
+    DB.sal.push({id:bid+i, date, bill:v('sb'), customer:cus, product:l.prod, qty:l.qty, price:l.price, net:l.net, paid:i===0?paid:0, due:i===0?due:0, bank:v('sbk')});
+  });
+  save(); renderAll();
+  $('sb').value=''; $('sc').value=''; $('sp').value=0;
+  $('sal-lines').innerHTML=''; salLineId=0;
+  $('s-grand').textContent='৳ ০';
+  addSalLine();
+  toast(`${lines.length}টি পণ্য সেভ হয়েছে!`);
+}
+
+function renderSal(q='') {
+  const rows = DB.sal.filter(r=>!q||r.customer.toLowerCase().includes(q.toLowerCase())||r.product.toLowerCase().includes(q.toLowerCase()));
+  const el=$('sal-list'); if(!el) return;
+  el.innerHTML = rows.length ? [...rows].reverse().map(r=>`
+    <div class="li">
+      <div class="lic" style="background:var(--gb)">💰</div>
+      <div class="lib">
+        <div class="lit">${r.product}</div>
+        <div class="lis">${r.customer} | ${r.qty}টি × ${fmtN(r.price)}</div>
+        <div class="lis">${r.date}${r.bank?' | '+r.bank:''}</div>
+      </div>
+      <div class="lir">
+        <div class="lia profit">${fmt(r.net)}</div>
+        <span class="bd ${r.due>0?'bdr2':'bdg'}">${r.due>0?'বাকি: '+fmtN(r.due):'পরিশোধ'}</span>
+      </div>
+      <button class="db" onclick="DB.sal=DB.sal.filter(x=>x.id!==${r.id});save();renderAll()">🗑️</button>
+    </div>`).join('')
+    : '<div class="empty"><div class="ei">💰</div><p>কোনো বিক্রয় নেই</p></div>';
+  const tot=rows.reduce((s,r)=>s+r.net,0);
+  const el2=$('sal-tot'); if(el2) el2.textContent=fmt(tot);
+}
+
+// ===== EXPENSE =====
+function addDE() {
+  const date=v('ded'), amt=nv('dea');
+  if(!date||!amt) return toast('তারিখ ও পরিমাণ দিন','e');
+  DB.de.push({id:Date.now(),date,type:v('det'),detail:v('ded2'),source:v('des'),amt});
+  save();renderAll();
+  $('dea').value='';$('ded2').value='';
+  toast('খরচ যোগ হয়েছে!');
+}
+function renderDE() {
+  const el=$('de-list');if(!el)return;
+  el.innerHTML=DB.de.length?[...DB.de].reverse().map(r=>`
+    <div class="li">
+      <div class="lic" style="background:var(--ob)">💸</div>
+      <div class="lib"><div class="lit">${r.type}</div><div class="lis">${r.detail||'-'} | ${r.source} | ${r.date}</div></div>
+      <div class="lir"><div class="lia" style="color:var(--o)">${fmt(r.amt)}</div></div>
+      <button class="db" onclick="DB.de=DB.de.filter(x=>x.id!==${r.id});save();renderAll()">🗑️</button>
+    </div>`).join(''):'<div class="empty"><div class="ei">💸</div><p>কোনো খরচ নেই</p></div>';
+  const tot=DB.de.reduce((s,r)=>s+r.amt,0);
+  const el2=$('de-tot');if(el2)el2.textContent=fmt(tot);
+}
+
+function addME() {
+  const amt=nv('mea');
+  if(!amt) return toast('পরিমাণ দিন','e');
+  DB.me.push({id:Date.now(),type:v('met'),month:v('mem'),source:v('mes'),amt});
+  save();renderAll();
+  $('mea').value='';
+  toast('মাসিক খরচ যোগ হয়েছে!');
+}
+function renderME() {
+  const el=$('me-list');if(!el)return;
+  el.innerHTML=DB.me.length?[...DB.me].reverse().map(r=>`
+    <div class="li">
+      <div class="lic" style="background:#ede9fe">🏢</div>
+      <div class="lib"><div class="lit">${r.type}</div><div class="lis">${r.month||'-'} | ${r.source}</div></div>
+      <div class="lir"><div class="lia" style="color:#7c3aed">${fmt(r.amt)}</div></div>
+      <button class="db" onclick="DB.me=DB.me.filter(x=>x.id!==${r.id});save();renderAll()">🗑️</button>
+    </div>`).join(''):'<div class="empty"><div class="ei">🏢</div><p>কোনো মাসিক খরচ নেই</p></div>';
+  const tot=DB.me.reduce((s,r)=>s+r.amt,0);
+  const el2=$('me-tot');if(el2)el2.textContent=fmt(tot);
+}
+
+// ===== STOCK =====
+function addStock() {
+  const name=v('stn').trim(), qty=nv('stq');
+  if(!name||!qty) return toast('নাম ও পরিমাণ দিন','e');
+  const ex=DB.stk.find(s=>s.name===name);
+  if(ex){ex.qty+=qty;ex.buyPrice=nv('stb')||ex.buyPrice;ex.sellPrice=nv('sts')||ex.sellPrice;ex.minQty=nv('stmn')||ex.minQty;}
+  else DB.stk.push({id:Date.now(),name,qty,buyPrice:nv('stb'),sellPrice:nv('sts'),minQty:nv('stmn')});
+  save();renderAll();
+  ['stn','stq','stb','sts','stmn'].forEach(id=>$(id).value='');
+  toast('স্টক আপডেট!');
+}
+function renderStock(q='') {
+  const allStk=[...EXL.stk,...DB.stk.filter(s=>!EXL.stk.find(e=>e.name===s.name))];
+  const rows=allStk.filter(r=>!q||r.name.toLowerCase().includes(q.toLowerCase()));
+  const el=$('stk-list');if(!el)return;
+  el.innerHTML=rows.length?rows.map(r=>{
+    const val=r.qty*r.buyPrice;
+    const st=r.qty<=0?'bdr2':r.minQty&&r.qty<=r.minQty?'bdo':'bdg';
+    const stx=r.qty<=0?'❌ শেষ':r.minQty&&r.qty<=r.minQty?'⚠️ কম':'✅ আছে';
+    return`<div class="li">
+      <div class="lic" style="background:var(--ob)">📦</div>
+      <div class="lib"><div class="lit">${r.name}</div><div class="lis">ক্রয়: ${fmtN(r.buyPrice)} | বিক্রয়: ${fmtN(r.sellPrice)} | স্টক: ${r.qty}টি</div></div>
+      <div class="lir"><div class="lia">${fmt(val)}</div><span class="bd ${st}">${stx}</span></div>
+    </div>`;
+  }).join(''):'<div class="empty"><div class="ei">📦</div><p>কোনো স্টক নেই</p></div>';
+  const tot=rows.reduce((s,r)=>s+r.qty*r.buyPrice,0);
+  const el2=$('stk-tot');if(el2)el2.textContent=fmt(tot);
+}
+
+// ===== DAMAGED =====
+function addDamaged() {
+  const date=v('dmd'),prod=v('dmp').trim(),qty=nv('dmq');
+  if(!date||!prod||!qty) return toast('তারিখ, পণ্য ও পরিমাণ দিন','e');
+  const repair=nv('dmr'),sell=nv('dmv');
+  const stk=[...EXL.stk,...DB.stk].find(s=>s.name===prod);
+  const cost=(stk?stk.buyPrice:0)*qty;
+  const loss=cost+repair-sell;
+  DB.dmg.push({id:Date.now(),date,product:prod,qty,customer:v('dmc'),status:v('dms'),repair,sell,loss});
+  save();renderAll();
+  ['dmp','dmq','dmc','dmr','dmv'].forEach(id=>$(id).value='');
+  $('dmr').value=0;$('dmv').value=0;
+  toast('নষ্ট মাল যোগ হয়েছে!');
+}
+function renderDmg() {
+  const el=$('dm-list');if(!el)return;
+  const sc={মেরামতযোগ্য:'bdo',অকেজো:'bdr2','Supplier ফেরত':'bdb'};
+  el.innerHTML=DB.dmg.length?[...DB.dmg].reverse().map(r=>`
+    <div class="li">
+      <div class="lic" style="background:var(--rb)">⚠️</div>
+      <div class="lib"><div class="lit">${r.product} (${r.qty}টি)</div><div class="lis">${r.customer||'-'} | ${r.date}</div><span class="bd ${sc[r.status]||'bdb'}">${r.status}</span></div>
+      <div class="lir"><div class="lia loss">${fmt(r.loss)}</div><div style="font-size:10px;color:var(--mu)">ক্ষতি</div></div>
+      <button class="db" onclick="DB.dmg=DB.dmg.filter(x=>x.id!==${r.id});save();renderAll()">🗑️</button>
+    </div>`).join(''):'<div class="empty"><div class="ei">⚠️</div><p>কোনো নষ্ট মাল নেই</p></div>';
+  const tot=DB.dmg.reduce((s,r)=>s+r.loss,0);
+  const el2=$('dm-tot');if(el2)el2.textContent=fmt(tot);
+}
+
+// ===== SUPPLIER DUE =====
+function addSupDue() {
+  const name=v('sudn').trim();
+  if(!name) return toast('নাম দিন','e');
+  if(DB.sud.find(s=>s.name===name)) return toast('ইতিমধ্যে আছে','e');
+  DB.sud.push({id:Date.now(),name,prev:nv('sudp'),note:v('sudt')});
+  save();renderAll();
+  ['sudn','sudp','sudt'].forEach(id=>$(id).value='');
+  toast('Supplier যোগ হয়েছে!');
+}
+function renderSud() {
+  const el=$('sud-list');if(!el)return;
+  let tot=0;
+  el.innerHTML=DB.sud.length?DB.sud.map(r=>{
+    const b=DB.pur.filter(p=>p.supplier===r.name).reduce((a,p)=>a+p.grand,0);
+    const pd=DB.pur.filter(p=>p.supplier===r.name).reduce((a,p)=>a+p.paid,0);
+    const due=b-pd+r.prev; tot+=due;
+    return`<div class="li">
+      <div class="lic" style="background:#dbeafe">🏪</div>
+      <div class="lib"><div class="lit">${r.name}</div><div class="lis">ক্রয়: ${fmt(b)} | পরিশোধ: ${fmt(pd)} | আগের: ${fmt(r.prev)}</div></div>
+      <div class="lir"><div class="lia loss">${fmt(due)}</div><div style="font-size:10px;color:var(--mu)">মোট বাকি</div></div>
+      <button class="db" onclick="DB.sud=DB.sud.filter(x=>x.id!==${r.id});save();renderAll()">🗑️</button>
+    </div>`;
+  }).join(''):'<div class="empty"><div class="ei">🏪</div><p>কোনো Supplier নেই</p></div>';
+  const el2=$('sud-tot');if(el2)el2.textContent=fmt(tot);
+}
+
+// ===== CUSTOMER DUE =====
+function addCusDue() {
+  const name=v('cudn').trim();
+  if(!name) return toast('নাম দিন','e');
+  if(DB.cud.find(c=>c.name===name)) return toast('ইতিমধ্যে আছে','e');
+  DB.cud.push({id:Date.now(),name,prev:nv('cudp'),note:v('cudt')});
+  save();renderAll();
+  ['cudn','cudp','cudt'].forEach(id=>$(id).value='');
+  toast('Customer যোগ হয়েছে!');
+}
+function renderCud() {
+  const el=$('cud-list');if(!el)return;
+  let tot=0;
+  el.innerHTML=DB.cud.length?DB.cud.map(r=>{
+    const s=DB.sal.filter(x=>x.customer===r.name).reduce((a,x)=>a+x.net,0);
+    const pd=DB.sal.filter(x=>x.customer===r.name).reduce((a,x)=>a+x.paid,0);
+    const due=s-pd+r.prev; tot+=due;
+    return`<div class="li">
+      <div class="lic" style="background:var(--gb)">👥</div>
+      <div class="lib"><div class="lit">${r.name}</div><div class="lis">বিক্রয়: ${fmt(s)} | পরিশোধ: ${fmt(pd)} | আগের: ${fmt(r.prev)}</div></div>
+      <div class="lir"><div class="lia loss">${fmt(due)}</div><div style="font-size:10px;color:var(--mu)">মোট বাকি</div></div>
+      <button class="db" onclick="DB.cud=DB.cud.filter(x=>x.id!==${r.id});save();renderAll()">🗑️</button>
+    </div>`;
+  }).join(''):'<div class="empty"><div class="ei">👥</div><p>কোনো Customer নেই</p></div>';
+  const el2=$('cud-tot');if(el2)el2.textContent=fmt(tot);
+}
+
+// ===== BANK =====
+function addBank() {
+  const date=v('bnd'),amt=nv('bna');
+  if(!date||!amt) return toast('তারিখ ও পরিমাণ দিন','e');
+  DB.bnk.push({id:Date.now(),date,bank:v('bnk'),type:v('bnt'),amt,reason:v('bnr')});
+  save();renderAll();
+  $('bna').value='';$('bnr').value='';
+  toast('লেনদেন যোগ হয়েছে!');
+}
+function renderBank() {
+  const bs=Object.keys(DB.bob);
+  const el=$('bnk-sum');if(!el)return;
+  el.innerHTML=bs.map(b=>{
+    const tin=DB.bnk.filter(t=>t.bank===b&&t.type==='জমা').reduce((s,t)=>s+t.amt,0);
+    const tout=DB.bnk.filter(t=>t.bank===b&&t.type==='উত্তোলন').reduce((s,t)=>s+t.amt,0);
+    const bal=DB.bob[b]+tin-tout;
+    return`<div class="br"><div><div class="brn">${b}</div><div class="brs">জমা: ${fmtN(tin)} | উত্তোলন: ${fmtN(tout)}</div></div><div class="brv">${fmt(bal)}</div></div>`;
+  }).join('');
+  const el2=$('bnk-list');if(!el2)return;
+  el2.innerHTML=[...DB.bnk].reverse().length?[...DB.bnk].reverse().map(r=>`
+    <div class="li">
+      <div class="lic" style="background:${r.type==='জমা'?'var(--gb)':'var(--rb)'}">${r.type==='জমা'?'⬆️':'⬇️'}</div>
+      <div class="lib"><div class="lit">${r.bank}</div><div class="lis">${r.reason||'-'} | ${r.date}</div><span class="bd ${r.type==='জমা'?'bdg':'bdr2'}">${r.type}</span></div>
+      <div class="lir"><div class="lia ${r.type==='জমা'?'profit':'loss'}">${fmt(r.amt)}</div></div>
+      <button class="db" onclick="DB.bnk=DB.bnk.filter(x=>x.id!==${r.id});save();renderAll()">🗑️</button>
+    </div>`).join(''):'<div class="empty"><div class="ei">🏦</div><p>কোনো লেনদেন নেই</p></div>';
+}
+
+// ===== LOAN =====
+function addLoan() {
+  const name=v('lnn').trim(),amt=nv('lna');
+  if(!name||!amt) return toast('নাম ও পরিমাণ দিন','e');
+  const paid=nv('lnp');
+  DB.ln.push({id:Date.now(),name,type:v('lnt'),amt,rate:nv('lnr'),install:nv('lni'),paid,due:amt-paid});
+  save();renderAll();
+  ['lnn','lna','lnr','lni','lnp'].forEach(id=>$(id).value='');
+  toast('Loan যোগ হয়েছে!');
+}
+function renderLoan() {
+  const el=$('ln-list');if(!el)return;
+  el.innerHTML=DB.ln.length?DB.ln.map(r=>`
+    <div class="li">
+      <div class="lic" style="background:var(--rb)">💳</div>
+      <div class="lib"><div class="lit">${r.name}</div><span class="bd bdb">${r.type}</span><div class="lis">মূল: ${fmt(r.amt)} | পরিশোধ: ${fmt(r.paid)} | কিস্তি: ${fmt(r.install)}/মাস</div></div>
+      <div class="lir"><div class="lia loss">${fmt(r.due)}</div><div style="font-size:10px;color:var(--mu)">বাকি</div></div>
+      <button class="db" onclick="DB.ln=DB.ln.filter(x=>x.id!==${r.id});save();renderAll()">🗑️</button>
+    </div>`).join(''):'<div class="empty"><div class="ei">💳</div><p>কোনো Loan নেই</p></div>';
+  const tot=DB.ln.reduce((s,r)=>s+r.due,0);
+  const el2=$('ln-tot');if(el2)el2.textContent=fmt(tot);
+}
+
+// ===== P&L =====
+function renderPL() {
+  const el=$('pl-list');if(!el)return;
+  const dates=[...new Set([...DB.sal.map(r=>r.date),...DB.pur.map(r=>r.date),...DB.de.map(r=>r.date)])].sort().reverse();
+  let totPL=0;
+  el.innerHTML=dates.length?dates.map(d=>{
+    const s=DB.sal.filter(r=>r.date===d).reduce((a,r)=>a+r.net,0);
+    const p=DB.pur.filter(r=>r.date===d).reduce((a,r)=>a+r.grand,0);
+    const e=DB.de.filter(r=>r.date===d).reduce((a,r)=>a+r.amt,0);
+    const dm=DB.dmg.filter(r=>r.date===d).reduce((a,r)=>a+r.loss,0);
+    const pl=s-p-e-dm; totPL+=pl;
+    const pct=s?((pl/s)*100).toFixed(1):0;
+    return`<div class="plr">
+      <div class="pld">${d}</div>
+      <div class="plg">
+        <div class="pls"><div class="pll">বিক্রয়</div><div class="plv profit">${fmtN(s)}</div></div>
+        <div class="pls"><div class="pll">ক্রয়+খরচ</div><div class="plv" style="color:var(--o)">${fmtN(p+e+dm)}</div></div>
+        <div class="pls"><div class="pll">লাভ/লস</div><div class="plv ${pl>=0?'profit':'loss'}">${fmtN(pl)}</div></div>
+      </div>
+      <div class="plp ${pl>=0?'profit':'loss'}">${pl>=0?'▲':'▼'} ${fmt(Math.abs(pl))} (${pct}%)</div>
+    </div>`;
+  }).join(''):'<div class="empty"><div class="ei">📈</div><p>কোনো ডেটা নেই</p></div>';
+  const el2=$('pl-tot');if(el2){el2.textContent=fmt(totPL);el2.className='trv '+(totPL>=0?'profit':'loss');}
+}
+
+// ===== DASHBOARD =====
+function renderDash() {
+  const totS=DB.sal.reduce((s,r)=>s+r.net,0);
+  const totP=DB.pur.reduce((s,r)=>s+r.grand,0);
+  const totDE=DB.de.reduce((s,r)=>s+r.amt,0);
+  const totME=DB.me.reduce((s,r)=>s+r.amt,0);
+  const totE=totDE+totME;
+  const totDm=DB.dmg.reduce((s,r)=>s+r.loss,0);
+  const profit=totS-totP-totE-totDm;
+  const allStk=[...EXL.stk,...DB.stk.filter(s=>!EXL.stk.find(e=>e.name===s.name))];
+  const totStk=allStk.reduce((s,r)=>s+r.qty*r.buyPrice,0);
+  const totCdu=DB.cud.reduce((s,r)=>{
+    const sold=DB.sal.filter(x=>x.customer===r.name).reduce((a,x)=>a+x.net,0);
+    const paid=DB.sal.filter(x=>x.customer===r.name).reduce((a,x)=>a+x.paid,0);
+    return s+(sold-paid)+r.prev;
+  },0);
+  const totSdu=DB.sud.reduce((s,r)=>{
+    const b=DB.pur.filter(x=>x.supplier===r.name).reduce((a,x)=>a+x.grand,0);
+    const pd=DB.pur.filter(x=>x.supplier===r.name).reduce((a,x)=>a+x.paid,0);
+    return s+(b-pd)+r.prev;
+  },0);
+  const t=today();
+  const tS=DB.sal.filter(r=>r.date===t).reduce((a,r)=>a+r.net,0);
+  const tP=DB.pur.filter(r=>r.date===t).reduce((a,r)=>a+r.grand,0);
+  const tE=DB.de.filter(r=>r.date===t).reduce((a,r)=>a+r.amt,0);
+  const tPL=tS-tP-tE;
+
+  const s=id=>$(id);
+  if(s('c-sal'))s('c-sal').textContent=fmt(totS);
+  if(s('c-pur'))s('c-pur').textContent=fmt(totP);
+  if(s('c-pro')){s('c-pro').textContent=fmt(profit);s('c-pro').className='mv '+(profit>=0?'profit':'loss');}
+  if(s('c-exp'))s('c-exp').textContent=fmt(totE);
+  if(s('c-stk'))s('c-stk').textContent=fmt(totStk);
+  if(s('c-dmg'))s('c-dmg').textContent=fmt(totDm);
+  if(s('c-cdu'))s('c-cdu').textContent=fmt(totCdu);
+  if(s('c-sdu'))s('c-sdu').textContent=fmt(totSdu);
+  if(s('t-sal'))s('t-sal').textContent=fmt(tS);
+  if(s('t-pur'))s('t-pur').textContent=fmt(tP);
+  if(s('t-exp'))s('t-exp').textContent=fmt(tE);
+  if(s('t-pro')){s('t-pro').textContent=fmt(tPL);s('t-pro').className='tcv '+(tPL>=0?'profit':'loss');}
+
+  const bel=$('dash-bank');if(!bel)return;
+  bel.innerHTML=Object.keys(DB.bob).map(b=>{
+    const tin=DB.bnk.filter(t=>t.bank===b&&t.type==='জমা').reduce((a,t)=>a+t.amt,0);
+    const tout=DB.bnk.filter(t=>t.bank===b&&t.type==='উত্তোলন').reduce((a,t)=>a+t.amt,0);
+    return`<div class="br"><div><div class="brn">${b}</div><div class="brs">আগের: ${fmtN(DB.bob[b])} | জমা: ${fmtN(tin)} | উত্তোলন: ${fmtN(tout)}</div></div><div class="brv">${fmt(DB.bob[b]+tin-tout)}</div></div>`;
+  }).join('');
+}
+
+// ===== RENDER ALL =====
+function renderAll() {
+  renderDash();renderPur();renderSal();
+  renderDE();renderME();renderStock();
+  renderDmg();renderSud();renderCud();
+  renderBank();renderLoan();renderPL();
+}
+
+// ===== SAVE/LOAD =====
+function save(){try{localStorage.setItem('biz26',JSON.stringify(DB));}catch(e){}}
+function loadSaved(){try{const d=localStorage.getItem('biz26');if(d)Object.assign(DB,JSON.parse(d));}catch(e){}}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`ব্যবসার_ডেটা_${today()}.json`;
+  a.click();toast('ডেটা সেভ হয়েছে!');
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{try{Object.assign(DB,JSON.parse(ev.target.result));save();renderAll();toast('ডেটা লোড হয়েছে!');}catch{toast('ফাইল সঠিক নয়','e');}};
+  reader.readAsText(file);e.target.value='';
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded',()=>{
+  const now=new Date();
+  const mn=['জানু','ফেব','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টে','অক্টো','নভে','ডিসে'];
+  $('hdate').textContent=`${now.getDate()} ${mn[now.getMonth()]} ${now.getFullYear()}`;
+  const t=today();
+  ['pd','sd','ded','dmd','bnd'].forEach(id=>{const el=$(id);if(el)el.value=t;});
+  const mel=$('mem');if(mel)mel.value=t.substring(0,7);
+  loadSaved();
+  addPurLine();
+  addSalLine();
+  renderAll();
+});
+</script>
+</body>
+</html>
+
