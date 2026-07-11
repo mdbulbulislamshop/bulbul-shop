@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<title>বুল বুল এন্টারপ্রাইজ | Bul Bul Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#e8282c;--primary-dark:#c0392b;--secondary:#1a3a6b;
+  --accent:#f5a623;--green:#27ae60;--text:#222;--muted:#777;
+  --border:#e5e5e5;--bg:#f7f7f7;--white:#fff;
+}
+body{font-family:'Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);}
+a{text-decoration:none;color:inherit;}
+
+
+/* TOP BAR */
+.topbar{background:var(--secondary);color:#fff;font-size:0.78rem;padding:6px 0;}
+.topbar-inner{max-width:1200px;margin:0 auto;padding:0 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
+.topbar a{color:#cdd;margin-left:12px;}
+
+
+/* HEADER */
+header{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.header-inner{max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.logo-wrap{display:flex;align-items:center;gap:10px;flex:0 0 auto;}
+.logo-badge{width:52px;height:52px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;font-weight:900;font-family:'Roboto',sans-serif;}
+.logo-text .bn{font-size:1rem;font-weight:700;color:var(--primary);}
+.logo-text .en{font-size:0.72rem;color:var(--muted);letter-spacing:1px;}
+.search-bar{flex:1;min-width:200px;display:flex;border:2px solid var(--primary);border-radius:4px;overflow:hidden;}
+.search-bar input{flex:1;padding:9px 14px;font-size:0.9rem;border:none;outline:none;font-family:'Hind Siliguri',sans-serif;}
+.search-bar button{background:var(--primary);border:none;color:#fff;padding:0 16px;font-size:1rem;cursor:pointer;}
+.header-right{display:flex;gap:10px;align-items:center;}
+.hbtn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:4px;font-size:0.82rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none;}
+.hbtn-call{background:var(--green);color:#fff;}
+.cart-btn{background:var(--primary);color:#fff;position:relative;padding:8px 16px;border-radius:4px;font-size:0.85rem;font-weight:700;cursor:pointer;border:none;font-family:'Hind Siliguri',sans-serif;display:flex;align-items:center;gap:6px;}
+.cart-count{background:#fff;color:var(--primary);border-radius:50%;width:20px;height:20px;font-size:0.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
+
+
+/* NAV */
+nav.main-nav{background:var(--primary);}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 16px;display:flex;align-items:stretch;overflow-x:auto;}
+.nav-cat-btn{background:var(--primary-dark);color:#fff;padding:12px 18px;font-weight:700;font-size:0.85rem;display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;border:none;font-family:'Hind Siliguri',sans-serif;}
+.nav-links{display:flex;list-style:none;}
+.nav-links li a{display:block;color:#fff;padding:12px 16px;font-size:0.85rem;font-weight:500;white-space:nowrap;transition:background .2s;}
+.nav-links li a:hover,.nav-links li a.active{background:rgba(255,255,255,0.18);}
+
+
+/* CONTAINER */
+.container{max-width:1200px;margin:0 auto;padding:0 16px;}
+
+
+/* HERO */
+.hero-section{display:grid;grid-template-columns:220px 1fr;gap:0;max-width:1200px;margin:20px auto;padding:0 16px;}
+.sidebar-cats{background:#fff;border:1px solid var(--border);border-radius:4px 0 0 4px;}
+.sidebar-cats h3{background:var(--primary);color:#fff;padding:12px 16px;font-size:0.9rem;font-weight:700;}
+.sidebar-cats ul{list-style:none;}
+.sidebar-cats ul li a{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:0.84rem;border-bottom:1px solid #f0f0f0;transition:background .15s;color:var(--text);}
+.sidebar-cats ul li a:hover{background:#fff5f5;color:var(--primary);}
+.slider-area{background:#1a3a6b;border-radius:0 4px 4px 0;overflow:hidden;position:relative;min-height:300px;display:flex;align-items:center;}
+.slide{display:none;width:100%;padding:36px 48px;position:absolute;inset:0;align-items:center;}
+.slide.active{display:flex;}
+.slide-1{background:linear-gradient(135deg,#0d2347,#1a3a6b,#0a4a2a);}
+.slide-2{background:linear-gradient(135deg,#2c0000,#7a0000,#1a3a6b);}
+.slide-3{background:linear-gradient(135deg,#0a0a0a,#2c1a4a,#1a3a6b);}
+.slide-tag{background:var(--accent);color:#000;font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:2px;text-transform:uppercase;margin-bottom:10px;display:inline-block;}
+.slide-title{font-family:'Tiro Bangla',serif;font-size:clamp(1.3rem,2.5vw,2rem);color:#fff;line-height:1.3;margin-bottom:14px;}
+.slide-title span{color:var(--accent);}
+.slide-btn{background:var(--primary);color:#fff;padding:10px 22px;border:none;border-radius:3px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;}
+.slide-emoji{font-size:5rem;position:absolute;right:36px;opacity:0.12;bottom:16px;}
+.slider-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.4);cursor:pointer;}
+.dot.active{background:#fff;}
+.slider-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.18);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.slider-prev{left:8px;} .slider-next{right:8px;}
+
+
+/* PROMO */
+.promo-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1200px;margin:0 auto 20px;padding:0 16px;}
+.promo-card{padding:14px 18px;border-radius:4px;display:flex;align-items:center;gap:12px;color:#fff;font-weight:600;font-size:0.83rem;}
+.promo-card .picon{font-size:1.6rem;}
+.promo-card small{display:block;font-weight:400;font-size:0.76rem;opacity:0.85;}
+.promo-1{background:linear-gradient(135deg,#e8282c,#c0392b);}
+.promo-2{background:linear-gradient(135deg,#27ae60,#1a7a3c);}
+.promo-3{background:linear-gradient(135deg,#1a3a6b,#0d2347);}
+
+
+/* TRUST */
+.trust-strip{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:0 0 20px;}
+.trust-inner{max-width:1200px;margin:0 auto;padding:14px 16px;display:grid;grid-template-columns:repeat(4,1fr);}
+.trust-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-right:1px solid var(--border);}
+.trust-item:last-child{border-right:none;}
+.trust-icon{font-size:1.6rem;flex-shrink:0;}
+.trust-text strong{display:block;font-size:0.82rem;}
+.trust-text small{font-size:0.73rem;color:var(--muted);}
+
+
+/* SECTION HEADER */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;border-bottom:2px solid var(--primary);padding-bottom:8px;}
+.sec-title{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+.sec-title::before{content:'';display:block;width:4px;height:18px;background:var(--primary);border-radius:2px;}
+.view-all{font-size:0.78rem;color:var(--primary);font-weight:600;border:1px solid var(--primary);padding:3px 10px;border-radius:3px;}
+
+
+/* ===PRODUCT CARDS WITH CART=== */
+.products-section{max-width:1200px;margin:0 auto 20px;padding:0 16px;}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+.product-card{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;transition:box-shadow .2s,transform .2s;position:relative;display:flex;flex-direction:column;}
+.product-card:hover{box-shadow:0 4px 18px rgba(0,0,0,0.1);transform:translateY(-2px);}
+.badge{position:absolute;top:8px;left:8px;background:var(--primary);color:#fff;font-size:0.66rem;font-weight:700;padding:2px 7px;border-radius:2px;z-index:1;}
+.badge-sale{background:var(--green);}
+.badge-new{background:var(--secondary);}
+.prod-img{width:100%;aspect-ratio:1;background:linear-gradient(135deg,#f8f8f8,#ececec);display:flex;align-items:center;justify-content:center;font-size:3.2rem;border-bottom:1px solid #f0f0f0;}
+.prod-body{padding:10px 12px;flex:1;}
+.prod-name{font-size:0.82rem;font-weight:600;line-height:1.4;color:var(--text);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+
+/* UNIT SELECTOR */
+.unit-selector{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.unit-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:3px;font-size:0.72rem;font-weight:600;cursor:pointer;background:#fff;color:var(--muted);font-family:'Hind Siliguri',sans-serif;transition:all .2s;}
+.unit-btn.active{border-color:var(--primary);background:#fff5f5;color:var(--primary);}
+.unit-price{font-size:0.78rem;color:var(--muted);margin-bottom:6px;}
+.unit-price span{font-size:1rem;font-weight:700;color:var(--primary);}
+.unit-price del{font-size:0.75rem;margin-left:4px;}
+
+
+/* QTY + ADD */
+.prod-footer{padding:8px 12px;border-top:1px solid #f5f5f5;display:flex;align-items:center;gap:6px;}
+.qty-wrap{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:4px;overflow:hidden;}
+.qty-btn{background:#f5f5f5;border:none;width:28px;height:28px;font-size:1rem;cursor:pointer;font-weight:700;line-height:1;transition:background .15s;}
+.qty-btn:hover{background:#ffe0e0;color:var(--primary);}
+.qty-val{width:32px;text-align:center;font-size:0.85rem;font-weight:700;border:none;outline:none;font-family:'Hind Siliguri',sans-serif;}
+.btn-add{flex:1;background:var(--primary);color:#fff;border:none;border-radius:4px;padding:7px 0;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;transition:background .2s;}
+.btn-add:hover{background:var(--primary-dark);}
+.btn-add.added{background:var(--green);}
+
+
+/* BANNER */
+.banner-full{max-width:1200px;margin:0 auto 20px;padding:0 16px;}
+.banner-card{border-radius:6px;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;overflow:hidden;position:relative;}
+.banner-card.blue-banner{background:linear-gradient(135deg,#0d2347,#1a3a6b);}
+.banner-card.green-banner{background:linear-gradient(135deg,#0a3a1a,#27ae60);}
+.bc-emoji{font-size:4rem;position:absolute;right:32px;opacity:0.15;}
+.bc-tag{font-size:0.68rem;color:rgba(255,255,255,0.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.bc-title{font-family:'Tiro Bangla',serif;font-size:1.3rem;color:#fff;line-height:1.4;margin-bottom:10px;}
+.bc-title span{color:var(--accent);}
+.bc-btn{background:#fff;color:var(--text);padding:9px 20px;border:none;border-radius:3px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;}
+
+
+/* CATS */
+.cats-section{max-width:1200px;margin:0 auto 20px;padding:0 16px;}
+.cats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+.cat-item{background:#fff;border:1px solid var(--border);border-radius:4px;padding:16px 8px;text-align:center;cursor:pointer;transition:all .2s;}
+.cat-item:hover{border-color:var(--primary);box-shadow:0 2px 8px rgba(232,40,44,0.1);}
+.cat-item .ci{font-size:1.8rem;margin-bottom:6px;}
+.cat-item p{font-size:0.78rem;font-weight:600;}
+.cat-item small{font-size:0.68rem;color:var(--muted);}
+
+
+/* ===CART DRAWER=== */
+.cart-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;}
+.cart-overlay.open{display:block;}
+.cart-drawer{position:fixed;top:0;right:0;bottom:0;width:380px;max-width:100vw;background:#fff;z-index:500;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(0,0,0,0.15);}
+.cart-drawer.open{transform:translateX(0);}
+.cart-header{background:var(--primary);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+.cart-header h3{font-size:1rem;font-weight:700;}
+.cart-close{background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;line-height:1;}
+.cart-body{flex:1;overflow-y:auto;padding:16px;}
+.cart-empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.cart-empty .ce-icon{font-size:3rem;margin-bottom:12px;}
+
+
+/* CART ITEM */
+.cart-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f0f0f0;}
+.ci-icon{font-size:2rem;width:48px;height:48px;background:#f8f8f8;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ci-info{flex:1;}
+.ci-name{font-size:0.82rem;font-weight:600;margin-bottom:3px;line-height:1.3;}
+.ci-unit{font-size:0.72rem;color:var(--muted);margin-bottom:4px;}
+.ci-qty-row{display:flex;align-items:center;gap:8px;}
+.ci-qty-wrap{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:4px;overflow:hidden;}
+.ci-qty-btn{background:#f5f5f5;border:none;width:26px;height:26px;font-size:0.9rem;cursor:pointer;font-weight:700;}
+.ci-qty-val{width:30px;text-align:center;font-size:0.82rem;font-weight:700;border:none;outline:none;font-family:'Hind Siliguri',sans-serif;}
+.ci-price{font-size:0.88rem;font-weight:700;color:var(--primary);}
+.ci-remove{background:none;border:none;color:#ccc;font-size:1rem;cursor:pointer;margin-left:4px;transition:color .2s;}
+.ci-remove:hover{color:var(--primary);}
+
+
+/* CUSTOMER INFO */
+.customer-form{padding:14px 16px;border-top:2px solid var(--border);background:#fafafa;}
+.customer-form h4{font-size:0.9rem;font-weight:700;margin-bottom:10px;color:var(--secondary);}
+.form-group{margin-bottom:10px;}
+.form-group label{display:block;font-size:0.75rem;color:var(--muted);margin-bottom:4px;font-weight:600;}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:4px;font-size:0.83rem;font-family:'Hind Siliguri',sans-serif;outline:none;transition:border .2s;}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--primary);}
+.form-group textarea{resize:vertical;min-height:60px;}
+
+
+/* CART FOOTER */
+.cart-footer{padding:14px 16px;border-top:2px solid var(--border);background:#fff;}
+.cart-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.cart-total span{font-size:0.85rem;color:var(--muted);}
+.cart-total strong{font-size:1.1rem;font-weight:700;color:var(--primary);}
+.cart-total-items{font-size:0.75rem;color:var(--muted);margin-bottom:10px;}
+.wa-order-btn{width:100%;background:#25D366;color:#fff;border:none;border-radius:5px;padding:13px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s;}
+.wa-order-btn:hover{background:#1da855;}
+.wa-order-btn:disabled{background:#ccc;cursor:not-allowed;}
+.clear-cart{width:100%;margin-top:8px;background:none;border:1px solid #ddd;border-radius:4px;padding:8px;font-size:0.78rem;color:var(--muted);cursor:pointer;font-family:'Hind Siliguri',sans-serif;}
+
+
+/* CONTACT */
+.contact-section{background:#fff;max-width:1200px;margin:0 auto 20px;padding:24px;border:1px solid var(--border);border-radius:4px;}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.contact-block h3{font-size:0.95rem;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--primary);}
+.info-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+.info-row:last-child{border-bottom:none;}
+.iicon{font-size:1rem;width:24px;text-align:center;flex-shrink:0;margin-top:2px;}
+.itext strong{display:block;font-size:0.72rem;color:var(--muted);margin-bottom:2px;}
+.itext span{font-size:0.88rem;font-weight:600;line-height:1.5;}
+.phone-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;}
+.phone-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:4px;border:1px solid var(--border);font-size:0.78rem;font-weight:600;cursor:pointer;text-decoration:none;color:var(--text);transition:all .2s;}
+.phone-btn:hover{border-color:var(--primary);color:var(--primary);}
+.ptag{font-size:0.62rem;font-weight:700;padding:1px 5px;border-radius:2px;}
+.tag-bk{background:#e2136e;color:#fff;}
+.tag-ng{background:#f26522;color:#fff;}
+.tag-m{background:var(--secondary);color:#fff;}
+.map-placeholder{background:#f0f4ff;border:2px dashed #c5d3f0;border-radius:4px;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:16px;}
+.map-placeholder p{font-size:0.82rem;color:var(--muted);line-height:1.6;}
+.map-placeholder a{background:var(--secondary);color:#fff;padding:7px 18px;border-radius:3px;font-size:0.78rem;font-weight:700;}
+
+
+/* FOOTER */
+footer{background:#1a1a2e;color:#ccc;margin-top:8px;}
+.footer-top{max-width:1200px;margin:0 auto;padding:28px 16px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px;}
+.footer-col h4{color:#fff;font-size:0.88rem;font-weight:700;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,0.1);}
+.footer-col p,.footer-col li{font-size:0.78rem;line-height:1.8;}
+.footer-col ul{list-style:none;}
+.footer-col ul li a{color:#aaa;transition:color .2s;}
+.footer-col ul li a:hover{color:var(--accent);}
+.fc-logo{font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:10px;}
+.fc-logo span{color:var(--primary);}
+.pay-badge{background:#fff;border-radius:3px;padding:2px 7px;font-size:0.68rem;font-weight:700;color:#333;margin-right:6px;margin-top:4px;display:inline-block;}
+.footer-bottom{background:#111;text-align:center;padding:12px;font-size:0.73rem;color:#666;}
+.footer-bottom span{color:var(--accent);}
+
+
+/* MOB NAV */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);z-index:300;justify-content:space-around;padding:8px 0;}
+.mob-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:0.62rem;color:var(--muted);cursor:pointer;position:relative;}
+.mob-nav a .mni{font-size:1.2rem;}
+.mob-nav a.active,.mob-nav a:hover{color:var(--primary);}
+.mob-cart-badge{position:absolute;top:-2px;right:-6px;background:var(--primary);color:#fff;border-radius:50%;width:16px;height:16px;font-size:0.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+
+/* ADD ANIMATION */
+@keyframes popIn{0%{transform:scale(0.8);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.pop{animation:popIn .25s ease;}
+
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .hero-section{grid-template-columns:1fr;}
+  .sidebar-cats{display:none;}
+  .slider-area{border-radius:4px;min-height:220px;}
+  .footer-top{grid-template-columns:1fr 1fr;}
+  .trust-inner{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:600px){
+  .promo-strip{grid-template-columns:1fr;}
+  .footer-top{grid-template-columns:1fr;}
+  .mob-nav{display:flex;}
+  body{padding-bottom:62px;}
+  .cart-drawer{width:100vw;}
+  .contact-grid{grid-template-columns:1fr;}
+  .phone-grid{grid-template-columns:1fr;}
+  .trust-item{border-right:none;border-bottom:1px solid var(--border);}
+}
+</style>
+</head>
+<body>
+
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <span>📍 ইসলাম ইলেকট্রিক মার্কেট, নবাবপুর, ঢাকা-১১০০</span>
+    <div><span>শনি–বৃহস্পতি ৯টা–৮টা</span><a href="tel:01712927995">📞 01712-927995</a></div>
+  </div>
+</div>
+
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <div class="logo-badge">BE</div>
+      <div class="logo-text">
+        <div class="bn">বুল বুল এন্টারপ্রাইজ</div>
+        <div class="en">BUL BUL ENTERPRISE</div>
+      </div>
+    </div>
+    <div class="search-bar">
+      <input type="text" placeholder="পণ্য খুঁজুন... LED বাল্ব, তার, সুইচ..."/>
+      <button>🔍</button>
+    </div>
+    <div class="header-right">
+      <a href="tel:01712927995" class="hbtn hbtn-call">📞 কল</a>
+      <button class="cart-btn" onclick="toggleCart()">
+        🛒 অর্ডার তালিকা
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<!-- NAV -->
+<nav class="main-nav">
+  <div class="nav-inner">
+    <button class="nav-cat-btn">☰ সকল বিভাগ</button>
+    <ul class="nav-links">
+      <li><a href="#" class="active">🏠 হোম</a></li>
+      <li><a href="#products">⚡ পণ্য</a></li>
+      <li><a href="#contact">📞 যোগাযোগ</a></li>
+      <li><a href="#" onclick="toggleCart()">🛒 অর্ডার</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+<!-- HERO -->
+<div class="hero-section">
+  <div class="sidebar-cats">
+    <h3>☰ পণ্য বিভাগ</h3>
+    <ul>
+      <li><a href="#products">💡 বাল্ব ও লাইট</a></li>
+      <li><a href="#products">🔌 তার ও ক্যাবল</a></li>
+      <li><a href="#products">🔧 সুইচ ও সকেট</a></li>
+      <li><a href="#products">⚡ সার্কিট ব্রেকার</a></li>
+      <li><a href="#products">🌀 ফ্যান ও মোটর</a></li>
+      <li><a href="#products">🔋 ব্যাটারি ও IPS</a></li>
+      <li><a href="#products">☀️ সোলার প্যানেল</a></li>
+      <li><a href="#products">📦 ডিস্ট্রিবিউশন বোর্ড</a></li>
+      <li><a href="#products">🔦 টর্চলাইট</a></li>
+      <li><a href="#products">🛠️ ইলেকট্রিক টুলস</a></li>
+    </ul>
+  </div>
+  <div class="slider-area" id="slider">
+    <div class="slide slide-1 active">
+      <div class="slide-content">
+        <div class="slide-tag">⚡ পাইকারী ও খুচরা</div>
+        <h2 class="slide-title">সকল ধরনের<br/><span>ইলেকট্রিক মালামাল</span><br/>এক জায়গায়</h2>
+        <button class="slide-btn" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">পণ্য দেখুন →</button>
+      </div>
+      <span class="slide-emoji">⚡</span>
+    </div>
+    <div class="slide slide-2">
+      <div class="slide-content">
+        <div class="slide-tag">💡 সেরা মূল্যে</div>
+        <h2 class="slide-title">LED বাল্ব ও<br/><span>সকল ধরনের আলো</span><br/>সর্বনিম্ন মূল্যে</h2>
+        <button class="slide-btn" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">অর্ডার করুন →</button>
+      </div>
+      <span class="slide-emoji">💡</span>
+    </div>
+    <div class="slide slide-3">
+      <div class="slide-content">
+        <div class="slide-tag">📦 পাইকারি অফার</div>
+        <h2 class="slide-title">তার ও ক্যাবলে<br/><span>বিশেষ ছাড়</span><br/>বাল্ক অর্ডারে</h2>
+        <button class="slide-btn" onclick="toggleCart()">অর্ডার করুন →</button>
+      </div>
+      <span class="slide-emoji">🔌</span>
+    </div>
+    <button class="slider-nav slider-prev" onclick="changeSlide(-1)">‹</button>
+    <button class="slider-nav slider-next" onclick="changeSlide(1)">›</button>
+    <div class="slider-dots">
+      <div class="dot active" onclick="goSlide(0)"></div>
+      <div class="dot" onclick="goSlide(1)"></div>
+      <div class="dot" onclick="goSlide(2)"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PROMO -->
+<div class="promo-strip">
+  <div class="promo-card promo-1"><div class="picon">🏪</div><div><strong>পাইকারী বিক্রয়</strong><small>ঠিকাদার ও দোকানদারদের জন্য বিশেষ মূল্য</small></div></div>
+  <div class="promo-card promo-2"><div class="picon">✅</div><div><strong>মানসম্পন্ন পণ্য</strong><small>সরাসরি কোম্পানি থেকে সংগৃহীত</small></div></div>
+  <div class="promo-card promo-3"><div class="picon">💳</div><div><strong>bKash / নগদ সুবিধা</strong><small>মোবাইল ব্যাংকিংয়ে পেমেন্ট করুন</small></div></div>
+</div>
+
+
+<!-- TRUST -->
+<div class="trust-strip">
+  <div class="trust-inner">
+    <div class="trust-item"><span class="trust-icon">🏆</span><div class="trust-text"><strong>বিশ্বস্ত দোকান</strong><small>দীর্ঘদিনের অভিজ্ঞতা</small></div></div>
+    <div class="trust-item"><span class="trust-icon">📦</span><div class="trust-text"><strong>পাইকারী ও খুচরা</strong><small>উভয় সেবা উপলব্ধ</small></div></div>
+    <div class="trust-item"><span class="trust-icon">💰</span><div class="trust-text"><strong>সর্বনিম্ন মূল্য</strong><small>বাজারের সেরা দামে</small></div></div>
+    <div class="trust-item"><span class="trust-icon">💬</span><div class="trust-text"><strong>WhatsApp অর্ডার</strong><small>সহজে অর্ডার করুন</small></div></div>
+  </div>
+</div>
+
+
+<!-- CATS -->
+<div class="cats-section" id="categories">
+  <div class="sec-header">
+    <div class="sec-title">পণ্য বিভাগ</div>
+    <a href="#products" class="view-all">সব দেখুন →</a>
+  </div>
+  <div class="cats-grid">
+    <div class="cat-item"><div class="ci">💡</div><p>বাল্ব ও লাইট</p><small>LED, CFL</small></div>
+    <div class="cat-item"><div class="ci">🔌</div><p>তার ও ক্যাবল</p><small>Wire, Cable</small></div>
+    <div class="cat-item"><div class="ci">🔧</div><p>সুইচ ও সকেট</p><small>Switch, Socket</small></div>
+    <div class="cat-item"><div class="ci">⚡</div><p>সার্কিট ব্রেকার</p><small>MCB, RCCB</small></div>
+    <div class="cat-item"><div class="ci">🌀</div><p>ফ্যান</p><small>Ceiling, Pedestal</small></div>
+    <div class="cat-item"><div class="ci">🔋</div><p>ব্যাটারি & IPS</p><small>Battery, UPS</small></div>
+    <div class="cat-item"><div class="ci">☀️</div><p>সোলার</p><small>Solar Panel</small></div>
+    <div class="cat-item"><div class="ci">📦</div><p>DB বোর্ড</p><small>Distribution Box</small></div>
+    <div class="cat-item"><div class="ci">🔦</div><p>টর্চলাইট</p><small>Torch, Lantern</small></div>
+    <div class="cat-item"><div class="ci">🛠️</div><p>ইলেকট্রিক টুলস</p><small>Tools</small></div>
+  </div>
+</div>
+
+
+<!-- PRODUCTS -->
+<div class="products-section" id="products">
+  <div class="sec-header">
+    <div class="sec-title">🔥 জনপ্রিয় পণ্যসমূহ</div>
+    <span style="font-size:0.75rem;color:var(--muted);">পরিমাণ বেছে কার্টে যোগ করুন</span>
+  </div>
+  <div class="product-grid" id="productGrid"></div>
+</div>
+
+
+<!-- BANNER -->
+<div class="banner-full">
+  <div class="banner-card blue-banner">
+    <div>
+      <div class="bc-tag">⚡ পাইকারী অফার</div>
+      <div class="bc-title">ঠিকাদার ও দোকানদারদের জন্য<br/><span>বিশেষ পাইকারী মূল্য</span></div>
+      <button class="bc-btn" onclick="window.location.href='tel:01712927995'">📞 এখনই যোগাযোগ করুন</button>
+    </div>
+    <span class="bc-emoji">🏗️</span>
+  </div>
+</div>
+
+
+<!-- CONTACT -->
+<div class="container" id="contact">
+  <div class="contact-section">
+    <div class="sec-header" style="margin-bottom:16px;">
+      <div class="sec-title">আমাদের সাথে যোগাযোগ করুন</div>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-block">
+        <h3>📋 দোকানের তথ্য</h3>
+        <div class="info-row"><span class="iicon">👤</span><div class="itext"><strong>প্রোপ্রাইটর</strong><span>মো. বুল বুল ইসলাম</span></div></div>
+        <div class="info-row"><span class="iicon">📍</span><div class="itext"><strong>ঠিকানা</strong><span>ইসলাম ইলেকট্রিক মার্কেট, দোকান নং-১৪, ১৯<br/>কাজী আঃ হামিদ লেন, নবাবপুর, ঢাকা-১১০০</span></div></div>
+        <div class="info-row">
+          <span class="iicon">📞</span>
+          <div class="itext">
+            <strong>ফোন নম্বর</strong>
+            <div class="phone-grid">
+              <a href="tel:01712927995" class="phone-btn"><span class="ptag tag-bk">bKash</span> 01712-927995</a>
+              <a href="tel:01912469930" class="phone-btn"><span class="ptag tag-ng">নগদ</span> 01912-469930</a>
+              <a href="tel:01999503321" class="phone-btn"><span class="ptag tag-m">ফোন</span> 01999-503321</a>
+              <a href="tel:01776373551" class="phone-btn"><span class="ptag tag-m">মোবা</span> 01776-373551</a>
+            </div>
+          </div>
+        </div>
+        <div class="info-row"><span class="iicon">🕐</span><div class="itext"><strong>খোলার সময়</strong><span>শনি–বৃহস্পতিবার: সকাল ৯টা – রাত ৮টা</span></div></div>
+      </div>
+      <div class="contact-block">
+        <h3>🗺️ অবস্থান</h3>
+        <div class="map-placeholder">
+          <span style="font-size:2.5rem;">📍</span>
+          <p><strong>ইসলাম ইলেকট্রিক মার্কেট</strong><br/>দোকান নং-১৪, ১৯, কাজী আঃ হামিদ লেন<br/>নবাবপুর, ঢাকা-১১০০</p>
+          <a href="https://maps.google.com/?q=নবাবপুর+ইলেকট্রিক+মার্কেট+ঢাকা" target="_blank">🗺️ Google Maps-এ দেখুন</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-col">
+      <div class="fc-logo">বুল বুল <span>এন্টারপ্রাইজ</span></div>
+      <p>ইসলাম ইলেকট্রিক মার্কেট, নবাবপুর, ঢাকা-১১০০। সকল ধরনের ইলেকট্রিক সামগ্রী পাইকারী ও খুচরা মূল্যে পাওয়া যায়।</p>
+      <div style="margin-top:10px;"><span class="pay-badge">bKash</span><span class="pay-badge">নগদ</span><span class="pay-badge">CASH</span></div>
+    </div>
+    <div class="footer-col">
+      <h4>পণ্য বিভাগ</h4>
+      <ul>
+        <li><a href="#">💡 বাল্ব ও লাইট</a></li>
+        <li><a href="#">🔌 তার ও ক্যাবল</a></li>
+        <li><a href="#">🔧 সুইচ ও সকেট</a></li>
+        <li><a href="#">⚡ সার্কিট ব্রেকার</a></li>
+        <li><a href="#">🌀 ফ্যান ও মোটর</a></li>
+        <li><a href="#">🔋 ব্যাটারি ও IPS</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>লিংক</h4>
+      <ul>
+        <li><a href="#">🏠 হোম</a></li>
+        <li><a href="#products">📦 পণ্যসমূহ</a></li>
+        <li><a href="#contact">📞 যোগাযোগ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>যোগাযোগ</h4>
+      <ul>
+        <li><a href="tel:01712927995">📞 01712-927995</a></li>
+        <li><a href="tel:01912469930">📞 01912-469930</a></li>
+        <li><a href="tel:01999503321">📞 01999-503321</a></li>
+        <li><a href="tel:01776373551">📞 01776-373551</a></li>
+        <li>📍 নবাবপুর, ঢাকা-১১০০</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">Copyright 2026 © <span>বুল বুল এন্টারপ্রাইজ</span> | মো. বুল বুল ইসলাম | সর্বস্বত্ব সংরক্ষিত</div>
+</footer>
+
+
+<!-- MOBILE NAV -->
+<nav class="mob-nav">
+  <a href="#" class="active"><span class="mni">🏠</span>হোম</a>
+  <a href="#categories"><span class="mni">📂</span>বিভাগ</a>
+  <a href="#products"><span class="mni">⚡</span>পণ্য</a>
+  <a href="#" onclick="toggleCart()"><span class="mni">🛒</span>অর্ডার<span class="mob-cart-badge" id="mobCartBadge">0</span></a>
+  <a href="tel:01712927995"><span class="mni">📞</span>কল</a>
+</nav>
+
+
+<!-- CART OVERLAY -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+
+
+<!-- CART DRAWER -->
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h3>🛒 অর্ডার তালিকা</h3>
+    <button class="cart-close" onclick="toggleCart()">✕</button>
+  </div>
+
+
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty" id="cartEmpty">
+      <div class="ce-icon">🛒</div>
+      <p>এখনো কোনো পণ্য যোগ করা হয়নি</p>
+      <p style="font-size:0.78rem;margin-top:6px;color:#aaa;">পণ্য বেছে "কার্টে যোগ" করুন</p>
+    </div>
+    <div id="cartItemsList"></div>
+  </div>
+
+
+  <div class="customer-form" id="customerForm" style="display:none;">
+    <h4>📋 আপনার তথ্য দিন</h4>
+    <div class="form-group">
+      <label>আপনার নাম *</label>
+      <input type="text" id="custName" placeholder="আপনার পুরো নাম লিখুন"/>
+    </div>
+    <div class="form-group">
+      <label>মোবাইল নম্বর *</label>
+      <input type="tel" id="custPhone" placeholder="01XXXXXXXXX"/>
+    </div>
+    <div class="form-group">
+      <label>ঠিকানা / এলাকা</label>
+      <input type="text" id="custAddress" placeholder="আপনার ঠিকানা বা এলাকার নাম"/>
+    </div>
+    <div class="form-group">
+      <label>বিশেষ নির্দেশনা (ঐচ্ছিক)</label>
+      <textarea id="custNote" placeholder="যেকোনো বিশেষ কথা লিখুন..."></textarea>
+    </div>
+  </div>
+
+
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="cart-total">
+      <span>মোট পণ্য:</span>
+      <span id="totalItems">০ টি</span>
+    </div>
+    <div class="cart-total-items" id="totalNote">দাম নিশ্চিত করতে দোকানে যোগাযোগ করুন</div>
+    <button class="wa-order-btn" onclick="sendWhatsApp()">
+      💬 WhatsApp-এ অর্ডার পাঠান
+    </button>
+    <button class="clear-cart" onclick="clearCart()">🗑️ তালিকা মুছুন</button>
+  </div>
+</div>
+
+
+<script>
+// ====== PRODUCT DATA ======
+const products = [
+  {id:1,  name:'LED বাল্ব ৯W',             icon:'💡', cat:'বাল্ব ও লাইট',   badge:'sale', badgeText:'২০% ছাড়',
+    units:[{label:'পিস',price:45,old:55},{label:'ডজন (১২টি)',price:480,old:600}]},
+  {id:2,  name:'LED বাল্ব ১৮W',            icon:'💡', cat:'বাল্ব ও লাইট',   badge:'',     badgeText:'',
+    units:[{label:'পিস',price:85,old:0},{label:'ডজন (১২টি)',price:950,old:0}]},
+  {id:3,  name:'ইলেকট্রিক তার ১.৫mm²',    icon:'🔌', cat:'তার ও ক্যাবল',   badge:'new',  badgeText:'নতুন',
+    units:[{label:'মিটার',price:18,old:0},{label:'রিল (১০০ মি.)',price:1600,old:0}]},
+  {id:4,  name:'ইলেকট্রিক তার ২.৫mm²',    icon:'🔌', cat:'তার ও ক্যাবল',   badge:'',     badgeText:'',
+    units:[{label:'মিটার',price:28,old:0},{label:'রিল (১০০ মি.)',price:2600,old:0}]},
+  {id:5,  name:'MCB সার্কিট ব্রেকার ৩২A', icon:'⚡', cat:'সার্কিট ব্রেকার', badge:'',     badgeText:'',
+    units:[{label:'পিস',price:180,old:220},{label:'বক্স (১০টি)',price:1600,old:2000}]},
+  {id:6,  name:'সুইচ সকেট কম্বো ৫ পিন',  icon:'🔧', cat:'সুইচ ও সকেট',    badge:'',     badgeText:'পাইকারী',
+    units:[{label:'পিস',price:120,old:0},{label:'ডজন (১২টি)',price:1300,old:0}]},
+  {id:7,  name:'সিলিং ফ্যান ৫৬ ইঞ্চি',   icon:'🌀', cat:'ফ্যান',            badge:'sale', badgeText:'১৫% ছাড়',
+    units:[{label:'পিস',price:2800,old:3200}]},
+  {id:8,  name:'IPS ব্যাটারি ১৩০Ah',      icon:'🔋', cat:'ব্যাটারি ও IPS',  badge:'sale', badgeText:'১৫% ছাড়',
+    units:[{label:'পিস',price:14500,old:17000}]},
+  {id:9,  name:'ডিস্ট্রিবিউশন বক্স ৮ ওয়ে',icon:'📦',cat:'DB বোর্ড',        badge:'',     badgeText:'',
+    units:[{label:'পিস',price:650,old:0}]},
+  {id:10, name:'সোলার প্যানেল ১০০W',       icon:'☀️', cat:'সোলার',            badge:'new',  badgeText:'নতুন',
+    units:[{label:'পিস',price:5500,old:0}]},
+  {id:11, name:'ইলেকট্রিক টেস্টার পেন',   icon:'🛠️', cat:'টুলস',             badge:'sale', badgeText:'১০% ছাড়',
+    units:[{label:'পিস',price:180,old:200},{label:'ডজন (১২টি)',price:1900,old:2200}]},
+  {id:12, name:'মাল্টি প্লাগ ৪ পিন ৫ মি.',icon:'🔌', cat:'তার ও ক্যাবল',   badge:'',     badgeText:'',
+    units:[{label:'পিস',price:280,old:0},{label:'ডজন (১২টি)',price:3000,old:0}]},
+];
+
+
+// ====== STATE ======
+let cart = {}; // {productId_unitIndex: {product, unitIdx, qty}}
+let selectedUnits = {}; // {productId: unitIndex}
+
+
+// ====== RENDER PRODUCTS ======
+function renderProducts(){
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = products.map(p => {
+    const su = selectedUnits[p.id] || 0;
+    const unit = p.units[su];
+    const unitBtns = p.units.map((u,i)=>
+      `<button class="unit-btn ${i===su?'active':''}" onclick="selectUnit(${p.id},${i})">${u.label}</button>`
+    ).join('');
+    const badgeHtml = p.badge ? `<span class="badge badge-${p.badge}">${p.badgeText}</span>` : '';
+    const oldPrice = unit.old ? `<del>৳${unit.old.toLocaleString('bn-BD')}</del>` : '';
+    return `
+    <div class="product-card" id="card-${p.id}">
+      ${badgeHtml}
+      <div class="prod-img">${p.icon}</div>
+      <div class="prod-body">
+        <div class="prod-name">${p.name}</div>
+        <div class="unit-selector">${unitBtns}</div>
+        <div class="unit-price">একক মূল্য: <span>৳${unit.price.toLocaleString('bn-BD')}</span>${oldPrice}</div>
+      </div>
+      <div class="prod-footer">
+        <div class="qty-wrap">
+          <button class="qty-btn" onclick="changeQtyInCard(${p.id},-1)">−</button>
+          <input class="qty-val" id="qty-${p.id}" type="number" value="1" min="1" max="999"/>
+          <button class="qty-btn" onclick="changeQtyInCard(${p.id},1)">+</button>
+        </div>
+        <button class="btn-add" id="addbtn-${p.id}" onclick="addToCart(${p.id})">🛒 কার্টে যোগ</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
+function selectUnit(pid, idx){
+  selectedUnits[pid] = idx;
+  renderProducts();
+}
+
+
+function changeQtyInCard(pid, delta){
+  const el = document.getElementById('qty-'+pid);
+  let v = parseInt(el.value)||1;
+  v = Math.max(1, v+delta);
+  el.value = v;
+}
+
+
+function addToCart(pid){
+  const product = products.find(p=>p.id===pid);
+  const unitIdx = selectedUnits[pid]||0;
+  const qty = parseInt(document.getElementById('qty-'+pid).value)||1;
+  const key = `${pid}_${unitIdx}`;
+  if(cart[key]){
+    cart[key].qty += qty;
+  } else {
+    cart[key] = {product, unitIdx, qty};
+  }
+  // Flash button
+  const btn = document.getElementById('addbtn-'+pid);
+  btn.classList.add('added');
+  btn.textContent = '✅ যোগ হয়েছে!';
+  setTimeout(()=>{btn.classList.remove('added');btn.textContent='🛒 কার্টে যোগ';},1500);
+  updateCartUI();
+  renderCartItems();
+}
+
+
+// ====== CART UI ======
+function updateCartUI(){
+  const total = Object.values(cart).reduce((a,i)=>a+i.qty,0);
+  document.getElementById('cartCount').textContent=total;
+  document.getElementById('mobCartBadge').textContent=total;
+  const hasItems = total>0;
+  document.getElementById('cartEmpty').style.display = hasItems?'none':'block';
+  document.getElementById('customerForm').style.display = hasItems?'block':'none';
+  document.getElementById('cartFooter').style.display = hasItems?'block':'none';
+  // total items label
+  document.getElementById('totalItems').textContent = total + ' টি পণ্য';
+}
+
+
+function renderCartItems(){
+  const container = document.getElementById('cartItemsList');
+  const items = Object.entries(cart);
+  container.innerHTML = items.map(([key,item])=>{
+    const unit = item.product.units[item.unitIdx];
+    return `
+    <div class="cart-item" id="cartitem-${key}">
+      <div class="ci-icon">${item.product.icon}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.product.name}</div>
+        <div class="ci-unit">একক: ${unit.label} | প্রতি ${unit.label}: ৳${unit.price.toLocaleString('bn-BD')}</div>
+        <div class="ci-qty-row">
+          <div class="ci-qty-wrap">
+            <button class="ci-qty-btn" onclick="changeCartQty('${key}',-1)">−</button>
+            <input class="ci-qty-val" value="${item.qty}" id="cq-${key}" onchange="setCartQty('${key}',this.value)"/>
+            <button class="ci-qty-btn" onclick="changeCartQty('${key}',1)">+</button>
+          </div>
+          <span class="ci-price">৳${(unit.price*item.qty).toLocaleString('bn-BD')}</span>
+          <button class="ci-remove" onclick="removeFromCart('${key}')">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  updateCartUI();
+}
+
+
+function changeCartQty(key, delta){
+  cart[key].qty = Math.max(1, cart[key].qty+delta);
+  renderCartItems();
+}
+function setCartQty(key, val){
+  cart[key].qty = Math.max(1, parseInt(val)||1);
+  renderCartItems();
+}
+function removeFromCart(key){
+  delete cart[key];
+  renderCartItems();
+}
+function clearCart(){
+  if(confirm('অর্ডার তালিকা মুছে ফেলবেন?')){cart={};renderCartItems();}
+}
+function toggleCart(){
+  document.getElementById('cartDrawer').classList.toggle('open');
+  document.getElementById('cartOverlay').classList.toggle('open');
+}
+
+
+// ====== WHATSAPP ORDER ======
+function sendWhatsApp(){
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  const note = document.getElementById('custNote').value.trim();
+  if(!name){alert('অনুগ্রহ করে আপনার নাম লিখুন');document.getElementById('custName').focus();return;}
+  if(!phone){alert('অনুগ্রহ করে মোবাইল নম্বর লিখুন');document.getElementById('custPhone').focus();return;}
+
+
+  const items = Object.values(cart);
+  if(items.length===0){alert('অর্ডার তালিকা খালি!');return;}
+
+
+  // Build message
+  const line = '─────────────────────';
+  let msg = '';
+  msg += `🛒 *নতুন অর্ডার*\n`;
+  msg += `*বুল বুল এন্টারপ্রাইজ*\n`;
+  msg += `${line}\n`;
+  msg += `👤 *নাম:* ${name}\n`;
+  msg += `📞 *মোবাইল:* ${phone}\n`;
+  if(address) msg += `📍 *ঠিকানা:* ${address}\n`;
+  msg += `${line}\n`;
+  msg += `📦 *অর্ডার তালিকা:*\n\n`;
+
+
+  let totalQty = 0;
+  items.forEach((item,i)=>{
+    const unit = item.product.units[item.unitIdx];
+    const subtotal = unit.price * item.qty;
+    totalQty += item.qty;
+    msg += `${i+1}. ${item.product.icon} *${item.product.name}*\n`;
+    msg += `   একক: ${unit.label}\n`;
+    msg += `   পরিমাণ: ${item.qty} ${unit.label}\n`;
+    msg += `   একক মূল্য: ৳${unit.price.toLocaleString()}\n`;
+    msg += `   মোট: ৳${subtotal.toLocaleString()}\n\n`;
+  });
+
+
+  msg += `${line}\n`;
+  msg += `📊 *মোট পণ্য:* ${totalQty} টি\n`;
+  msg += `💰 *মোট মূল্য:* দোকান থেকে নিশ্চিত করুন\n`;
+  if(note) msg += `\n📝 *বিশেষ নির্দেশনা:* ${note}\n`;
+  msg += `${line}\n`;
+  msg += `⏰ ${new Date().toLocaleString('bn-BD')}\n`;
+  msg += `\n_বুল বুল এন্টারপ্রাইজ ওয়েবসাইট থেকে অর্ডার_`;
+
+
+  const encoded = encodeURIComponent(msg);
+  const waNumber = '8801712927995';
+  window.open(`https://wa.me/${waNumber}?text=${encoded}`, '_blank');
+}
+
+
+// ====== SLIDER ======
+let cur=0;
+const slides=document.querySelectorAll('.slide');
+const dots=document.querySelectorAll('.dot');
+function showSlide(n){
+  slides[cur].classList.remove('active');dots[cur].classList.remove('active');
+  cur=(n+slides.length)%slides.length;
+  slides[cur].classList.add('active');dots[cur].classList.add('active');
+}
+function changeSlide(d){showSlide(cur+d);}
+function goSlide(n){showSlide(n);}
+setInterval(()=>changeSlide(1),4500);
+
+
+// ====== INIT ======
+renderProducts();
+</script>
+</body>
+</html>
+
