@@ -1,0 +1,485 @@
+import { useState, useMemo } from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+
+// ═══════════════════════════════════════════════════════
+//  BULBUL ENTERPRISE — সম্পূর্ণ হিসাব সিস্টেম
+// ═══════════════════════════════════════════════════════
+
+// ── আইকন ──────────────────────────────────────────────
+const Icon = ({ name, size = 16 }) => {
+  const icons = {
+    home: "🏠", purchase: "🛒", sales: "💰", stock: "📦",
+    bank: "🏦", customer: "👥", supplier: "🏪", report: "📊",
+    add: "➕", delete: "🗑️", edit: "✏️", save: "💾",
+    warning: "⚠️", ok: "✅", search: "🔍", close: "✖️",
+    money: "💵", arrow_up: "↑", arrow_down: "↓", list: "📋",
+    pay: "💳", due: "🔴", paid: "🟢", partial: "🟡",
+  };
+  return <span style={{ fontSize: size }}>{icons[name] || "•"}</span>;
+};
+
+// ── তারিখ ও সংখ্যা হেল্পার ──────────────────────────────
+const today = () => new Date().toISOString().split("T")[0];
+const fmtDate = (d) => {
+  if (!d) return "";
+  const dt = new Date(d);
+  return dt.toLocaleDateString("bn-BD", { day: "2-digit", month: "short", year: "numeric" });
+};
+const fmtNum = (n) => Number(n || 0).toLocaleString("bn-BD");
+
+// ── মাস্টার ডেটা (Excel থেকে) ──────────────────────────
+const INIT_CUSTOMERS = [
+  "CASH CASTOMAR","DILRUBA EL LALBAG","KHOLIL EL LALBAG","TANJIL EL LALBAG",
+  "AMIN EL LALBAG","EMONISTOR LALBAG","FATEMA EL LALBAG","FYSAL EL LALBAG",
+  "KHAN EL LALBAG","DINAZPUR EL LALBAG","DR EL LALBAG","JAJIRA EL LALBAG",
+  "MAERDOA EL LALBAG","MAERDOA NOBABPUR","MASUM EL LALBAG","MORIYOM EL LALBAG",
+  "MUNSI EL LALBAG","NOAKHALI EL LALBAG","RITOM","ISLAM AND BROTHER",
+  "HK POWER","IMRAN BONGSAL","JAFOR SURITOLA","MASUD DOAGONG",
+  "MINTU EL MANIQGONG","RAJIA EL GORADOR","NOWAAKHALI EL","OMORFAARUK",
+];
+const INIT_SUPPLIERS = [
+  "RM LED LIGHTING","SAMIA ENTERPRISE","NEW AMENA EL","IMAM POWER",
+  "IR ELECTRICK","AZAD LED","FLOORA CO K2 F2","NEW ISLAM EI K2",
+  "SHARMIN TRADE IN","EAKIN EL","RAFIQ EL","BETAR EL","MOON SUPER",
+  "OSAN","SWICH PAC ENG K2","GRAMIN","INTEX","BEST LINE HITEK CO",
+  "MAX LINE","VEE","SHARIF ELECTRICK","KING BIDDUT BITAN","BONDHU LIGHTING",
+  "RITOM EL","MADINA EL","RAJEN AND BROTHERS","JIHAD PIPE","TISA EL",
+  "SP ELECTRIC CO","NABIL ENTERPRISE","ELECTRIC PALACE","GFC","JASHIRA EL HOUSE",
+];
+const INIT_PRODUCTS = [
+  "OSAKA CATA 40W","OSAKA CATA 20W","OSAKA CATA 60W","OSAKA ACDC 12W",
+  "OSAKA ACDC 18.5W","OSAKA 20W","OSAKA 18W","OSAKA 40W","OSAKA 50W",
+  "PS 20W","PS 12W","SS 20W","SSD 20W","SEIKO 20W","IC 5W D","IC 5W A",
+  "IC 20W","ROCK STAR 20W","CHINA DIM LICHU","CHINA DIM TOMATO","CHINA 50W",
+  "INTEX 34M2","INTEX 34M5","INTEX 33M5","INTEX 813M5","INTEX 814M5",
+  "INTEX 23M5","INTEX 24M5","INTEX T STAR MALTY","BEST CTOP 2m","BEST CTOP 5m",
+  "BEST LINE 315","BEST LINE 415","BEST LINE 515","MAX017 10F","MAX017 20F",
+  "CAPACITOR 3.5","CAPACITOR 2.5","KOHLINUR 30A","KOHLINUR 15A","DP SWICH H",
+  "DP SWICH N","CABOL CLIB 6MM","CABOL CLIB 7MM","CABOL CLIB 8MM","CABOL CLIB 10MM",
+  "CABOL TAI 10IN","MK DIMAR NORMAL","CHALTHA NORMAL","OSAKA TAP","DEER TAP",
+  "NOKIA","COLING BAL","IPS DIMAR","CONVATAR","LED TUB GLASS","DC T8 TUB",
+  "GFC 12IN FAN","1HOL BOARD","3HOL BOARD","4HOL BOARD","TATAR",
+  "G STAR PENDEL HOLDAR SAPTY","G STAR WINAR SWISS","MC RAJA PLACK",
+  "PC SUPER DIMAR MK","VEE 503M5","VEE 504M5","VEE 505M5","VEE ACDC",
+  "CANDAR 12W","COSCO 18W","SUN+ ACDC 20W","CLICK MALTY PLACK 4G",
+];
+const INIT_BANKS = ["DBBL","BRAC BANK","IBBL","SONALI BANK","bKash","Nagad","হাতে নগদ"];
+
+// ══════════════════════════════════════════════════════
+//  MAIN APP COMPONENT
+// ══════════════════════════════════════════════════════
+export default function BulbulHisab() {
+  const [page, setPage] = useState("home");
+  const [customers, setCustomers] = useState(INIT_CUSTOMERS);
+  const [suppliers, setSuppliers] = useState(INIT_SUPPLIERS);
+  const [products, setProducts] = useState(INIT_PRODUCTS);
+  const [banks] = useState(INIT_BANKS);
+  const [purchases, setPurchases] = useState([]);
+  const [sales, setSales] = useState([]);
+  const [payments, setPayments] = useState([]); 
+  const [supplierPay, setSupplierPay] = useState([]);
+  const [bankTx, setBankTx] = useState([]);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg, type = "ok") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 2500);
+  };
+
+  // ── স্টক ও হিসাব ম্যাপিং (Average Purchase Cost ট্র্যাকিং) ──
+  const stockMap = useMemo(() => {
+    const m = {};
+    purchases.forEach(p => { 
+      if (!m[p.product]) m[p.product] = { qty: 0, totalCost: 0, avgPrice: 0 };
+      m[p.product].qty += Number(p.qty || 0);
+      m[p.product].totalCost += Number(p.total || 0);
+      m[p.product].avgPrice = m[p.product].qty > 0 ? (m[p.product].totalCost / m[p.product].qty) : 0;
+    });
+    sales.forEach(s => { 
+      if (!m[s.product]) m[s.product] = { qty: 0, totalCost: 0, avgPrice: 0 };
+      m[s.product].qty -= Number(s.qty || 0);
+    });
+    return m;
+  }, [purchases, sales]);
+
+  const customerDue = useMemo(() => {
+    const m = {};
+    sales.forEach(s => {
+      if (s.customer !== "CASH CASTOMAR") {
+        m[s.customer] = (m[s.customer] || 0) + Number(s.total || 0);
+      }
+    });
+    payments.forEach(p => { m[p.customer] = (m[p.customer] || 0) - Number(p.amount || 0); });
+    return m;
+  }, [sales, payments]);
+
+  const supplierDue = useMemo(() => {
+    const m = {};
+    purchases.forEach(p => { m[p.supplier] = (m[p.supplier] || 0) + Number(p.total || 0); });
+    supplierPay.forEach(p => { m[p.supplier] = (m[p.supplier] || 0) - Number(p.amount || 0); });
+    return m;
+  }, [purchases, supplierPay]);
+
+  const totalSales = useMemo(() => sales.reduce((s, r) => s + Number(r.total || 0), 0), [sales]);
+  const totalPurchase = useMemo(() => purchases.reduce((s, r) => s + Number(r.total || 0), 0), [purchases]);
+  const totalCustDue = useMemo(() => Object.values(customerDue).filter(v => v > 0).reduce((a, b) => a + b, 0), [customerDue]);
+  const totalSuppDue = useMemo(() => Object.values(supplierDue).filter(v => v > 0).reduce((a, b) => a + b, 0), [supplierDue]);
+
+  const C = {
+    bg: "#f0f4f8", card: "#ffffff", primary: "#1a5276",
+    accent: "#2ecc71", danger: "#e74c3c", warn: "#f39c12",
+    text: "#2c3e50", muted: "#7f8c8d", border: "#dde1e7",
+    sidebar: "#1a3a5c", sidebarText: "#ecf0f1",
+  };
+
+  const nav = [
+    { id: "home", label: "ড্যাশবোর্ড", icon: "home" },
+    { id: "purchase", label: "ক্রয় হিসাব", icon: "purchase" },
+    { id: "sales", label: "বিক্রয় হিসাব", icon: "sales" },
+    { id: "billsearch", label: "🔍 বিল সার্চ", icon: "search" },
+    { id: "stock", label: "স্টক", icon: "stock" },
+    { id: "customer", label: "কাস্টমার বাকি", icon: "customer" },
+    { id: "supplier", label: "সাপ্লায়ার বাকি", icon: "supplier" },
+    { id: "bank", label: "ব্যাংক / নগদ", icon: "bank" },
+    { id: "report", label: "মাসিক রিপোর্ট", icon: "report" },
+    { id: "master", label: "মাস্টার লিস্ট", icon: "list" },
+  ];
+
+  return (
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Noto Sans Bengali', sans-serif", background: C.bg, fontSize: 14 }}>
+      {/* SIDEBAR */}
+      <div style={{ width: 200, background: C.sidebar, display: "flex", flexDirection: "column", padding: "0 0 20px", flexShrink: 0 }}>
+        <div style={{ padding: "20px 16px 16px", borderBottom: "1px solid #2c5282" }}>
+          <div style={{ fontWeight: 800, fontSize: 15, color: "#fff", lineHeight: 1.3 }}>Bulbul Enterprise</div>
+          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>নবাবপুর, ঢাকা</div>
+        </div>
+        <div style={{ flex: 1, paddingTop: 8 }}>
+          {nav.map(n => (
+            <div key={n.id} onClick={() => setPage(n.id)} style={{
+              padding: "10px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+              background: page === n.id ? "#2c5282" : "transparent",
+              borderLeft: page === n.id ? "3px solid #2ecc71" : "3px solid transparent",
+              color: page === n.id ? "#fff" : "#94a3b8",
+              transition: "all 0.15s", fontSize: 13,
+            }}>
+              <Icon name={n.icon} size={14} />
+              <span>{n.label}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: "12px 16px", fontSize: 10, color: "#4a6fa5", borderTop: "1px solid #2c5282" }}>
+          বিস্মিল্লাহির রাহমানির রাহিম
+        </div>
+      </div>
+
+      {/* MAIN CONTENT */}
+      <div style={{ flex: 1, overflow: "auto" }}>
+        <div style={{ background: C.card, padding: "14px 24px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: C.primary }}>
+            {nav.find(n => n.id === page)?.label}
+          </h1>
+          <div style={{ fontSize: 12, color: C.muted }}>{fmtDate(today())}</div>
+        </div>
+
+        <div style={{ padding: 20 }}>
+          {page === "home" && <HomePage C={C} totalSales={totalSales} totalPurchase={totalPurchase} totalCustDue={totalCustDue} totalSuppDue={totalSuppDue} stockMap={stockMap} sales={sales} purchases={purchases} />}
+          {page === "purchase" && <PurchasePage C={C} purchases={purchases} setPurchases={setPurchases} suppliers={suppliers} products={products} showToast={showToast} />}
+          {page === "sales" && <SalesPage C={C} sales={sales} setSales={setSales} customers={customers} products={products} showToast={showToast} stockMap={stockMap} />}
+          {page === "billsearch" && <BillSearchPage sales={sales} purchases={purchases} />}
+          {page === "stock" && <StockPage C={C} stockMap={stockMap} products={products} />}
+          {page === "customer" && <CustomerDuePage C={C} customers={customers} customerDue={customerDue} payments={payments} setPayments={setPayments} showToast={showToast} />}
+          {page === "supplier" && <SupplierDuePage C={C} suppliers={suppliers} supplierDue={supplierDue} supplierPay={supplierPay} setSupplierPay={setSupplierPay} showToast={showToast} />}
+          {page === "bank" && <BankPage C={C} bankTx={bankTx} setBankTx={setBankTx} banks={banks} showToast={showToast} />}
+          {page === "report" && <ReportPage C={C} sales={sales} purchases={purchases} totalCustDue={totalCustDue} totalSuppDue={totalSuppDue} />}
+          {page === "master" && <MasterPage C={C} customers={customers} setCustomers={setCustomers} suppliers={suppliers} setSuppliers={setSuppliers} products={products} setProducts={setProducts} showToast={showToast} />}
+        </div>
+      </div>
+
+      {/* TOAST NOTIFICATION */}
+      {toast && (
+        <div style={{
+          position: "fixed", bottom: 24, right: 24, zIndex: 999,
+          background: toast.type === "ok" ? C.accent : C.danger,
+          color: "#fff", padding: "10px 20px", borderRadius: 10, fontWeight: 600,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.2)", fontSize: 13,
+        }}>{toast.type === "ok" ? "✅" : "❌"} {toast.msg}</div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  SHARED REUSABLE COMPONENTS
+// ══════════════════════════════════════════════════════
+const Card = ({ children, style = {} }) => (
+  <div style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16, ...style }}>{children}</div>
+);
+
+const Btn = ({ children, onClick, color = "#1a5276", small = false, outline = false }) => (
+  <button onClick={onClick} style={{
+    background: outline ? "transparent" : color, color: outline ? color : "#fff",
+    border: `2px solid ${color}`, borderRadius: 8, padding: small ? "5px 12px" : "8px 16px",
+    cursor: "pointer", fontWeight: 600, fontSize: small ? 12 : 13,
+    fontFamily: "'Noto Sans Bengali', sans-serif",
+  }}>{children}</button>
+);
+
+const Input = ({ label, value, onChange, type = "text", list, required, placeholder }) => (
+  <div style={{ marginBottom: 12 }}>
+    {label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label} {required && <span style={{ color: "red" }}>*</span>}</div>}
+    <input
+      type={type} value={value} onChange={e => onChange(e.target.value)}
+      list={list} placeholder={placeholder}
+      style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, fontFamily: "'Noto Sans Bengali', sans-serif", boxSizing: "border-box", outline: "none" }}
+    />
+  </div>
+);
+
+const Select = ({ label, value, onChange, options, required }) => (
+  <div style={{ marginBottom: 12 }}>
+    {label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label} {required && <span style={{ color: "red" }}>*</span>}</div>}
+    <select value={value} onChange={e => onChange(e.target.value)}
+      style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, fontFamily: "'Noto Sans Bengali', sans-serif", background: "#fff" }}>
+      <option value="">-- বেছে নিন --</option>
+      {options.map(o => <option key={o} value={o}>{o}</option>)}
+    </select>
+  </div>
+);
+
+const Table = ({ headers, rows, emptyMsg = "কোনো তথ্য নেই" }) => (
+  <div style={{ overflowX: "auto" }}>
+    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+      <thead>
+        <tr style={{ background: "#1a3a5c" }}>
+          {headers.map(h => <th key={h} style={{ padding: "10px 12px", color: "#fff", fontWeight: 600, textAlign: "left", whiteSpace: "nowrap" }}>{h}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.length === 0
+          ? <tr><td colSpan={headers.length} style={{ padding: 24, textAlign: "center", color: "#7f8c8d" }}>{emptyMsg}</td></tr>
+          : rows.map((row, i) => (
+            <tr key={i} style={{ background: i % 2 === 0 ? "#f8fafc" : "#fff", borderBottom: "1px solid #eee" }}>
+              {row.map((cell, j) => <td key={j} style={{ padding: "9px 12px", color: "#2c3e50" }}>{cell}</td>)}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+);
+
+// ══════════════════════════════════════════════════════
+//  DASHBOARD COMPONENT (ডার্ক থিমযুক্ত)
+// ══════════════════════════════════════════════════════
+const PIE_COLORS = ["#00d4aa","#54a0ff","#ff9f43","#5f27cd","#ff6b6b","#feca57"];
+
+const DarkCard = ({ children, style = {} }) => (
+  <div style={{ background: "#0f172a", borderRadius: 16, padding: 20, border: "1px solid #1e293b", ...style }}>{children}</div>
+);
+
+const SectionTitle = ({ icon, title }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+    <span style={{ fontSize: 18 }}>{icon}</span>
+    <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#e2e8f0" }}>{title}</h2>
+    <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, #334155, transparent)", marginLeft: 8 }} />
+  </div>
+);
+
+function HomePage({ C, totalSales, totalPurchase, totalCustDue, totalSuppDue, stockMap, sales, purchases }) {
+  const lowStock = Object.entries(stockMap).filter(([, v]) => v.qty <= 5);
+  const recentSales = [...sales].reverse().slice(0, 5);
+
+  const totalProfit = useMemo(() => {
+    return sales.reduce((sum, s) => {
+      const avgCost = stockMap[s.product]?.avgPrice || 0;
+      const profit = Number(s.total || 0) - (Number(s.qty || 0) * avgCost);
+      return sum + profit;
+    }, 0);
+  }, [sales, stockMap]);
+
+  const topProducts = useMemo(() => {
+    const pSales = {};
+    sales.forEach(s => { pSales[s.product] = (pSales[s.product] || 0) + Number(s.qty || 0); });
+    return Object.entries(pSales).sort((a,b)=>b[1]-a[1]).slice(0, 5).map(([name, qty]) => ({ name: name.slice(0,12)+'...', qty }));
+  }, [sales]);
+
+  const pieData = [
+    { name: "বিক্রয়", value: totalSales },
+    { name: "ক্রয়", value: totalPurchase },
+    { name: "কাস্টমার বাকি", value: totalCustDue },
+    { name: "সাপ্লায়ার বাকি", value: totalSuppDue },
+  ].filter(d => d.value > 0);
+
+  return (
+    <div style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #0d1b2a 100%)", minHeight: "90vh", margin: -20, padding: 20, borderRadius: 12 }}>
+      {/* KPI ব্লকের গ্রিড */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14, marginBottom: 20 }}>
+        {[
+          { label: "মোট বিক্রয়", value: totalSales, color: "#00d4aa", icon: "💰" },
+          { label: "মোট ক্রয়", value: totalPurchase, color: "#54a0ff", icon: "🛒" },
+          { label: "আনুমানিক লাভ", value: totalProfit, color: "#2ecc71", icon: "📈" },
+          { label: "কাস্টমার বাকি", value: totalCustDue, color: "#ff6b6b", icon: "👥" },
+          { label: "সাপ্লায়ার বাকি", value: totalSuppDue, color: "#feca57", icon: "🏪" },
+        ].map((d, i) => (
+          <div key={i} style={{ background: "#0f172a", border: `1px solid ${d.color}30`, borderRadius: 16, padding: "16px", position: "relative" }}>
+            <div style={{ fontSize: 20 }}>{d.icon}</div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: d.color, fontFamily: "monospace", marginTop: 4 }}>৳{fmtNum(d.value)}</div>
+            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{d.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+        <DarkCard>
+          <SectionTitle icon="🏆" title="শীর্ষ বিক্রিত পণ্য" />
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={topProducts}>
+              <CartesianGrid stroke="#1e293b" strokeDasharray="3 3"/>
+              <XAxis dataKey="name" tick={{fill: "#94a3b8", fontSize: 10}}/>
+              <YAxis tick={{fill: "#94a3b8", fontSize: 10}}/>
+              <Tooltip />
+              <Bar dataKey="qty" fill="#00d4aa" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </DarkCard>
+
+        <DarkCard>
+          <SectionTitle icon="🥧" title="ব্যবসায়িক অনুপাত" />
+          <ResponsiveContainer width="100%" height={180}>
+            <PieChart>
+              <Pie data={pieData} cx="50%" cy="50%" outerRadius={55} dataKey="value">
+                {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+              </Pie>
+              <Legend wrapperStyle={{ fontSize: 10 }} />
+            </PieChart>
+          </ResponsiveContainer>
+        </DarkCard>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <DarkCard>
+          <SectionTitle icon="🕐" title="সাম্প্রতিক বিক্রয়সমূহ" />
+          {recentSales.map((s, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #1e293b", color: "#e2e8f0", fontSize: 12 }}>
+              <div><strong>{s.customer}</strong> ({s.product} × {s.qty})</div>
+              <div style={{ color: "#00d4aa", fontWeight: 700 }}>৳{fmtNum(s.total)}</div>
+            </div>
+          ))}
+        </DarkCard>
+
+        <DarkCard>
+          <SectionTitle icon="⚠️" title="স্টক অ্যালার্ট (৫ পিসের নিচে)" />
+          {lowStock.slice(0, 5).map(([name, v]) => (
+            <div key={name} style={{ display: "flex", justifyContent: "space-between", padding: "8px 12px", background: "#ff9f4310", border: "1px solid #ff9f4330", borderRadius: 8, marginBottom: 6, color: "#e2e8f0", fontSize: 12 }}>
+              <span>{name}</span>
+              <span style={{ color: "#ff9f43", fontWeight: 700 }}>{v.qty} পিস বাকি</span>
+            </div>
+          ))}
+        </DarkCard>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  PURCHASE PAGE — সম্পূর্ণ সংস্করণ
+// ══════════════════════════════════════════════════════
+function PurchasePage({ C, purchases, setPurchases, suppliers, products, showToast }) {
+  const [header, setHeader] = useState({ date: today(), supplier: "", memo: "", paid: "", bank: "হাতে নগদ" });
+  const [lines, setLines] = useState([{ product: "", qty: "", price: "", discount: "", _id: Date.now() }]);
+
+  const setH = (k, v) => setHeader(h => ({ ...h, [k]: v }));
+  const setLine = (idx, k, v) => {
+    setLines(ls => {
+      const updated = ls.map((l, i) => i === idx ? { ...l, [k]: v } : l);
+      const last = updated[updated.length - 1];
+      if (idx === updated.length - 1 && (last.product || last.qty || last.price)) {
+        return [...updated, { product: "", qty: "", price: "", discount: "", _id: Date.now() + Math.random() }];
+      }
+      return updated;
+    });
+  };
+
+  const lineTotal = (l) => (Number(l.qty || 0) * Number(l.price || 0)) - Number(l.discount || 0);
+  const grandTotal = lines.reduce((s, l) => s + lineTotal(l), 0);
+  const due = grandTotal - Number(header.paid || 0);
+
+  const submit = () => {
+    if (!header.supplier) return showToast("সাপ্লায়ারের নাম দিন", "err");
+    const validLines = lines.filter(l => l.product && l.qty && l.price);
+    if (validLines.length === 0) return showToast("কমপক্ষে একটি পণ্য যোগ করুন", "err");
+
+    const memoId = Date.now();
+    const entries = validLines.map((l, i) => ({
+      ...header,
+      product: l.product, qty: l.qty, price: l.price, discount: l.discount,
+      total: lineTotal(l), due: i === 0 ? due : 0, memoId, id: memoId + i
+    }));
+
+    setPurchases(p => [...p, ...entries]);
+    setHeader({ date: today(), supplier: "", memo: "", paid: "", bank: "হাতে নগদ" });
+    setLines([{ product: "", qty: "", price: "", discount: "", _id: Date.now() }]);
+    showToast("✅ ক্রয় ভাউচার সফলভাবে সংরক্ষিত!");
+  };
+
+  return (
+    <div>
+      <datalist id="dl_sup">{suppliers.map(s => <option key={s} value={s} />)}</datalist>
+      <datalist id="dl_pro">{products.map(s => <option key={s} value={s} />)}</datalist>
+
+      <Card>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 16, padding: "12px", background: "#eaf0fb", borderRadius: 10 }}>
+          <Input label="তারিখ *" type="date" value={header.date} onChange={v => setH("date", v)} />
+          <Input label="সাপ্লায়ার *" value={header.supplier} onChange={v => setH("supplier", v)} list="dl_sup" placeholder="নাম লিখুন" />
+          <Input label="মেমো নং" value={header.memo} onChange={v => setH("memo", v)} placeholder="নম্বর" />
+          <Input label="মোট পরিশোধ" type="number" value={header.paid} onChange={v => setH("paid", v)} placeholder="৳ টাকা" />
+          <Select label="পেমেন্ট অ্যাকাউন্ট" value={header.bank} onChange={v => setH("bank", v)} options={["হাতে নগদ","DBBL","BRAC BANK","IBBL","bKash"]} />
+        </div>
+
+        {lines.map((l, idx) => (
+          <div key={l._id} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
+            <div style={{ flex: 3 }}><input value={l.product} onChange={e => setLine(idx, "product", e.target.value)} list="dl_pro" placeholder="পণ্যের নাম" style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }} /></div>
+            <div style={{ flex: 1 }}><input type="number" value={l.qty} onChange={e => setLine(idx, "qty", e.target.value)} placeholder="পরিমাণ" style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }} /></div>
+            <div style={{ flex: 1 }}><input type="number" value={l.price} onChange={e => setLine(idx, "price", e.target.value)} placeholder="ক্রয়মূল্য" style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }} /></div>
+            <div style={{ flex: 1 }}><input type="number" value={l.discount} onChange={e => setLine(idx, "discount", e.target.value)} placeholder="ছাড়" style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }} /></div>
+          </div>
+        ))}
+
+        <div style={{ display: "flex", justifyContent: "space-between", background: "#f8fafc", padding: 12, borderRadius: 8, marginTop: 12 }}>
+          <div>সর্বমোট: <strong>৳{fmtNum(grandTotal)}</strong> | বাকি: <strong style={{ color: "red" }}>৳{fmtNum(due)}</strong></div>
+          <Btn onClick={submit}>সংরক্ষণ করুন 💾</Btn>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  SALES PAGE COMPONENT
+// ══════════════════════════════════════════════════════
+function SalesPage({ C, sales, setSales, customers, products, showToast, stockMap }) {
+  const [header, setHeader] = useState({ date: today(), customer: "CASH CASTOMAR", memo: "", paid: "", bank: "হাতে নগদ" });
+  const [lines, setLines] = useState([{ product: "", qty: "", price: "", _id: Date.now() }]);
+
+  const setH = (k, v) => setHeader(h => ({ ...h, [k]: v }));
+  const setLine = (idx, k, v) => {
+    setLines(ls => {
+      const updated = ls.map((l, i) => i === idx ? { ...l, [k]: v } : l);
+      if (idx === updated.length - 1 && (updated[idx].product || updated[idx].qty)) {
+        return [...updated, { product: "", qty: "", price: "", _id: Date.now() + Math.random() }];
+      }
+      return updated;
+    });
+  };
+
+  const grandTotal = lines.reduce((s, l) => s + (Number(l.qty || 0) * Number(l.price || 0)), 0);
+  const due = grandTotal - Number(header.paid || 0);
+
+  const submit = () => {
+    const validLines = lines.filter(l => l.product && l.qty && l.price);
+    if (validLines.length === 0) return showToast("কমপক্ষে একটি পণ্য দিন", "err");
+
+    const memoId = Date.now();
+    const entries = validLines.map((l, i) => ({
+      ...header, product: l.product, qty: l.qty, price: l.price,
+      total: Number(l.qty)
