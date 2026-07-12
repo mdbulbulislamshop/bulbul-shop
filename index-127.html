@@ -1,0 +1,1544 @@
+import { useState, useMemo } from "react";																							
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";																							
+																							
+// ═══════════════════════════════════════════════════════																							
+//  BULBUL ENTERPRISE — সম্পূর্ণ হিসাব সিস্টেম																							
+// ═══════════════════════════════════════════════════════																							
+																							
+// ── আইকন ──────────────────────────────────────────────																							
+const Icon = ({ name, size = 16 }) => {																							
+const icons = {																							
+home: "🏠", purchase: "🛒", sales: "💰", stock: "📦",																							
+bank: "🏦", customer: "👥", supplier: "🏪", report: "📊",																							
+add: "➕", delete: "🗑️", edit: "✏️", save: "💾",																							
+warning: "⚠️", ok: "✅", search: "🔍", close: "✖️",																							
+money: "💵", arrow_up: "↑", arrow_down: "↓", list: "📋",																							
+pay: "💳", due: "🔴", paid: "🟢", partial: "🟡",																							
+};																							
+return <span style={{ fontSize: size }}>{icons[name] || "•"}</span>;																							
+};																							
+																							
+// ── তারিখ হেল্পার ──────────────────────────────────────																							
+const today = () => new Date().toISOString().split("T")[0];																							
+const fmtDate = (d) => {																							
+if (!d) return "";																							
+const dt = new Date(d);																							
+return dt.toLocaleDateString("bn-BD", { day: "2-digit", month: "short", year: "numeric" });																							
+};																							
+const fmtNum = (n) => Number(n || 0).toLocaleString("bn-BD");																							
+																							
+// ── মাস্টার ডেটা (তোমার Excel থেকে) ──────────────────																							
+const INIT_CUSTOMERS = [																							
+CASH CASTOMAR,"DILRUBA EL LALBAG","KHOLIL EL LALBAG","TANJIL EL LALBAG",																							
+AMIN EL LALBAG,"EMONISTOR LALBAG","FATEMA EL LALBAG","FYSAL EL LALBAG",																							
+KHAN EL LALBAG,"DINAZPUR EL LALBAG","DR EL LALBAG","JAJIRA EL LALBAG",																							
+MAERDOA EL LALBAG,"MAERDOA NOBABPUR","MASUM EL LALBAG","MORIYOM EL LALBAG",																							
+MUNSI EL LALBAG,"NOAKHALI EL LALBAG","RITOM","ISLAM AND BROTHER",																							
+HK POWER,"IMRAN BONGSAL","JAFOR SURITOLA","MASUD DOAGONG",																							
+MINTU EL MANIQGONG,"RAJIA EL GORADOR","NOWAAKHALI EL","OMORFAARUK",																							
+];																							
+const INIT_SUPPLIERS = [																							
+RM LED LIGHTING,"SAMIA ENTERPRISE","NEW AMENA EL","IMAM POWER",																							
+IR ELECTRICK,"AZAD LED","FLOORA CO K2 F2","NEW ISLAM EI K2",																							
+SHARMIN TRADE IN,"EAKIN EL","RAFIQ EL","BETAR EL","MOON SUPER",																							
+OSAN,"SWICH PAC ENG K2","GRAMIN","INTEX","BEST LINE HITEK CO",																							
+MAX LINE,"VEE","SHARIF ELECTRICK","KING BIDDUT BITAN","BONDHU LIGHTING",																							
+RITOM EL,"MADINA EL","RAJEN AND BROTHERS","JIHAD PIPE","TISA EL",																							
+SP ELECTRIC CO,"NABIL ENTERPRISE","ELECTRIC PALACE","GFC","JASHIRA EL HOUSE",																							
+];																							
+const INIT_PRODUCTS = [																							
+OSAKA CATA 40W,"OSAKA CATA 20W","OSAKA CATA 60W","OSAKA ACDC 12W",																							
+OSAKA ACDC 18.5W,"OSAKA 20W","OSAKA 18W","OSAKA 40W","OSAKA 50W",																							
+PS 20W,"PS 12W","SS 20W","SSD 20W","SEIKO 20W","IC 5W D","IC 5W A",																							
+IC 20W,"ROCK STAR 20W","CHINA DIM LICHU","CHINA DIM TOMATO","CHINA 50W",																							
+INTEX 34M2,"INTEX 34M5","INTEX 33M5","INTEX 813M5","INTEX 814M5",																							
+INTEX 23M5,"INTEX 24M5","INTEX T STAR MALTY","BEST CTOP 2m","BEST CTOP 5m",																							
+BEST LINE 315,"BEST LINE 415","BEST LINE 515","MAX017 10F","MAX017 20F",																							
+CAPACITOR 3.5,"CAPACITOR 2.5","KOHLINUR 30A","KOHLINUR 15A","DP SWICH H",																							
+DP SWICH N,"CABOL CLIB 6MM","CABOL CLIB 7MM","CABOL CLIB 8MM","CABOL CLIB 10MM",																							
+CABOL TAI 10IN,"MK DIMAR NORMAL","CHALTHA NORMAL","OSAKA TAP","DEER TAP",																							
+NOKIA,"COLING BAL","IPS DIMAR","CONVATAR","LED TUB GLASS","DC T8 TUB",																							
+GFC 12IN FAN,"1HOL BOARD","3HOL BOARD","4HOL BOARD","TATAR",																							
+G STAR PENDEL HOLDAR SAPTY,"G STAR WINAR SWISS","MC RAJA PLACK",																							
+PC SUPER DIMAR MK,"VEE 503M5","VEE 504M5","VEE 505M5","VEE ACDC",																							
+CANDAR 12W,"COSCO 18W","SUN+ ACDC 20W","CLICK MALTY PLACK 4G",																							
+];																							
+const INIT_BANKS = ["DBBL","BRAC BANK","IBBL","SONALI BANK","bKash","Nagad","হাতে নগদ"];																							
+																							
+// ── স্টোরেজ (in-memory, Claude artifact compatible) ────																							
+const _store = {};																							
+const load = (key, def) => { try { return _store[key] !== undefined ? JSON.parse(JSON.stringify(_store[key])) : def; } catch { return def; } };																							
+const save = (key, val) => { try { _store[key] = val; } catch {} };																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  MAIN APP																							
+// ══════════════════════════════════════════════════════																							
+export default function BulbulHisab() {																							
+// ── স্টেট ──																							
+const [page, setPage] = useState("home");																							
+const [customers, setCustomers] = useState(INIT_CUSTOMERS);																							
+const [suppliers, setSuppliers] = useState(INIT_SUPPLIERS);																							
+const [products, setProducts] = useState(INIT_PRODUCTS);																							
+const [banks] = useState(INIT_BANKS);																							
+const [purchases, setPurchases] = useState([]);																							
+const [sales, setSales] = useState([]);																							
+const [payments, setPayments] = useState([]); // customer payments																							
+const [supplierPay, setSupplierPay] = useState([]);																							
+const [bankTx, setBankTx] = useState([]);																							
+const [toast, setToast] = useState(null);																							
+																							
+// ── সেভ (session memory) ──																							
+																							
+const showToast = (msg, type = "ok") => {																							
+setToast({ msg, type });																							
+setTimeout(() => setToast(null), 2500);																							
+};																							
+																							
+// ── হিসাব ──																							
+const stockMap = useMemo(() => {																							
+const m = {};																							
+purchases.forEach(p => { m[p.product] = (m[p.product] || 0) + Number(p.qty || 0); });																							
+sales.forEach(s => { m[s.product] = (m[s.product] || 0) - Number(s.qty || 0); });																							
+return m;																							
+}, [purchases, sales]);																							
+																							
+const customerDue = useMemo(() => {																							
+const m = {};																							
+sales.forEach(s => {																							
+if (s.customer !== "CASH CASTOMAR") {																							
+m[s.customer] = (m[s.customer] || 0) + Number(s.total || 0);																							
+}																							
+});																							
+payments.forEach(p => { m[p.customer] = (m[p.customer] || 0) - Number(p.amount || 0); });																							
+return m;																							
+}, [sales, payments]);																							
+																							
+const supplierDue = useMemo(() => {																							
+const m = {};																							
+purchases.forEach(p => { m[p.supplier] = (m[p.supplier] || 0) + Number(p.total || 0); });																							
+supplierPay.forEach(p => { m[p.supplier] = (m[p.supplier] || 0) - Number(p.amount || 0); });																							
+return m;																							
+}, [purchases, supplierPay]);																							
+																							
+const totalSales = useMemo(() => sales.reduce((s, r) => s + Number(r.total || 0), 0), [sales]);																							
+const totalPurchase = useMemo(() => purchases.reduce((s, r) => s + Number(r.total || 0), 0), [purchases]);																							
+const totalCustDue = useMemo(() => Object.values(customerDue).filter(v => v > 0).reduce((a, b) => a + b, 0), [customerDue]);																							
+const totalSuppDue = useMemo(() => Object.values(supplierDue).filter(v => v > 0).reduce((a, b) => a + b, 0), [supplierDue]);																							
+																							
+// ── স্টাইল ──																							
+const C = {																							
+bg: "#f0f4f8", card: "#ffffff", primary: "#1a5276",																							
+accent: "#2ecc71", danger: "#e74c3c", warn: "#f39c12",																							
+text: "#2c3e50", muted: "#7f8c8d", border: "#dde1e7",																							
+sidebar: "#1a3a5c", sidebarText: "#ecf0f1",																							
+};																							
+																							
+const nav = [																							
+{ id: "home", label: "ড্যাশবোর্ড", icon: "home" },																							
+{ id: "purchase", label: "ক্রয় হিসাব", icon: "purchase" },																							
+{ id: "sales", label: "বিক্রয় হিসাব", icon: "sales" },																							
+{ id: "billsearch", label: "🔍 বিল সার্চ", icon: "search" },																							
+{ id: "stock", label: "স্টক", icon: "stock" },																							
+{ id: "customer", label: "কাস্টমার বাকি", icon: "customer" },																							
+{ id: "supplier", label: "সাপ্লায়ার বাকি", icon: "supplier" },																							
+{ id: "bank", label: "ব্যাংক / নগদ", icon: "bank" },																							
+{ id: "report", label: "মাসিক রিপোর্ট", icon: "report" },																							
+{ id: "master", label: "মাস্টার লিস্ট", icon: "list" },																							
+];																							
+																							
+return (																							
+<div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Noto Sans Bengali', 'Segoe UI', sans-serif", background: C.bg, fontSize: 14 }}>																							
+{/* SIDEBAR */}																							
+<div style={{ width: 200, background: C.sidebar, display: "flex", flexDirection: "column", padding: "0 0 20px", flexShrink: 0 }}>																							
+<div style={{ padding: "20px 16px 16px", borderBottom: "1px solid #2c5282" }}>																							
+<div style={{ fontWeight: 800, fontSize: 15, color: "#fff", lineHeight: 1.3 }}>Bulbul Enterprise</div>																							
+<div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>নবাবপুর, ঢাকা</div>																							
+</div>																							
+<div style={{ flex: 1, paddingTop: 8 }}>																							
+{nav.map(n => (																							
+<div key={n.id} onClick={() => setPage(n.id)} style={{																							
+padding: "10px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,																							
+background: page === n.id ? "#2c5282" : "transparent",																							
+borderLeft: page === n.id ? "3px solid #2ecc71" : "3px solid transparent",																							
+color: page === n.id ? "#fff" : "#94a3b8",																							
+transition: "all 0.15s", fontSize: 13,																							
+}}>																							
+<Icon name={n.icon} size={14} />																							
+<span>{n.label}</span>																							
+</div>																							
+))}																							
+</div>																							
+<div style={{ padding: "12px 16px", fontSize: 10, color: "#4a6fa5", borderTop: "1px solid #2c5282" }}>																							
+বিসমিল্লাহির রাহমানির রাহিম																							
+</div>																							
+</div>																							
+																							
+{/* MAIN */}																							
+<div style={{ flex: 1, overflow: "auto" }}>																							
+{/* TOP BAR */}																							
+<div style={{ background: C.card, padding: "14px 24px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>																							
+<h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: C.primary }}>																							
+{nav.find(n => n.id === page)?.label}																							
+</h1>																							
+<div style={{ fontSize: 12, color: C.muted }}>{fmtDate(today())}</div>																							
+</div>																							
+																							
+<div style={{ padding: 20 }}>																							
+{page === "home" && <HomePage C={C} totalSales={totalSales} totalPurchase={totalPurchase} totalCustDue={totalCustDue} totalSuppDue={totalSuppDue} stockMap={stockMap} sales={sales} purchases={purchases} />}																							
+{page === "purchase" && <PurchasePage C={C} purchases={purchases} setPurchases={setPurchases} suppliers={suppliers} products={products} showToast={showToast} />}																							
+{page === "sales" && <SalesPage C={C} sales={sales} setSales={setSales} customers={customers} products={products} showToast={showToast} stockMap={stockMap} purchases={purchases} />}																							
+{page === "billsearch" && <BillSearchPage sales={sales} purchases={purchases} />}																							
+{page === "stock" && <StockPage C={C} stockMap={stockMap} products={products} purchases={purchases} sales={sales} />}																							
+{page === "customer" && <CustomerDuePage C={C} customers={customers} customerDue={customerDue} payments={payments} setPayments={setPayments} sales={sales} showToast={showToast} />}																							
+{page === "supplier" && <SupplierDuePage C={C} suppliers={suppliers} supplierDue={supplierDue} supplierPay={supplierPay} setSupplierPay={setSupplierPay} purchases={purchases} showToast={showToast} />}																							
+{page === "bank" && <BankPage C={C} bankTx={bankTx} setBankTx={setBankTx} banks={banks} showToast={showToast} />}																							
+{page === "report" && <ReportPage C={C} sales={sales} purchases={purchases} payments={payments} supplierPay={supplierPay} customerDue={customerDue} supplierDue={supplierDue} totalCustDue={totalCustDue} totalSuppDue={totalSuppDue} />}																							
+{page === "master" && <MasterPage C={C} customers={customers} setCustomers={setCustomers} suppliers={suppliers} setSuppliers={setSuppliers} products={products} setProducts={setProducts} showToast={showToast} />}																							
+</div>																							
+</div>																							
+																							
+{/* TOAST */}																							
+{toast && (																							
+<div style={{																							
+position: "fixed", bottom: 24, right: 24, zIndex: 999,																							
+background: toast.type === "ok" ? C.accent : C.danger,																							
+color: "#fff", padding: "10px 20px", borderRadius: 10, fontWeight: 600,																							
+boxShadow: "0 4px 20px rgba(0,0,0,0.2)", fontSize: 13,																							
+}}>{toast.type === "ok" ? "✅" : "❌"} {toast.msg}</div>																							
+)}																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  SHARED COMPONENTS																							
+// ══════════════════════════════════════════════════════																							
+const Card = ({ children, style = {} }) => (																							
+<div style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16, ...style }}>{children}</div>																							
+);																							
+																							
+const KPI = ({ label, value, color, icon }) => (																							
+<div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", borderTop: `4px solid ${color}`, flex: 1, minWidth: 140 }}>																							
+<div style={{ fontSize: 22 }}><Icon name={icon} size={22} /></div>																							
+<div style={{ fontSize: 22, fontWeight: 800, color, marginTop: 4, fontFamily: "monospace" }}>৳{fmtNum(value)}</div>																							
+<div style={{ fontSize: 12, color: "#7f8c8d", marginTop: 2 }}>{label}</div>																							
+</div>																							
+);																							
+																							
+const Btn = ({ children, onClick, color = "#1a5276", small = false, outline = false }) => (																							
+<button onClick={onClick} style={{																							
+background: outline ? "transparent" : color, color: outline ? color : "#fff",																							
+border: `2px solid ${color}`, borderRadius: 8, padding: small ? "5px 12px" : "8px 16px",																							
+cursor: "pointer", fontWeight: 600, fontSize: small ? 12 : 13,																							
+fontFamily: "'Noto Sans Bengali', sans-serif",																							
+}}>{children}</button>																							
+);																							
+																							
+const Input = ({ label, value, onChange, type = "text", list, required, placeholder }) => (																							
+<div style={{ marginBottom: 12 }}>																							
+{label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label} {required && <span style={{ color: "red" }}>*</span>}</div>}																							
+<input																							
+type={type} value={value} onChange={e => onChange(e.target.value)}																							
+list={list} placeholder={placeholder}																							
+style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, fontFamily: "'Noto Sans Bengali', sans-serif", boxSizing: "border-box", outline: "none" }}																							
+/>																							
+</div>																							
+);																							
+																							
+const Select = ({ label, value, onChange, options, required }) => (																							
+<div style={{ marginBottom: 12 }}>																							
+{label && <div style={{ fontSize: 12, fontWeight: 600, color: "#2c3e50", marginBottom: 4 }}>{label} {required && <span style={{ color: "red" }}>*</span>}</div>}																							
+<select value={value} onChange={e => onChange(e.target.value)}																							
+style={{ width: "100%", padding: "8px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, fontFamily: "'Noto Sans Bengali', sans-serif", background: "#fff" }}>																							
+<option value="">-- বেছে নিন --</option>																							
+{options.map(o => <option key={o} value={o}>{o}</option>)}																							
+</select>																							
+</div>																							
+);																							
+																							
+const Table = ({ headers, rows, emptyMsg = "কোনো তথ্য নেই" }) => (																							
+<div style={{ overflowX: "auto" }}>																							
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>																							
+<thead>																							
+<tr style={{ background: "#1a3a5c" }}>																							
+{headers.map(h => <th key={h} style={{ padding: "10px 12px", color: "#fff", fontWeight: 600, textAlign: "left", whiteSpace: "nowrap" }}>{h}</th>)}																							
+</tr>																							
+</thead>																							
+<tbody>																							
+{rows.length === 0																							
+? <tr><td colSpan={headers.length} style={{ padding: 24, textAlign: "center", color: "#7f8c8d" }}>{emptyMsg}</td></tr>																							
+: rows.map((row, i) => (																							
+<tr key={i} style={{ background: i % 2 === 0 ? "#f8fafc" : "#fff", borderBottom: "1px solid #eee" }}>																							
+{row.map((cell, j) => <td key={j} style={{ padding: "9px 12px", color: "#2c3e50" }}>{cell}</td>)}																							
+</tr>																							
+))																							
+}																							
+</tbody>																							
+</table>																							
+</div>																							
+);																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  HOME / DASHBOARD — সুন্দর ডার্ক থিম																							
+// ══════════════════════════════════════════════════════																							
+const PIE_COLORS = ["#00d4aa","#54a0ff","#ff9f43","#5f27cd","#ff6b6b","#feca57"];																							
+																							
+const DarkCard = ({ children, style = {} }) => (																							
+<div style={{ background: "#0f172a", borderRadius: 16, padding: 20, border: "1px solid #1e293b", marginBottom: 0, ...style }}>																							
+{children}																							
+</div>																							
+);																							
+																							
+const SectionTitle = ({ icon, title }) => (																							
+<div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>																							
+<span style={{ fontSize: 18 }}>{icon}</span>																							
+<h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#e2e8f0" }}>{title}</h2>																							
+<div style={{ flex: 1, height: 1, background: "linear-gradient(to right, #334155, transparent)", marginLeft: 8 }} />																							
+</div>																							
+);																							
+																							
+const CustomTooltip = ({ active, payload, label }) => {																							
+if (active && payload && payload.length) {																							
+return (																							
+<div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, padding: "8px 12px", fontSize: 12 }}>																							
+<div style={{ color: "#94a3b8", marginBottom: 4 }}>{label}</div>																							
+{payload.map((p, i) => (																							
+<div key={i} style={{ color: p.color, fontWeight: 600 }}>																							
+{p.name}: ৳{Number(p.value).toLocaleString()}																							
+</div>																							
+))}																							
+</div>																							
+);																							
+}																							
+return null;																							
+};																							
+																							
+function HomePage({ C, totalSales, totalPurchase, totalCustDue, totalSuppDue, stockMap, sales, purchases }) {																							
+const lowStock = Object.entries(stockMap).filter(([, v]) => v <= 5 && v < 0 || (v <= 5 && v > 0));																							
+const negStock = Object.entries(stockMap).filter(([, v]) => v < 0);																							
+																							
+// সর্বাধিক বিক্রিত পণ্য																							
+const productSales = {};																							
+sales.forEach(s => {																							
+productSales[s.product] = (productSales[s.product] || 0) + Number(s.qty || 0);																							
+});																							
+const topProducts = Object.entries(productSales)																							
+.sort(([, a], [, b]) => b - a)																							
+.slice(0, 8)																							
+.map(([name, qty]) => ({ name: name.length > 18 ? name.slice(0, 18) + "…" : name, qty }));																							
+																							
+// মাসিক বিক্রয় (শেষ ৬ মাস)																							
+const monthSales = {};																							
+sales.forEach(s => {																							
+if (!s.date) return;																							
+const m = s.date.slice(0, 7);																							
+monthSales[m] = (monthSales[m] || 0) + Number(s.total || 0);																							
+});																							
+const monthlySalesData = Object.entries(monthSales).sort().slice(-6).map(([m, v]) => ({																							
+month: m.slice(5) + " মাস", value: v																							
+}));																							
+																							
+// সাম্প্রতিক বিক্রয়																							
+const recentSales = [...sales].reverse().slice(0, 6);																							
+																							
+// মোট লাভ																							
+const totalProfit = sales.reduce((s, r) => s + Number(r.profit || 0), 0);																							
+const totalStockValue = Object.entries(stockMap).reduce((s, [name, qty]) => {																							
+if (qty <= 0) return s;																							
+const lp = [...purchases].reverse().find(p => p.product === name);																							
+return s + qty * Number(lp?.price || 0);																							
+}, 0);																							
+																							
+// পাই চার্ট ডেটা																							
+const pieData = [																							
+{ name: "বিক্রয়", value: totalSales },																							
+{ name: "ক্রয়", value: totalPurchase },																							
+{ name: "কাস্টমার বাকি", value: totalCustDue },																							
+{ name: "সাপ্লায়ার বাকি", value: totalSuppDue },																							
+].filter(d => d.value > 0);																							
+																							
+return (																							
+<div style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #0d1b2a 100%)", minHeight: "100vh", margin: -20, padding: 20 }}>																							
+																							
+{/* KPI কার্ড */}																							
+<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 20 }}>																							
+{[																							
+{ label: "মোট বিক্রয়", value: totalSales, color: "#00d4aa", bg: "#00d4aa18", icon: "💰" },																							
+{ label: "মোট ক্রয়", value: totalPurchase, color: "#54a0ff", bg: "#54a0ff18", icon: "🛒" },																							
+{ label: "মোট লাভ", value: totalProfit, color: totalProfit >= 0 ? "#2ecc71" : "#ff6b6b", bg: "#2ecc7118", icon: "📈" },																							
+{ label: "স্টক মূল্য", value: totalStockValue, color: "#ff9f43", bg: "#ff9f4318", icon: "📦" },																							
+{ label: "কাস্টমার বাকি", value: totalCustDue, color: "#ff6b6b", bg: "#ff6b6b18", icon: "👥" },																							
+{ label: "সাপ্লায়ার বাকি", value: totalSuppDue, color: "#feca57", bg: "#feca5718", icon: "🏪" },																							
+].map((d, i) => (																							
+<div key={i} style={{ background: d.bg, border: `1px solid ${d.color}30`, borderRadius: 16, padding: "16px 18px", position: "relative", overflow: "hidden" }}>																							
+<div style={{ fontSize: 24 }}>{d.icon}</div>																							
+<div style={{ fontSize: 20, fontWeight: 900, color: d.color, fontFamily: "monospace", marginTop: 4 }}>৳{fmtNum(d.value)}</div>																							
+<div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{d.label}</div>																							
+<div style={{ position: "absolute", right: -10, top: -10, width: 60, height: 60, borderRadius: "50%", background: `${d.color}15` }} />																							
+</div>																							
+))}																							
+</div>																							
+																							
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>																							
+																							
+{/* সর্বাধিক বিক্রিত পণ্য */}																							
+<DarkCard>																							
+<SectionTitle icon="🏆" title="সর্বাধিক বিক্রিত পণ্য (পরিমাণ)" />																							
+{topProducts.length === 0																							
+? <div style={{ color: "#475569", textAlign: "center", padding: 20 }}>এখনো বিক্রয় নেই</div>																							
+: <ResponsiveContainer width="100%" height={220}>																							
+<BarChart data={topProducts} layout="vertical" barSize={12}>																							
+<CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />																							
+<XAxis type="number" tick={{ fill: "#64748b", fontSize: 10 }} />																							
+<YAxis type="category" dataKey="name" width={130} tick={{ fill: "#94a3b8", fontSize: 10 }} />																							
+<Tooltip content={<CustomTooltip />} />																							
+<Bar dataKey="qty" name="বিক্রয় (পিস)" fill="#00d4aa" radius={[0, 6, 6, 0]} />																							
+</BarChart>																							
+</ResponsiveContainer>																							
+}																							
+</DarkCard>																							
+																							
+{/* মাসিক বিক্রয় */}																							
+<DarkCard>																							
+<SectionTitle icon="📊" title="মাসিক বিক্রয় (টাকা)" />																							
+{monthlySalesData.length === 0																							
+? <div style={{ color: "#475569", textAlign: "center", padding: 20 }}>এখনো ডেটা নেই</div>																							
+: <ResponsiveContainer width="100%" height={220}>																							
+<BarChart data={monthlySalesData} barSize={28}>																							
+<CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />																							
+<XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 10 }} />																							
+<YAxis tick={{ fill: "#64748b", fontSize: 10 }} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />																							
+<Tooltip content={<CustomTooltip />} />																							
+<Bar dataKey="value" name="বিক্রয়" fill="url(#salesGrad)" radius={[6, 6, 0, 0]} />																							
+<defs>																							
+<linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">																							
+<stop offset="0%" stopColor="#54a0ff" />																							
+<stop offset="100%" stopColor="#5f27cd" stopOpacity={0.6} />																							
+</linearGradient>																							
+</defs>																							
+</BarChart>																							
+</ResponsiveContainer>																							
+}																							
+</DarkCard>																							
+</div>																							
+																							
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>																							
+																							
+{/* সাম্প্রতিক বিক্রয় */}																							
+<DarkCard>																							
+<SectionTitle icon="🕐" title="সাম্প্রতিক বিক্রয়" />																							
+{recentSales.length === 0																							
+? <div style={{ color: "#475569", textAlign: "center", padding: 20 }}>এখনো বিক্রয় নেই</div>																							
+: recentSales.map((s, i) => (																							
+<div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #1e293b" }}>																							
+<div style={{ display: "flex", gap: 10, alignItems: "center" }}>																							
+<div style={{ width: 32, height: 32, borderRadius: 8, background: "#00d4aa20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>💡</div>																							
+<div>																							
+<div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0" }}>{s.customer}</div>																							
+<div style={{ fontSize: 11, color: "#64748b" }}>{s.product} × {s.qty} | {fmtDate(s.date)}</div>																							
+</div>																							
+</div>																							
+<div style={{ textAlign: "right" }}>																							
+<div style={{ fontSize: 13, fontWeight: 700, color: "#00d4aa" }}>৳{fmtNum(s.total)}</div>																							
+{s.profit > 0 && <div style={{ fontSize: 11, color: "#2ecc71" }}>লাভ: ৳{fmtNum(s.profit)}</div>}																							
+</div>																							
+</div>																							
+))																							
+}																							
+</DarkCard>																							
+																							
+{/* স্টক সতর্কতা + পাই */}																							
+<DarkCard>																							
+<SectionTitle icon="⚠️" title="স্টক সতর্কতা" />																							
+{negStock.length === 0 && lowStock.length === 0																							
+? <div style={{ color: "#2ecc71", textAlign: "center", padding: 12, fontSize: 13 }}>✅ সব স্টক ঠিকঠাক</div>																							
+: [...negStock, ...Object.entries(stockMap).filter(([, v]) => v > 0 && v <= 5)].slice(0, 6).map(([name, qty]) => (																							
+<div key={name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", borderRadius: 8, marginBottom: 6, background: qty < 0 ? "#ff6b6b10" : "#ff9f4310", border: `1px solid ${qty < 0 ? "#ff6b6b30" : "#ff9f4330"}` }}>																							
+<div style={{ display: "flex", gap: 8, alignItems: "center" }}>																							
+<span>{qty < 0 ? "🔴" : "🟡"}</span>																							
+<span style={{ fontSize: 13, color: "#e2e8f0" }}>{name}</span>																							
+</div>																							
+<span style={{ fontWeight: 700, color: qty < 0 ? "#ff6b6b" : "#ff9f43", fontFamily: "monospace" }}>{qty}</span>																							
+</div>																							
+))																							
+}																							
+																							
+{pieData.length > 0 && (																							
+<>																							
+<SectionTitle icon="🥧" title="ব্যবসার চিত্র" />																							
+<ResponsiveContainer width="100%" height={160}>																							
+<PieChart>																							
+<Pie data={pieData} cx="50%" cy="50%" outerRadius={60} innerRadius={30} dataKey="value" paddingAngle={3} stroke="none">																							
+{pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}																							
+</Pie>																							
+<Tooltip content={<CustomTooltip />} />																							
+<Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />																							
+</PieChart>																							
+</ResponsiveContainer>																							
+</>																							
+)}																							
+</DarkCard>																							
+</div>																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  PURCHASE PAGE — একাধিক পণ্য একই মেমোতে																							
+// ══════════════════════════════════════════════════════																							
+function PurchasePage({ C, purchases, setPurchases, suppliers, products, showToast }) {																							
+// মেমো হেডার																							
+const [header, setHeader] = useState({ date: today(), supplier: "", memo: "", paid: "", bank: "হাতে নগদ" });																							
+const setH = (k, v) => setHeader(h => ({ ...h, [k]: v }));																							
+																							
+// পণ্য লাইন (তালিকা)																							
+const emptyLine = { product: "", qty: "", price: "", discount: "" };																							
+const [lines, setLines] = useState([{ ...emptyLine, _id: Date.now() }]);																							
+const setLine = (idx, k, v) => {																							
+setLines(ls => {																							
+const updated = ls.map((l, i) => i === idx ? { ...l, [k]: v } : l);																							
+// শেষ লাইনে কিছু লিখলে নতুন খালি লাইন যোগ হবে																							
+const last = updated[updated.length - 1];																							
+if (idx === updated.length - 1 && (last.product || last.qty || last.price)) {																							
+return [...updated, { ...emptyLine, _id: Date.now() + Math.random() }];																							
+}																							
+return updated;																							
+});																							
+};																							
+const removeLine = (idx) => setLines(ls => ls.length > 1 ? ls.filter((_, i) => i !== idx) : ls);																							
+																							
+const [search, setSearch] = useState("");																							
+																							
+// হিসাব																							
+const lineTotal = (l) => Number(l.qty || 0) * Number(l.price || 0) - Number(l.discount || 0);																							
+const grandTotal = lines.reduce((s, l) => s + lineTotal(l), 0);																							
+const due = grandTotal - Number(header.paid || 0);																							
+																							
+const submit = () => {																							
+if (!header.supplier) return showToast("সাপ্লায়ারের নাম দিন", "err");																							
+const validLines = lines.filter(l => l.product && l.qty && l.price);																							
+if (validLines.length === 0) return showToast("কমপক্ষে একটি পণ্য দিন", "err");																							
+const memoId = Date.now();																							
+const perLineDue = due / validLines.length;																							
+const newEntries = validLines.map((l, i) => ({																							
+...header,																							
+product: l.product,																							
+qty: l.qty,																							
+price: l.price,																							
+discount: l.discount,																							
+total: lineTotal(l),																							
+due: i === 0 ? due : 0, // বাকি প্রথম লাইনে																							
+memoId,																							
+id: memoId + i,																							
+}));																							
+setPurchases(p => [...p, ...newEntries]);																							
+setHeader({ date: today(), supplier: "", memo: "", paid: "", bank: "হাতে নগদ" });																							
+setLines([{ ...emptyLine, _id: Date.now() }]);																							
+showToast(`✅ ${validLines.length}টি পণ্য সংরক্ষণ হয়েছে`);																							
+};																							
+																							
+// মেমো গ্রুপ করে দেখানো																							
+const grouped = [];																							
+const seen = new Set();																							
+[...purchases].reverse().forEach(p => {																							
+const key = p.memoId || p.id;																							
+if (!seen.has(key)) {																							
+seen.add(key);																							
+const group = purchases.filter(x => (x.memoId || x.id) === key);																							
+grouped.push({ key, group, supplier: p.supplier, date: p.date, memo: p.memo, due: group[0]?.due || 0, total: group.reduce((s, x) => s + Number(x.total || 0), 0) });																							
+}																							
+});																							
+																							
+const filtered = grouped.filter(g =>																							
+g.supplier?.toLowerCase().includes(search.toLowerCase()) ||																							
+g.group.some(x => x.product?.toLowerCase().includes(search.toLowerCase()))																							
+);																							
+																							
+return (																							
+<div>																							
+<datalist id="dl_sup">{suppliers.map(s => <option key={s} value={s} />)}</datalist>																							
+<datalist id="dl_pro">{products.map(s => <option key={s} value={s} />)}</datalist>																							
+																							
+<Card>																							
+<h3 style={{ margin: "0 0 16px", color: "#1a5276", fontSize: 15 }}>🛒 নতুন ক্রয় — একাধিক পণ্য</h3>																							
+																							
+{/* মেমো হেডার */}																							
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: 12, marginBottom: 16, padding: "12px 16px", background: "#eaf0fb", borderRadius: 10 }}>																							
+<Input label="তারিখ *" type="date" value={header.date} onChange={v => setH("date", v)} />																							
+<Input label="সাপ্লায়ার *" value={header.supplier} onChange={v => setH("supplier", v)} list="dl_sup" placeholder="সাপ্লায়ার নাম" />																							
+<Input label="মেমো নং" value={header.memo} onChange={v => setH("memo", v)} placeholder="মেমো নম্বর" />																							
+<Input label="পরিশোধ (মোট)" type="number" value={header.paid} onChange={v => setH("paid", v)} placeholder="0" />																							
+<Select label="মাধ্যম" value={header.bank} onChange={v => setH("bank", v)} options={["হাতে নগদ","DBBL","BRAC BANK","IBBL","bKash","Nagad"]} />																							
+</div>																							
+																							
+{/* পণ্য লাইনসমূহ */}																							
+<div style={{ marginBottom: 12 }}>																							
+<div style={{ display: "grid", gridTemplateColumns: "2fr 80px 100px 80px 36px", gap: 8, padding: "6px 8px", background: "#1a3a5c", borderRadius: "8px 8px 0 0" }}>																							
+{["পণ্যের নাম","পরিমাণ","একক দাম","ডিসকাউন্ট",""].map(h => (																							
+<div key={h} style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}>{h}</div>																							
+))}																							
+</div>																							
+{lines.map((l, idx) => (																							
+<div key={l._id} style={{ display: "grid", gridTemplateColumns: "2fr 80px 100px 80px 36px", gap: 8, padding: "6px 8px", background: idx % 2 === 0 ? "#f8fafc" : "#fff", borderBottom: "1px solid #eee", alignItems: "center" }}>																							
+<input value={l.product} onChange={e => setLine(idx, "product", e.target.value)} list="dl_pro"																							
+placeholder="পণ্য লিখুন বা বেছে নিন"																							
+style={{ padding: "6px 10px", border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%", boxSizing: "border-box" }} />																							
+<input type="number" value={l.qty} onChange={e => setLine(idx, "qty", e.target.value)} placeholder="0"																							
+style={{ padding: "6px 8px", border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%", boxSizing: "border-box" }} />																							
+<input type="number" value={l.price} onChange={e => setLine(idx, "price", e.target.value)} placeholder="0"																							
+style={{ padding: "6px 8px", border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%", boxSizing: "border-box" }} />																							
+<input type="number" value={l.discount} onChange={e => setLine(idx, "discount", e.target.value)} placeholder="0"																							
+style={{ padding: "6px 8px", border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%", boxSizing: "border-box" }} />																							
+<button onClick={() => removeLine(idx)} disabled={lines.length === 1}																							
+style={{ background: "none", border: "none", cursor: lines.length === 1 ? "not-allowed" : "pointer", color: "#e74c3c", fontSize: 18 }}>🗑️</button>																							
+</div>																							
+))}																							
+<div style={{ padding: "8px", background: "#f8fafc", borderRadius: "0 0 8px 8px", borderTop: "2px dashed #dde1e7" }}>																							
+<span style={{ fontSize: 12, color: "#94a3b8" }}>💡 পণ্যের নাম লিখলেই নিচে নতুন লাইন আসবে</span>																							
+</div>																							
+</div>																							
+																							
+{/* সারসংক্ষেপ */}																							
+<div style={{ display: "flex", gap: 24, padding: "12px 16px", background: "#f0f4f8", borderRadius: 8, marginBottom: 12, fontSize: 13, alignItems: "center" }}>																							
+<span>পণ্য: <strong>{lines.filter(l => l.product).length}টি</strong></span>																							
+<span>মোট: <strong style={{ color: "#1a5276", fontSize: 16 }}>৳{fmtNum(grandTotal)}</strong></span>																							
+<span>পরিশোধ: <strong style={{ color: "#2ecc71" }}>৳{fmtNum(header.paid || 0)}</strong></span>																							
+<span>বাকি: <strong style={{ color: due > 0 ? "#e74c3c" : "#2ecc71", fontSize: 15 }}>৳{fmtNum(due)}</strong></span>																							
+<div style={{ marginLeft: "auto" }}>																							
+<Btn onClick={submit} color="#1a5276">💾 সব সংরক্ষণ করুন</Btn>																							
+</div>																							
+</div>																							
+</Card>																							
+																							
+{/* তালিকা — মেমো গ্রুপে */}																							
+<Card>																							
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>																							
+<h3 style={{ margin: 0, fontSize: 15, color: "#1a5276" }}>📋 ক্রয়ের তালিকা ({filtered.length}টি মেমো)</h3>																							
+<input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 খুঁজুন..."																							
+style={{ padding: "6px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, width: 200 }} />																							
+</div>																							
+{filtered.map(g => (																							
+<div key={g.key} style={{ marginBottom: 12, border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden" }}>																							
+<div style={{ background: "#1a3a5c", padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>																							
+<div>																							
+<span style={{ color: "#fff", fontWeight: 700 }}>{g.supplier}</span>																							
+{g.memo && <span style={{ color: "#94a3b8", fontSize: 12, marginLeft: 12 }}>মেমো: {g.memo}</span>}																							
+<span style={{ color: "#94a3b8", fontSize: 12, marginLeft: 12 }}>{fmtDate(g.date)}</span>																							
+</div>																							
+<div style={{ display: "flex", gap: 16, alignItems: "center" }}>																							
+<span style={{ color: "#2ecc71", fontWeight: 700 }}>মোট: ৳{fmtNum(g.total)}</span>																							
+<span style={{ color: g.due > 0 ? "#ff9f43" : "#2ecc71", fontWeight: 700 }}>বাকি: ৳{fmtNum(g.due)}</span>																							
+<Btn small outline color="#e74c3c" onClick={() => {																							
+setPurchases(ps => ps.filter(x => (x.memoId || x.id) !== g.key));																							
+showToast("মেমো মুছে ফেলা হয়েছে", "err");																							
+}}>🗑️ মুছুন</Btn>																							
+</div>																							
+</div>																							
+{g.group.map((p, i) => (																							
+<div key={p.id} style={{ display: "flex", gap: 16, padding: "8px 16px", background: i % 2 === 0 ? "#f8fafc" : "#fff", fontSize: 13 }}>																							
+<span style={{ flex: 2 }}>📦 {p.product}</span>																							
+<span style={{ color: "#7f8c8d" }}>×{p.qty}</span>																							
+<span>৳{fmtNum(p.price)}/পিস</span>																							
+<span style={{ marginLeft: "auto", fontWeight: 600 }}>৳{fmtNum(p.total)}</span>																							
+</div>																							
+))}																							
+</div>																							
+))}																							
+{filtered.length === 0 && <div style={{ textAlign: "center", color: "#7f8c8d", padding: 24 }}>কোনো ক্রয় নেই</div>}																							
+</Card>																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  SALES PAGE — একাধিক পণ্য একই বিলে																							
+// ══════════════════════════════════════════════════════																							
+function SalesPage({ C, sales, setSales, customers, products, showToast, stockMap, purchases }) {																							
+const [header, setHeader] = useState({ date: today(), customer: "", billNo: "", paid: "", bank: "হাতে নগদ" });																							
+const setH = (k, v) => setHeader(h => ({ ...h, [k]: v }));																							
+																							
+const emptyLine = { product: "", qty: "", price: "", costPrice: "", discount: "" };																							
+const [lines, setLines] = useState([{ ...emptyLine, _id: Date.now() }]);																							
+																							
+// পণ্যের নাম দিলে ক্রয় দাম স্বয়ংক্রিয় আসবে																							
+const getLastCostPrice = (productName) => {																							
+const last = [...purchases].reverse().find(p => p.product === productName);																							
+return last ? last.price : "";																							
+};																							
+																							
+const setLine = (idx, k, v) => {																							
+setLines(ls => {																							
+let updated = ls.map((l, i) => {																							
+if (i !== idx) return l;																							
+const newLine = { ...l, [k]: v };																							
+// পণ্যের নাম বদলালে ক্রয় দাম স্বয়ংক্রিয় বসাও																							
+if (k === "product" && v) {																							
+newLine.costPrice = getLastCostPrice(v);																							
+}																							
+return newLine;																							
+});																							
+const last = updated[updated.length - 1];																							
+if (idx === updated.length - 1 && (last.product || last.qty || last.price)) {																							
+return [...updated, { ...emptyLine, _id: Date.now() + Math.random() }];																							
+}																							
+return updated;																							
+});																							
+};																							
+const removeLine = (idx) => setLines(ls => ls.length > 1 ? ls.filter((_, i) => i !== idx) : ls);																							
+																							
+const [search, setSearch] = useState("");																							
+																							
+const lineTotal = (l) => Number(l.qty || 0) * Number(l.price || 0) - Number(l.discount || 0);																							
+const lineProfit = (l) => {																							
+const cost = Number(l.costPrice || 0);																							
+const qty = Number(l.qty || 0);																							
+const sellTotal = lineTotal(l);																							
+if (!cost || !qty) return 0;																							
+return sellTotal - (cost * qty);																							
+};																							
+const grandTotal = lines.reduce((s, l) => s + lineTotal(l), 0);																							
+const totalProfit = sales.reduce((s, r) => s + Number(r.profit || 0), 0);																							
+const due = header.customer === "CASH CASTOMAR" ? 0 : grandTotal - Number(header.paid || 0);																							
+																							
+const submit = () => {																							
+if (!header.customer) return showToast("কাস্টমারের নাম দিন", "err");																							
+const validLines = lines.filter(l => l.product && l.qty && l.price);																							
+if (validLines.length === 0) return showToast("কমপক্ষে একটি পণ্য দিন", "err");																							
+for (const l of validLines) {																							
+const st = stockMap[l.product] || 0;																							
+if (Number(l.qty) > st) return showToast(`${l.product} — স্টকে মাত্র ${st}টি!`, "err");																							
+}																							
+const billId = Date.now();																							
+const newEntries = validLines.map((l, i) => ({																							
+...header,																							
+product: l.product, qty: l.qty, price: l.price,																							
+costPrice: l.costPrice, discount: l.discount,																							
+total: lineTotal(l),																							
+profit: lineProfit(l),																							
+due: i === 0 ? due : 0,																							
+billId, id: billId + i,																							
+}));																							
+setSales(s => [...s, ...newEntries]);																							
+setHeader({ date: today(), customer: "", billNo: "", paid: "", bank: "হাতে নগদ" });																							
+setLines([{ ...emptyLine, _id: Date.now() }]);																							
+showToast(`✅ ${validLines.length}টি পণ্য বিক্রয় সংরক্ষণ হয়েছে`);																							
+};																							
+																							
+// বিল গ্রুপ																							
+const grouped = [];																							
+const seen = new Set();																							
+[...sales].reverse().forEach(s => {																							
+const key = s.billId || s.id;																							
+if (!seen.has(key)) {																							
+seen.add(key);																							
+const group = sales.filter(x => (x.billId || x.id) === key);																							
+grouped.push({ key, group, customer: s.customer, date: s.date, billNo: s.billNo, due: group[0]?.due || 0, total: group.reduce((t, x) => t + Number(x.total || 0), 0), profit: group.reduce((t, x) => t + Number(x.profit || 0), 0) });																							
+}																							
+});																							
+																							
+const filtered = grouped.filter(g =>																							
+g.customer?.toLowerCase().includes(search.toLowerCase()) ||																							
+g.group.some(x => x.product?.toLowerCase().includes(search.toLowerCase()))																							
+);																							
+																							
+return (																							
+<div>																							
+<datalist id="dl_cus">{customers.map(s => <option key={s} value={s} />)}</datalist>																							
+<datalist id="dl_pro2">{products.map(s => <option key={s} value={s} />)}</datalist>																							
+																							
+{/* লাভ ব্যানার */}																							
+<div style={{ background: totalProfit >= 0 ? "linear-gradient(135deg, #27ae60, #2ecc71)" : "linear-gradient(135deg, #c0392b, #e74c3c)", borderRadius: 12, padding: "16px 24px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>																							
+<div>																							
+<div style={{ color: "#fff", fontSize: 13, opacity: 0.85 }}>এখন পর্যন্ত মোট লাভ</div>																							
+<div style={{ color: "#fff", fontSize: 32, fontWeight: 900, fontFamily: "monospace" }}>৳{fmtNum(totalProfit)}</div>																							
+</div>																							
+<div style={{ fontSize: 48 }}>{totalProfit >= 0 ? "📈" : "📉"}</div>																							
+</div>																							
+																							
+<Card>																							
+<h3 style={{ margin: "0 0 16px", color: "#1a5276", fontSize: 15 }}>💰 নতুন বিক্রয় — একাধিক পণ্য</h3>																							
+																							
+{/* বিল হেডার */}																							
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: 12, marginBottom: 16, padding: "12px 16px", background: "#eafaf1", borderRadius: 10 }}>																							
+<Input label="তারিখ *" type="date" value={header.date} onChange={v => setH("date", v)} />																							
+<Input label="কাস্টমার *" value={header.customer} onChange={v => setH("customer", v)} list="dl_cus" placeholder="কাস্টমার নাম" />																							
+<Input label="বিল নং" value={header.billNo} onChange={v => setH("billNo", v)} placeholder="বিল নম্বর" />																							
+<Input label="পরিশোধ (মোট)" type="number" value={header.paid} onChange={v => setH("paid", v)} placeholder="0 = পুরো বাকি" />																							
+<Select label="মাধ্যম" value={header.bank} onChange={v => setH("bank", v)} options={["হাতে নগদ","DBBL","BRAC BANK","IBBL","bKash","Nagad"]} />																							
+</div>																							
+																							
+{/* পণ্য লাইন */}																							
+<div style={{ marginBottom: 12 }}>																							
+<div style={{ display: "grid", gridTemplateColumns: "2fr 70px 100px 100px 70px 36px", gap: 8, padding: "6px 8px", background: "#16a085", borderRadius: "8px 8px 0 0" }}>																							
+{["পণ্যের নাম","পরিমাণ","বিক্রয় দাম","ক্রয় দাম","ডিসকাউন্ট",""].map(h => (																							
+<div key={h} style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}>{h}</div>																							
+))}																							
+</div>																							
+{lines.map((l, idx) => {																							
+const st = stockMap[l.product] || 0;																							
+const lProfit = l.costPrice && l.qty && l.price ? lineTotal(l) - Number(l.qty) * Number(l.costPrice) : null;																							
+return (																							
+<div key={l._id}>																							
+<div style={{ display: "grid", gridTemplateColumns: "2fr 70px 100px 100px 70px 36px", gap: 8, padding: "6px 8px", background: idx % 2 === 0 ? "#f8fafc" : "#fff", borderBottom: "1px solid #eee", alignItems: "center" }}>																							
+<input value={l.product} onChange={e => setLine(idx, "product", e.target.value)} list="dl_pro2"																							
+placeholder="পণ্য লিখুন বা বেছে নিন"																							
+style={{ padding: "6px 10px", border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%", boxSizing: "border-box" }} />																							
+<input type="number" value={l.qty} onChange={e => setLine(idx, "qty", e.target.value)} placeholder="0"																							
+style={{ padding: "6px 8px", border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%", boxSizing: "border-box" }} />																							
+<input type="number" value={l.price} onChange={e => setLine(idx, "price", e.target.value)} placeholder="0"																							
+style={{ padding: "6px 8px", border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%", boxSizing: "border-box" }} />																							
+<input type="number" value={l.costPrice} onChange={e => setLine(idx, "costPrice", e.target.value)} placeholder="লাভের জন্য"																							
+style={{ padding: "6px 8px", border: "1px solid #e8f5e9", borderRadius: 6, fontSize: 13, width: "100%", boxSizing: "border-box", background: "#f0fff4" }} />																							
+<input type="number" value={l.discount} onChange={e => setLine(idx, "discount", e.target.value)} placeholder="0"																							
+style={{ padding: "6px 8px", border: "1px solid #dde1e7", borderRadius: 6, fontSize: 13, width: "100%", boxSizing: "border-box" }} />																							
+<button onClick={() => removeLine(idx)} disabled={lines.length === 1}																							
+style={{ background: "none", border: "none", cursor: lines.length === 1 ? "not-allowed" : "pointer", color: "#e74c3c", fontSize: 18 }}>🗑️</button>																							
+</div>																							
+{/* লাইন সারসংক্ষেপ */}																							
+{(l.product || l.qty || l.price) && (																							
+<div style={{ display: "flex", gap: 16, padding: "4px 8px 4px 16px", background: "#fafafa", fontSize: 12, color: "#555" }}>																							
+{l.product && <span>স্টক: <strong style={{ color: st <= 0 ? "#e74c3c" : "#1a5276" }}>{st}</strong></span>}																							
+{l.qty && l.price && <span>লাইন মোট: <strong>৳{fmtNum(lineTotal(l))}</strong></span>}																							
+{lProfit !== null && <span style={{ color: lProfit >= 0 ? "#27ae60" : "#e74c3c", fontWeight: 700 }}>{lProfit >= 0 ? "✅ লাভ" : "❌ লোকসান"}: ৳{fmtNum(Math.abs(lProfit))}</span>}																							
+</div>																							
+)}																							
+</div>																							
+);																							
+})}																							
+<div style={{ padding: "8px", background: "#f8fafc", borderRadius: "0 0 8px 8px", borderTop: "2px dashed #dde1e7" }}>																							
+<span style={{ fontSize: 12, color: "#94a3b8" }}>💡 পণ্যের নাম লিখলেই নিচে নতুন লাইন আসবে</span>																							
+</div>																							
+</div>																							
+																							
+{/* সারসংক্ষেপ */}																							
+<div style={{ display: "flex", gap: 24, padding: "12px 16px", background: "#f0f4f8", borderRadius: 8, marginBottom: 12, fontSize: 13, alignItems: "center", flexWrap: "wrap" }}>																							
+<span>পণ্য: <strong>{lines.filter(l => l.product).length}টি</strong></span>																							
+<span>মোট: <strong style={{ color: "#1a5276", fontSize: 16 }}>৳{fmtNum(grandTotal)}</strong></span>																							
+<span>পরিশোধ: <strong style={{ color: "#2ecc71" }}>৳{fmtNum(header.paid || 0)}</strong></span>																							
+<span>বাকি: <strong style={{ color: due > 0 ? "#e74c3c" : "#2ecc71", fontSize: 15 }}>৳{fmtNum(due)}</strong></span>																							
+<div style={{ marginLeft: "auto" }}>																							
+<Btn onClick={submit} color="#16a085">💾 সব সংরক্ষণ করুন</Btn>																							
+</div>																							
+</div>																							
+</Card>																							
+																							
+{/* বিল তালিকা */}																							
+<Card>																							
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>																							
+<h3 style={{ margin: 0, fontSize: 15, color: "#1a5276" }}>📋 বিক্রয়ের তালিকা ({filtered.length}টি বিল)</h3>																							
+<input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 খুঁজুন..."																							
+style={{ padding: "6px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, width: 200 }} />																							
+</div>																							
+{filtered.map(g => (																							
+<div key={g.key} style={{ marginBottom: 12, border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden" }}>																							
+<div style={{ background: "#16a085", padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>																							
+<div>																							
+<span style={{ color: "#fff", fontWeight: 700 }}>{g.customer}</span>																							
+{g.billNo && <span style={{ color: "#a8e6cf", fontSize: 12, marginLeft: 12 }}>বিল: {g.billNo}</span>}																							
+<span style={{ color: "#a8e6cf", fontSize: 12, marginLeft: 12 }}>{fmtDate(g.date)}</span>																							
+</div>																							
+<div style={{ display: "flex", gap: 16, alignItems: "center" }}>																							
+<span style={{ color: "#fff", fontWeight: 700 }}>মোট: ৳{fmtNum(g.total)}</span>																							
+{g.profit !== 0 && <span style={{ color: g.profit >= 0 ? "#a8e6cf" : "#ffcccc", fontWeight: 700 }}>লাভ: ৳{fmtNum(g.profit)}</span>}																							
+<span style={{ color: g.due > 0 ? "#ffe082" : "#a8e6cf", fontWeight: 700 }}>বাকি: ৳{fmtNum(g.due)}</span>																							
+<Btn small outline color="#fff" onClick={() => { setSales(ss => ss.filter(x => (x.billId || x.id) !== g.key)); showToast("বিল মুছে ফেলা হয়েছে", "err"); }}>🗑️ মুছুন</Btn>																							
+</div>																							
+</div>																							
+{g.group.map((s, i) => (																							
+<div key={s.id} style={{ display: "flex", gap: 16, padding: "8px 16px", background: i % 2 === 0 ? "#f8fafc" : "#fff", fontSize: 13 }}>																							
+<span style={{ flex: 2 }}>💡 {s.product}</span>																							
+<span style={{ color: "#7f8c8d" }}>×{s.qty}</span>																							
+<span>৳{fmtNum(s.price)}/পিস</span>																							
+{s.costPrice && <span style={{ color: s.profit >= 0 ? "#27ae60" : "#e74c3c", fontWeight: 600 }}>লাভ: ৳{fmtNum(s.profit)}</span>}																							
+<span style={{ marginLeft: "auto", fontWeight: 600 }}>৳{fmtNum(s.total)}</span>																							
+</div>																							
+))}																							
+</div>																							
+))}																							
+{filtered.length === 0 && <div style={{ textAlign: "center", color: "#7f8c8d", padding: 24 }}>কোনো বিক্রয় নেই</div>}																							
+</Card>																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  STOCK PAGE																							
+// ══════════════════════════════════════════════════════																							
+function StockPage({ stockMap, products, purchases, sales }) {																							
+const [filter, setFilter] = useState("all");																							
+const [search, setSearch] = useState("");																							
+																							
+const allProducts = [...new Set([...products, ...Object.keys(stockMap)])];																							
+																							
+const rows = allProducts.map(name => {																							
+const qty = stockMap[name] || 0;																							
+const bought = purchases.filter(p => p.product === name).reduce((s, p) => s + Number(p.qty || 0), 0);																							
+const sold = sales.filter(s => s.product === name).reduce((t, s) => t + Number(s.qty || 0), 0);																							
+// সর্বশেষ ক্রয় দাম দিয়ে স্টক মূল্য বের করা																							
+const lastPurchase = [...purchases].reverse().find(p => p.product === name);																							
+const costPrice = lastPurchase ? Number(lastPurchase.price || 0) : 0;																							
+const stockValue = qty > 0 ? qty * costPrice : 0;																							
+return { name, qty, bought, sold, costPrice, stockValue };																							
+}).filter(r => {																							
+if (filter === "low") return r.qty <= 5 && r.qty > 0;																							
+if (filter === "neg") return r.qty < 0;																							
+if (filter === "ok") return r.qty > 5;																							
+if (filter === "value") return r.stockValue > 0;																							
+return true;																							
+}).filter(r => r.name.toLowerCase().includes(search.toLowerCase()));																							
+																							
+const statusColor = qty => qty < 0 ? "#e74c3c" : qty <= 5 ? "#f39c12" : "#2ecc71";																							
+const statusLabel = qty => qty < 0 ? "❌ নেগেটিভ" : qty <= 5 ? "⚠️ কম" : "✅ ঠিক";																							
+																							
+const totalStockValue = rows.reduce((s, r) => s + r.stockValue, 0);																							
+const totalItems = rows.filter(r => r.qty > 0).length;																							
+const negItems = rows.filter(r => r.qty < 0).length;																							
+																							
+return (																							
+<div>																							
+{/* স্টক মূল্য KPI */}																							
+<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 16 }}>																							
+<div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", borderTop: "4px solid #3498db", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>																							
+<div style={{ fontSize: 12, color: "#7f8c8d" }}>📦 মোট স্টক মূল্য</div>																							
+<div style={{ fontSize: 26, fontWeight: 900, color: "#3498db", fontFamily: "monospace" }}>৳{fmtNum(totalStockValue)}</div>																							
+<div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>সর্বশেষ ক্রয় দাম অনুযায়ী</div>																							
+</div>																							
+<div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", borderTop: "4px solid #2ecc71", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>																							
+<div style={{ fontSize: 12, color: "#7f8c8d" }}>✅ পণ্যের সংখ্যা (স্টকে আছে)</div>																							
+<div style={{ fontSize: 26, fontWeight: 900, color: "#2ecc71" }}>{totalItems}টি পণ্য</div>																							
+</div>																							
+<div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", borderTop: "4px solid #e74c3c", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>																							
+<div style={{ fontSize: 12, color: "#7f8c8d" }}>❌ নেগেটিভ স্টক</div>																							
+<div style={{ fontSize: 26, fontWeight: 900, color: "#e74c3c" }}>{negItems}টি পণ্য</div>																							
+<div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>দ্রুত কিনতে হবে</div>																							
+</div>																							
+</div>																							
+																							
+<Card>																							
+<div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>																							
+{[["all","সব পণ্য"],["ok","ঠিকঠাক"],["low","কম স্টক"],["neg","নেগেটিভ"],["value","মূল্য আছে"]].map(([k, l]) => (																							
+<Btn key={k} small color={filter === k ? "#1a5276" : "#95a5a6"} onClick={() => setFilter(k)}>{l}</Btn>																							
+))}																							
+<input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 পণ্য খুঁজুন..."																							
+style={{ padding: "5px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, marginLeft: "auto" }} />																							
+</div>																							
+<Table																							
+headers={["পণ্যের নাম","ক্রয়","বিক্রয়","স্টক (পিস)","একক দাম","স্টক মূল্য","অবস্থা"]}																							
+rows={rows.map(r => [																							
+r.name, r.bought, r.sold,																							
+<span style={{ fontWeight: 800, color: statusColor(r.qty), fontSize: 15 }}>{r.qty}</span>,																							
+r.costPrice ? `৳${fmtNum(r.costPrice)}` : <span style={{ color: "#aaa" }}>—</span>,																							
+r.stockValue > 0																							
+? <span style={{ fontWeight: 700, color: "#3498db" }}>৳{fmtNum(r.stockValue)}</span>																							
+: <span style={{ color: "#aaa" }}>—</span>,																							
+<span style={{ color: statusColor(r.qty), fontWeight: 600 }}>{statusLabel(r.qty)}</span>,																							
+])}																							
+emptyMsg="কোনো পণ্য পাওয়া যায়নি"																							
+/>																							
+</Card>																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  CUSTOMER DUE PAGE — পার্শিয়াল পেমেন্ট সহ																							
+// ══════════════════════════════════════════════════════																							
+function CustomerDuePage({ customers, customerDue, payments, setPayments, sales, showToast }) {																							
+const [selected, setSelected] = useState("");																							
+const [payForm, setPayForm] = useState({ date: today(), amount: "", bank: "হাতে নগদ", note: "" });																							
+const [search, setSearch] = useState("");																							
+																							
+const custList = [...new Set([...customers, ...Object.keys(customerDue)])]																							
+.filter(c => c !== "CASH CASTOMAR")																							
+.filter(c => c.toLowerCase().includes(search.toLowerCase()));																							
+																							
+const custSales = sales.filter(s => s.customer === selected).reverse();																							
+const custPayments = payments.filter(p => p.customer === selected).reverse();																							
+const due = customerDue[selected] || 0;																							
+																							
+const addPayment = () => {																							
+if (!selected || !payForm.amount) return showToast("কাস্টমার ও পরিমাণ দিন", "err");																							
+if (Number(payForm.amount) > due) return showToast(`বাকি মাত্র ৳${fmtNum(due)}`, "err");																							
+setPayments(p => [...p, { ...payForm, customer: selected, id: Date.now() }]);																							
+setPayForm({ date: today(), amount: "", bank: "হাতে নগদ", note: "" });																							
+showToast("পেমেন্ট সংরক্ষণ হয়েছে");																							
+};																							
+																							
+return (																							
+<div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16, alignItems: "start" }}>																							
+{/* LEFT: কাস্টমার লিস্ট */}																							
+<Card style={{ marginBottom: 0 }}>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#1a5276" }}>👥 কাস্টমার তালিকা</h3>																							
+<input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 খুঁজুন..."																							
+style={{ width: "100%", padding: "6px 10px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, marginBottom: 10, boxSizing: "border-box" }} />																							
+<div style={{ maxHeight: 480, overflowY: "auto" }}>																							
+{custList.map(c => {																							
+const d = customerDue[c] || 0;																							
+return (																							
+<div key={c} onClick={() => setSelected(c)} style={{																							
+padding: "10px 12px", borderRadius: 8, cursor: "pointer", marginBottom: 4,																							
+background: selected === c ? "#1a5276" : d > 0 ? "#fff5f5" : "#f8fafc",																							
+border: `1px solid ${selected === c ? "#1a5276" : d > 0 ? "#ffcdd2" : "#eee"}`,																							
+}}>																							
+<div style={{ fontWeight: 600, fontSize: 13, color: selected === c ? "#fff" : "#2c3e50" }}>{c}</div>																							
+<div style={{ fontSize: 12, color: selected === c ? "#a8d8ea" : d > 0 ? "#e74c3c" : "#2ecc71", fontWeight: 600 }}>																							
+{d > 0 ? `বাকি: ৳${fmtNum(d)}` : "✅ পরিশোধ"}																							
+</div>																							
+</div>																							
+);																							
+})}																							
+</div>																							
+</Card>																							
+																							
+{/* RIGHT: বিস্তারিত */}																							
+<div>																							
+{!selected ? (																							
+<Card><div style={{ textAlign: "center", padding: 40, color: "#7f8c8d" }}>← বাম দিক থেকে কাস্টমার বেছে নিন</div></Card>																							
+) : (																							
+<>																							
+{/* DUE SUMMARY */}																							
+<Card style={{ background: due > 0 ? "#fff5f5" : "#f0fff4", borderLeft: `4px solid ${due > 0 ? "#e74c3c" : "#2ecc71"}` }}>																							
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>																							
+<div>																							
+<div style={{ fontWeight: 800, fontSize: 18, color: "#1a5276" }}>{selected}</div>																							
+<div style={{ fontSize: 13, color: "#7f8c8d", marginTop: 2 }}>																							
+মোট বিক্রয়: ৳{fmtNum(custSales.reduce((s, r) => s + Number(r.total || 0), 0))} |																							
+মোট পরিশোধ: ৳{fmtNum(custPayments.reduce((s, r) => s + Number(r.amount || 0), 0))}																							
+</div>																							
+</div>																							
+<div style={{ textAlign: "right" }}>																							
+<div style={{ fontSize: 12, color: "#7f8c8d" }}>বর্তমান বাকি</div>																							
+<div style={{ fontSize: 28, fontWeight: 900, color: due > 0 ? "#e74c3c" : "#2ecc71" }}>৳{fmtNum(due)}</div>																							
+</div>																							
+</div>																							
+</Card>																							
+																							
+{/* PAYMENT FORM */}																							
+{due > 0 && (																							
+<Card>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#1a5276" }}>💳 পেমেন্ট নিন</h3>																							
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: 10, alignItems: "end" }}>																							
+<Input label="তারিখ" type="date" value={payForm.date} onChange={v => setPayForm(f => ({ ...f, date: v }))} />																							
+<Input label="পরিমাণ (টাকা)" type="number" value={payForm.amount} onChange={v => setPayForm(f => ({ ...f, amount: v }))} placeholder={`সর্বোচ্চ ৳${fmtNum(due)}`} />																							
+<Select label="মাধ্যম" value={payForm.bank} onChange={v => setPayForm(f => ({ ...f, bank: v }))} options={["হাতে নগদ","DBBL","BRAC BANK","IBBL","bKash","Nagad"]} />																							
+<Input label="নোট" value={payForm.note} onChange={v => setPayForm(f => ({ ...f, note: v }))} placeholder="ঐচ্ছিক" />																							
+<Btn onClick={addPayment} color="#2ecc71">✅ নিন</Btn>																							
+</div>																							
+</Card>																							
+)}																							
+																							
+{/* LEDGER */}																							
+<Card>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#1a5276" }}>📒 লেজার (সব লেনদেন)</h3>																							
+{[																							
+...custSales.map(s => ({ date: s.date, type: "বিক্রয়", desc: `${s.product} × ${s.qty}`, debit: s.total, credit: 0, note: "" })),																							
+...custPayments.map(p => ({ date: p.date, type: "পেমেন্ট", desc: p.note || p.bank, debit: 0, credit: p.amount, note: "" })),																							
+].sort((a, b) => new Date(a.date) - new Date(b.date)).map((tx, i) => (																							
+<div key={i} style={{																							
+display: "flex", justifyContent: "space-between", alignItems: "center",																							
+padding: "10px 0", borderBottom: "1px solid #eee", fontSize: 13,																							
+}}>																							
+<div style={{ display: "flex", gap: 12, alignItems: "center" }}>																							
+<span style={{ fontSize: 18 }}>{tx.type === "বিক্রয়" ? "🧾" : "💳"}</span>																							
+<div>																							
+<div style={{ fontWeight: 600 }}>{tx.type} — {tx.desc}</div>																							
+<div style={{ fontSize: 11, color: "#7f8c8d" }}>{fmtDate(tx.date)}</div>																							
+</div>																							
+</div>																							
+<div style={{ textAlign: "right" }}>																							
+{tx.debit > 0 && <div style={{ color: "#e74c3c", fontWeight: 700 }}>+৳{fmtNum(tx.debit)}</div>}																							
+{tx.credit > 0 && <div style={{ color: "#2ecc71", fontWeight: 700 }}>-৳{fmtNum(tx.credit)}</div>}																							
+</div>																							
+</div>																							
+))}																							
+</Card>																							
+</>																							
+)}																							
+</div>																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  SUPPLIER DUE PAGE																							
+// ══════════════════════════════════════════════════════																							
+function SupplierDuePage({ suppliers, supplierDue, supplierPay, setSupplierPay, purchases, showToast }) {																							
+const [selected, setSelected] = useState("");																							
+const [payForm, setPayForm] = useState({ date: today(), amount: "", bank: "হাতে নগদ", note: "" });																							
+const [search, setSearch] = useState("");																							
+																							
+const suppList = [...new Set([...suppliers, ...Object.keys(supplierDue)])]																							
+.filter(s => s.toLowerCase().includes(search.toLowerCase()));																							
+																							
+const suppPurchases = purchases.filter(p => p.supplier === selected).reverse();																							
+const suppPayments = supplierPay.filter(p => p.supplier === selected).reverse();																							
+const due = supplierDue[selected] || 0;																							
+																							
+const addPayment = () => {																							
+if (!selected || !payForm.amount) return showToast("সাপ্লায়ার ও পরিমাণ দিন", "err");																							
+setSupplierPay(p => [...p, { ...payForm, supplier: selected, id: Date.now() }]);																							
+setPayForm({ date: today(), amount: "", bank: "হাতে নগদ", note: "" });																							
+showToast("পেমেন্ট সংরক্ষণ হয়েছে");																							
+};																							
+																							
+return (																							
+<div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16, alignItems: "start" }}>																							
+<Card style={{ marginBottom: 0 }}>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#1a5276" }}>🏪 সাপ্লায়ার তালিকা</h3>																							
+<input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 খুঁজুন..."																							
+style={{ width: "100%", padding: "6px 10px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, marginBottom: 10, boxSizing: "border-box" }} />																							
+<div style={{ maxHeight: 480, overflowY: "auto" }}>																							
+{suppList.map(s => {																							
+const d = supplierDue[s] || 0;																							
+return (																							
+<div key={s} onClick={() => setSelected(s)} style={{																							
+padding: "10px 12px", borderRadius: 8, cursor: "pointer", marginBottom: 4,																							
+background: selected === s ? "#1a5276" : d > 0 ? "#fff8e1" : "#f8fafc",																							
+border: `1px solid ${selected === s ? "#1a5276" : d > 0 ? "#ffe082" : "#eee"}`,																							
+}}>																							
+<div style={{ fontWeight: 600, fontSize: 13, color: selected === s ? "#fff" : "#2c3e50" }}>{s}</div>																							
+<div style={{ fontSize: 12, color: selected === s ? "#ffd180" : d > 0 ? "#f39c12" : "#2ecc71", fontWeight: 600 }}>																							
+{d > 0 ? `দিতে হবে: ৳${fmtNum(d)}` : "✅ পরিশোধ"}																							
+</div>																							
+</div>																							
+);																							
+})}																							
+</div>																							
+</Card>																							
+																							
+<div>																							
+{!selected ? (																							
+<Card><div style={{ textAlign: "center", padding: 40, color: "#7f8c8d" }}>← বাম দিক থেকে সাপ্লায়ার বেছে নিন</div></Card>																							
+) : (																							
+<>																							
+<Card style={{ background: due > 0 ? "#fffbee" : "#f0fff4", borderLeft: `4px solid ${due > 0 ? "#f39c12" : "#2ecc71"}` }}>																							
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>																							
+<div>																							
+<div style={{ fontWeight: 800, fontSize: 18, color: "#1a5276" }}>{selected}</div>																							
+<div style={{ fontSize: 13, color: "#7f8c8d", marginTop: 2 }}>																							
+মোট ক্রয়: ৳{fmtNum(suppPurchases.reduce((s, p) => s + Number(p.total || 0), 0))}																							
+</div>																							
+</div>																							
+<div style={{ textAlign: "right" }}>																							
+<div style={{ fontSize: 12, color: "#7f8c8d" }}>বকেয়া পরিশোধ</div>																							
+<div style={{ fontSize: 28, fontWeight: 900, color: due > 0 ? "#f39c12" : "#2ecc71" }}>৳{fmtNum(due)}</div>																							
+</div>																							
+</div>																							
+</Card>																							
+																							
+{due > 0 && (																							
+<Card>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#1a5276" }}>💳 পেমেন্ট দিন</h3>																							
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: 10, alignItems: "end" }}>																							
+<Input label="তারিখ" type="date" value={payForm.date} onChange={v => setPayForm(f => ({ ...f, date: v }))} />																							
+<Input label="পরিমাণ (টাকা)" type="number" value={payForm.amount} onChange={v => setPayForm(f => ({ ...f, amount: v }))} placeholder="0" />																							
+<Select label="মাধ্যম" value={payForm.bank} onChange={v => setPayForm(f => ({ ...f, bank: v }))} options={["হাতে নগদ","DBBL","BRAC BANK","IBBL","bKash","Nagad"]} />																							
+<Input label="নোট" value={payForm.note} onChange={v => setPayForm(f => ({ ...f, note: v }))} placeholder="ঐচ্ছিক" />																							
+<Btn onClick={addPayment} color="#f39c12">✅ দিন</Btn>																							
+</div>																							
+</Card>																							
+)}																							
+																							
+<Card>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#1a5276" }}>📒 লেজার</h3>																							
+{[																							
+...suppPurchases.map(p => ({ date: p.date, type: "ক্রয়", desc: `${p.product} × ${p.qty}`, debit: p.total, credit: 0 })),																							
+...suppPayments.map(p => ({ date: p.date, type: "পেমেন্ট", desc: p.note || p.bank, debit: 0, credit: p.amount })),																							
+].sort((a, b) => new Date(a.date) - new Date(b.date)).map((tx, i) => (																							
+<div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #eee", fontSize: 13 }}>																							
+<div style={{ display: "flex", gap: 12 }}>																							
+<span style={{ fontSize: 18 }}>{tx.type === "ক্রয়" ? "🛒" : "💳"}</span>																							
+<div>																							
+<div style={{ fontWeight: 600 }}>{tx.type} — {tx.desc}</div>																							
+<div style={{ fontSize: 11, color: "#7f8c8d" }}>{fmtDate(tx.date)}</div>																							
+</div>																							
+</div>																							
+<div style={{ textAlign: "right" }}>																							
+{tx.debit > 0 && <div style={{ color: "#f39c12", fontWeight: 700 }}>+৳{fmtNum(tx.debit)}</div>}																							
+{tx.credit > 0 && <div style={{ color: "#2ecc71", fontWeight: 700 }}>-৳{fmtNum(tx.credit)}</div>}																							
+</div>																							
+</div>																							
+))}																							
+</Card>																							
+</>																							
+)}																							
+</div>																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  BANK PAGE																							
+// ══════════════════════════════════════════════════════																							
+function BankPage({ C, bankTx, setBankTx, banks, showToast }) {																							
+const empty = { date: today(), bank: "", type: "IN", amount: "", note: "" };																							
+const [form, setForm] = useState(empty);																							
+																							
+const set = (k, v) => setForm(f => ({ ...f, [k]: v }));																							
+																							
+const balances = banks.map(b => {																							
+const inTotal = bankTx.filter(t => t.bank === b && t.type === "IN").reduce((s, t) => s + Number(t.amount), 0);																							
+const outTotal = bankTx.filter(t => t.bank === b && t.type === "OUT").reduce((s, t) => s + Number(t.amount), 0);																							
+return { bank: b, in: inTotal, out: outTotal, balance: inTotal - outTotal };																							
+});																							
+																							
+const submit = () => {																							
+if (!form.bank || !form.amount) return showToast("ব্যাংক ও পরিমাণ দিন", "err");																							
+setBankTx(t => [...t, { ...form, id: Date.now() }]);																							
+setForm(empty);																							
+showToast("সংরক্ষণ হয়েছে");																							
+};																							
+																							
+return (																							
+<div>																							
+<div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>																							
+{balances.map(b => (																							
+<div key={b.bank} style={{ background: "#fff", borderRadius: 12, padding: "14px 18px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", minWidth: 140, borderTop: `4px solid ${b.balance >= 0 ? "#2ecc71" : "#e74c3c"}` }}>																							
+<div style={{ fontSize: 13, fontWeight: 700, color: "#1a5276" }}>{b.bank}</div>																							
+<div style={{ fontSize: 20, fontWeight: 900, color: b.balance >= 0 ? "#2ecc71" : "#e74c3c", fontFamily: "monospace" }}>৳{fmtNum(b.balance)}</div>																							
+<div style={{ fontSize: 11, color: "#7f8c8d" }}>জমা: ৳{fmtNum(b.in)} | খরচ: ৳{fmtNum(b.out)}</div>																							
+</div>																							
+))}																							
+</div>																							
+																							
+<Card>																							
+<h3 style={{ margin: "0 0 16px", fontSize: 15, color: "#1a5276" }}>🏦 নতুন লেনদেন</h3>																							
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr auto", gap: 12, alignItems: "end" }}>																							
+<Input label="তারিখ" type="date" value={form.date} onChange={v => set("date", v)} />																							
+<Select label="ব্যাংক / মাধ্যম" value={form.bank} onChange={v => set("bank", v)} options={banks} />																							
+<Select label="ধরন" value={form.type} onChange={v => set("type", v)} options={["IN","OUT"]} />																							
+<Input label="পরিমাণ" type="number" value={form.amount} onChange={v => set("amount", v)} placeholder="0" />																							
+<Input label="বিবরণ" value={form.note} onChange={v => set("note", v)} placeholder="কেন?" />																							
+<Btn onClick={submit} color="#1a5276">💾</Btn>																							
+</div>																							
+</Card>																							
+																							
+<Card>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 15, color: "#1a5276" }}>📋 লেনদেনের ইতিহাস</h3>																							
+<Table																							
+headers={["তারিখ","ব্যাংক","ধরন","পরিমাণ","বিবরণ","মুছুন"]}																							
+rows={[...bankTx].reverse().map(t => [																							
+fmtDate(t.date), t.bank,																							
+<span style={{ color: t.type === "IN" ? "#2ecc71" : "#e74c3c", fontWeight: 700 }}>{t.type === "IN" ? "↑ জমা" : "↓ খরচ"}</span>,																							
+<span style={{ fontWeight: 700, color: t.type === "IN" ? "#2ecc71" : "#e74c3c" }}>৳{fmtNum(t.amount)}</span>,																							
+t.note,																							
+<Btn small outline color="#e74c3c" onClick={() => { setBankTx(tt => tt.filter(x => x.id !== t.id)); showToast("মুছে ফেলা হয়েছে", "err"); }}>🗑️</Btn>																							
+])}																							
+/>																							
+</Card>																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  REPORT PAGE																							
+// ══════════════════════════════════════════════════════																							
+function ReportPage({ sales, purchases, payments, supplierPay, customerDue, supplierDue, totalCustDue, totalSuppDue }) {																							
+const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));																							
+																							
+const filterByMonth = (arr) => arr.filter(r => r.date && r.date.startsWith(month));																							
+																							
+const mSales = filterByMonth(sales);																							
+const mPurchases = filterByMonth(purchases);																							
+const mPayments = filterByMonth(payments);																							
+const mSuppPay = filterByMonth(supplierPay);																							
+																							
+const totalMSales = mSales.reduce((s, r) => s + Number(r.total || 0), 0);																							
+const totalMPurchase = mPurchases.reduce((s, r) => s + Number(r.total || 0), 0);																							
+const totalMPayIn = mPayments.reduce((s, r) => s + Number(r.amount || 0), 0);																							
+const totalMPayOut = mSuppPay.reduce((s, r) => s + Number(r.amount || 0), 0);																							
+const grossProfit = mSales.reduce((s, r) => s + Number(r.profit || 0), 0);																							
+const profitEntries = mSales.filter(r => r.costPrice).length;																							
+const totalEntries = mSales.length;																							
+																							
+const topCustDue = Object.entries(customerDue).filter(([, v]) => v > 0).sort(([, a], [, b]) => b - a).slice(0, 8);																							
+const topSuppDue = Object.entries(supplierDue).filter(([, v]) => v > 0).sort(([, a], [, b]) => b - a).slice(0, 8);																							
+																							
+return (																							
+<div>																							
+<Card>																							
+<div style={{ display: "flex", alignItems: "center", gap: 16 }}>																							
+<h3 style={{ margin: 0, fontSize: 15, color: "#1a5276" }}>📊 মাস বেছে নিন:</h3>																							
+<input type="month" value={month} onChange={e => setMonth(e.target.value)}																							
+style={{ padding: "6px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 14 }} />																							
+</div>																							
+</Card>																							
+																							
+<div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 16 }}>																							
+{[																							
+{ l: "মোট বিক্রয়", v: totalMSales, c: "#2ecc71" },																							
+{ l: "মোট ক্রয়", v: totalMPurchase, c: "#3498db" },																							
+{ l: "মোট লাভ", v: grossProfit, c: grossProfit >= 0 ? "#27ae60" : "#e74c3c", note: `${profitEntries}/${totalEntries} এন্ট্রিতে` },																							
+{ l: "নগদ প্রাপ্তি", v: totalMPayIn, c: "#8e44ad" },																							
+].map(({ l, v, c, note }) => (																							
+<div key={l} style={{ background: "#fff", borderRadius: 12, padding: "14px 16px", borderTop: `4px solid ${c}`, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>																							
+<div style={{ fontSize: 12, color: "#7f8c8d" }}>{l}</div>																							
+<div style={{ fontSize: 22, fontWeight: 900, color: c, fontFamily: "monospace" }}>৳{fmtNum(v)}</div>																							
+{note && <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{note}</div>}																							
+</div>																							
+))}																							
+</div>																							
+																							
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>																							
+<Card>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#e74c3c" }}>🔴 কাস্টমার বাকি (সর্বোচ্চ)</h3>																							
+<div style={{ fontSize: 12, color: "#7f8c8d", marginBottom: 8 }}>মোট বাকি: ৳{fmtNum(totalCustDue)}</div>																							
+{topCustDue.map(([name, due]) => (																							
+<div key={name} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid #eee", fontSize: 13 }}>																							
+<span>{name}</span>																							
+<span style={{ fontWeight: 700, color: "#e74c3c" }}>৳{fmtNum(due)}</span>																							
+</div>																							
+))}																							
+</Card>																							
+<Card>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#f39c12" }}>🟡 সাপ্লায়ার বাকি (সর্বোচ্চ)</h3>																							
+<div style={{ fontSize: 12, color: "#7f8c8d", marginBottom: 8 }}>মোট দিতে হবে: ৳{fmtNum(totalSuppDue)}</div>																							
+{topSuppDue.map(([name, due]) => (																							
+<div key={name} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid #eee", fontSize: 13 }}>																							
+<span>{name}</span>																							
+<span style={{ fontWeight: 700, color: "#f39c12" }}>৳{fmtNum(due)}</span>																							
+</div>																							
+))}																							
+</Card>																							
+</div>																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  MASTER LIST PAGE																							
+// ══════════════════════════════════════════════════════																							
+function MasterPage({ customers, setCustomers, suppliers, setSuppliers, products, setProducts, showToast }) {																							
+const [tab, setTab] = useState("customer");																							
+const [newItem, setNewItem] = useState("");																							
+const [search, setSearch] = useState("");																							
+																							
+const lists = {																							
+customer: { label: "কাস্টমার", data: customers, set: setCustomers, icon: "👥" },																							
+supplier: { label: "সাপ্লায়ার", data: suppliers, set: setSuppliers, icon: "🏪" },																							
+product: { label: "পণ্য", data: products, set: setProducts, icon: "📦" },																							
+};																							
+const cur = lists[tab];																							
+																							
+const addItem = () => {																							
+const v = newItem.trim().toUpperCase();																							
+if (!v) return;																							
+if (cur.data.includes(v)) return showToast("এই নাম আগেই আছে", "err");																							
+cur.set(d => [...d, v]);																							
+setNewItem("");																							
+showToast(`${cur.label} যোগ হয়েছে`);																							
+};																							
+																							
+const removeItem = (item) => {																							
+cur.set(d => d.filter(x => x !== item));																							
+showToast("মুছে ফেলা হয়েছে", "err");																							
+};																							
+																							
+const filtered = cur.data.filter(d => d.toLowerCase().includes(search.toLowerCase()));																							
+																							
+return (																							
+<div>																							
+<div style={{ display: "flex", gap: 8, marginBottom: 16 }}>																							
+{Object.entries(lists).map(([k, v]) => (																							
+<Btn key={k} small color={tab === k ? "#1a5276" : "#95a5a6"} onClick={() => { setTab(k); setSearch(""); setNewItem(""); }}>																							
+{v.icon} {v.label} ({v.data.length})																							
+</Btn>																							
+))}																							
+</div>																							
+																							
+<Card>																							
+<h3 style={{ margin: "0 0 12px", fontSize: 15, color: "#1a5276" }}>➕ নতুন {cur.label} যোগ করুন</h3>																							
+<div style={{ display: "flex", gap: 10 }}>																							
+<input value={newItem} onChange={e => setNewItem(e.target.value)}																							
+onKeyDown={e => e.key === "Enter" && addItem()}																							
+placeholder={`নতুন ${cur.label} এর নাম লিখুন...`}																							
+style={{ flex: 1, padding: "8px 14px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 14, fontFamily: "'Noto Sans Bengali', sans-serif" }} />																							
+<Btn onClick={addItem} color="#2ecc71">➕ যোগ করুন</Btn>																							
+</div>																							
+<div style={{ fontSize: 12, color: "#7f8c8d", marginTop: 8 }}>																							
+💡 এখানে যোগ করলে ক্রয়/বিক্রয় ফর্মে স্বয়ংক্রিয়ভাবে দেখাবে																							
+</div>																							
+</Card>																							
+																							
+<Card>																							
+<div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>																							
+<h3 style={{ margin: 0, fontSize: 15, color: "#1a5276" }}>{cur.icon} {cur.label} তালিকা ({filtered.length}টি)</h3>																							
+<input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 খুঁজুন..."																							
+style={{ padding: "6px 12px", border: "1px solid #dde1e7", borderRadius: 8, fontSize: 13, width: 200 }} />																							
+</div>																							
+<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8 }}>																							
+{filtered.map(item => (																							
+<div key={item} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #eee" }}>																							
+<span style={{ fontSize: 13, color: "#2c3e50" }}>{item}</span>																							
+<button onClick={() => removeItem(item)} style={{ background: "none", border: "none", cursor: "pointer", color: "#e74c3c", fontSize: 16, padding: "0 4px" }}>🗑️</button>																							
+</div>																							
+))}																							
+</div>																							
+</Card>																							
+</div>																							
+);																							
+}																							
+																							
+// ══════════════════════════════════════════════════════																							
+//  BILL SEARCH PAGE — বিল / মেমো নম্বর সার্চ																							
+// ══════════════════════════════════════════════════════																							
+function BillSearchPage({ sales, purchases }) {																							
+const [query, setQuery] = useState("");																							
+const [type, setType] = useState("both");																							
+																							
+const q = query.trim().toLowerCase();																							
+																							
+const saleBills = {};																							
+sales.forEach(s => {																							
+const key = s.billId || s.id;																							
+if (!saleBills[key]) saleBills[key] = { key, billNo: s.billNo || "", customer: s.customer, date: s.date, items: [], total: 0, due: 0, profit: 0 };																							
+saleBills[key].items.push(s);																							
+saleBills[key].total += Number(s.total || 0);																							
+saleBills[key].profit += Number(s.profit || 0);																							
+});																							
+Object.values(saleBills).forEach(b => { b.due = b.items[0]?.due || 0; });																							
+																							
+const purchaseMemos = {};																							
+purchases.forEach(p => {																							
+const key = p.memoId || p.id;																							
+if (!purchaseMemos[key]) purchaseMemos[key] = { key, memo: p.memo || "", supplier: p.supplier, date: p.date, items: [], total: 0, due: 0 };																							
+purchaseMemos[key].items.push(p);																							
+purchaseMemos[key].total += Number(p.total || 0);																							
+});																							
+Object.values(purchaseMemos).forEach(m => { m.due = m.items[0]?.due || 0; });																							
+																							
+const matchedSales = q																							
+? Object.values(saleBills).filter(b =>																							
+b.billNo?.toLowerCase().includes(q) ||																							
+b.customer?.toLowerCase().includes(q) ||																							
+b.items.some(i => i.product?.toLowerCase().includes(q))																							
+)																							
+: Object.values(saleBills);																							
+																							
+const matchedPurchases = q																							
+? Object.values(purchaseMemos).filter(m =>																							
+m.memo?.toLowerCase().includes(q) ||																							
+m.supplier?.toLowerCase().includes(q) ||																							
+m.items.some(i => i.product?.toLowerCase().includes(q))																							
+)																							
+: Object.values(purchaseMemos);																							
+																							
+const showSales = type === "both" || type === "sales";																							
+const showPurchase = type === "both" || type === "purchase";																							
+																							
+return (																							
+<div>																							
+{/* সার্চ বক্স */}																							
+<div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16 }}>																							
+<div style={{ fontSize: 18, fontWeight: 800, color: "#1a5276", marginBottom: 6 }}>🔍 বিল / মেমো সার্চ</div>																							
+<div style={{ fontSize: 12, color: "#7f8c8d", marginBottom: 14 }}>																							
+বিল নম্বর, মেমো নম্বর, কাস্টমার নাম, সাপ্লায়ার নাম বা পণ্যের নাম — যেকোনো কিছু লিখুন																							
+</div>																							
+<input																							
+value={query}																							
+onChange={e => setQuery(e.target.value)}																							
+placeholder="🔍 এখানে লিখুন..."																							
+autoFocus																							
+style={{ width: "100%", padding: "14px 18px", border: "2px solid #1a5276", borderRadius: 12, fontSize: 16, fontFamily: "'Noto Sans Bengali', sans-serif", boxSizing: "border-box", outline: "none" }}																							
+/>																							
+																							
+{/* ফিল্টার বাটন */}																							
+<div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>																							
+{[["both","🔄 সব"], ["sales","💰 বিক্রয় বিল"], ["purchase","🛒 ক্রয় মেমো"]].map(([k, l]) => (																							
+<button key={k} onClick={() => setType(k)} style={{																							
+padding: "8px 20px", borderRadius: 20, border: "2px solid #1a5276", cursor: "pointer",																							
+background: type === k ? "#1a5276" : "#fff",																							
+color: type === k ? "#fff" : "#1a5276", fontWeight: 700, fontSize: 13,																							
+fontFamily: "'Noto Sans Bengali', sans-serif"																							
+}}>{l}</button>																							
+))}																							
+{q && (																							
+<div style={{ marginLeft: "auto", alignSelf: "center", padding: "6px 14px", background: "#f0f4f8", borderRadius: 20, fontSize: 12, color: "#1a5276", fontWeight: 600 }}>																							
+{showSales ? matchedSales.length : 0} বিক্রয় + {showPurchase ? matchedPurchases.length : 0} ক্রয় পাওয়া গেছে																							
+</div>																							
+)}																							
+</div>																							
+																							
+{/* দ্রুত উদাহরণ */}																							
+{!q && (																							
+<div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>																							
+<span style={{ fontSize: 12, color: "#aaa" }}>উদাহরণ:</span>																							
+{["101", "102", "KHOLIL", "OSAKA"].map(ex => (																							
+<span key={ex} onClick={() => setQuery(ex)} style={{ fontSize: 12, color: "#1a5276", cursor: "pointer", padding: "2px 10px", background: "#eaf0fb", borderRadius: 10, fontWeight: 600 }}>																							
+{ex}																							
+</span>																							
+))}																							
+</div>																							
+)}																							
+</div>																							
+																							
+{/* বিক্রয় বিল রেজাল্ট */}																							
+{showSales && matchedSales.sort((a, b) => b.date > a.date ? 1 : -1).map(b => (																							
+<div key={b.key} style={{ marginBottom: 12, border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}>																							
+<div style={{ background: "#16a085", padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>																							
+<div style={{ display: "flex", gap: 12, alignItems: "center" }}>																							
+<span style={{ background: "#fff", color: "#16a085", fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 10 }}>💰 বিক্রয়</span>																							
+<span style={{ color: "#fff", fontWeight: 800, fontSize: 15 }}>{b.customer}</span>																							
+{b.billNo && <span style={{ background: "#0e7a63", color: "#fff", fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 8 }}>বিল #{b.billNo}</span>}																							
+<span style={{ color: "#a8e6cf", fontSize: 12 }}>{fmtDate(b.date)}</span>																							
+</div>																							
+<div style={{ display: "flex", gap: 16 }}>																							
+<span style={{ color: "#fff", fontWeight: 700 }}>মোট: ৳{fmtNum(b.total)}</span>																							
+{b.profit !== 0 && <span style={{ color: b.profit >= 0 ? "#a8e6cf" : "#ffcccc", fontWeight: 700 }}>লাভ: ৳{fmtNum(b.profit)}</span>}																							
+<span style={{ color: b.due > 0 ? "#ffe082" : "#a8e6cf", fontWeight: 700 }}>বাকি: ৳{fmtNum(b.due)}</span>																							
+</div>																							
+</div>																							
+{b.items.map((s, i) => (																							
+<div key={i} style={{ display: "flex", gap: 16, padding: "9px 16px", background: i % 2 === 0 ? "#f8fafc" : "#fff", fontSize: 13, borderBottom: "1px solid #f0f0f0" }}>																							
+<span style={{ flex: 2 }}>💡 {s.product}</span>																							
+<span style={{ color: "#7f8c8d" }}>×{s.qty} পিস</span>																							
+<span>৳{fmtNum(s.price)}/পিস</span>																							
+{Number(s.profit) !== 0 && <span style={{ color: s.profit >= 0 ? "#27ae60" : "#e74c3c", fontWeight: 600 }}>লাভ: ৳{fmtNum(s.profit)}</span>}																							
+<span style={{ marginLeft: "auto", fontWeight: 700 }}>৳{fmtNum(s.total)}</span>																							
+</div>																							
+))}																							
+</div>																							
+))}																							
+																							
+{/* ক্রয় মেমো রেজাল্ট */}																							
+{showPurchase && matchedPurchases.sort((a, b) => b.date > a.date ? 1 : -1).map(m => (																							
+<div key={m.key} style={{ marginBottom: 12, border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}>																							
+<div style={{ background: "#1a3a5c", padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>																							
+<div style={{ display: "flex", gap: 12, alignItems: "center" }}>																							
+<span style={{ background: "#fff", color: "#1a3a5c", fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 10 }}>🛒 ক্রয়</span>																							
+<span style={{ color: "#fff", fontWeight: 800, fontSize: 15 }}>{m.supplier}</span>																							
+{m.memo && <span style={{ background: "#2c5282", color: "#fff", fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 8 }}>মেমো #{m.memo}</span>}																							
+<span style={{ color: "#94a3b8", fontSize: 12 }}>{fmtDate(m.date)}</span>																							
+</div>																							
+<div style={{ display: "flex", gap: 16 }}>																							
+<span style={{ color: "#2ecc71", fontWeight: 700 }}>মোট: ৳{fmtNum(m.total)}</span>																							
+<span style={{ color: m.due > 0 ? "#ff9f43" : "#2ecc71", fontWeight: 700 }}>বাকি: ৳{fmtNum(m.due)}</span>																							
+</div>																							
+</div>																							
+{m.items.map((p, i) => (																							
+<div key={i} style={{ display: "flex", gap: 16, padding: "9px 16px", background: i % 2 === 0 ? "#f8fafc" : "#fff", fontSize: 13, borderBottom: "1px solid #f0f0f0" }}>																							
+<span style={{ flex: 2 }}>📦 {p.product}</span>																							
+<span style={{ color: "#7f8c8d" }}>×{p.qty} পিস</span>																							
+<span>৳{fmtNum(p.price)}/পিস</span>																							
+<span style={{ marginLeft: "auto", fontWeight: 700 }}>৳{fmtNum(p.total)}</span>																							
+</div>																							
+))}																							
+</div>																							
+))}																							
+																							
+{q && matchedSales.length === 0 && matchedPurchases.length === 0 && (																							
+<div style={{ textAlign: "center", padding: 48, color: "#7f8c8d", background: "#fff", borderRadius: 12 }}>																							
+<div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>																							
+<div style={{ fontSize: 15, fontWeight: 600 }}>"{query}" — কোনো রেজাল্ট নেই</div>																							
+</div>																							
+)}																							
+																							
+{!q && Object.keys(saleBills).length === 0 && Object.keys(purchaseMemos).length === 0 && (																							
+<div style={{ textAlign: "center", padding: 48, color: "#94a3b8", background: "#fff", borderRadius: 12 }}>																							
+<div style={{ fontSize: 48, marginBottom: 12 }}>🔍</div>																							
+<div style={{ fontSize: 15 }}>উপরে বিল নম্বর বা মেমো নম্বর লিখুন</div>																							
+</div>																							
+)}																							
+</div>																							
+);																							
+}																							
